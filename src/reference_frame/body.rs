@@ -18,6 +18,18 @@ pub struct Body<T: Float>{
     pub lever_arm: Cartesian<T, Body<T>>,
 }
 
+impl<T:Float> Body<T>{
+    pub fn new(mass_center: Cartesian<T, Body<T>>, lever_arm: Cartesian<T, Body<T>>)->Self{
+        Self { mass_center: mass_center, lever_arm: lever_arm}
+    }
+}
+
+impl<T: Float + Default> Default for Body<T> {
+    fn default() -> Self {
+        Self { mass_center: Cartesian::default(), lever_arm: Cartesian::default() }
+    }
+}
+
 // Implement ReferenceFrame for Body<T>
 impl<T: Float> ReferenceFrame for Body<T> {}
 
