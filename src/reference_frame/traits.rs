@@ -1,17 +1,20 @@
 use num_traits::Float;
 use crate::attitude::Quaternion;
+use crate::coordinate::Cartesian;
 use crate::math::Vector;
 
 /// Marker trait for any frame (inertial or rotating)
-pub trait ReferenceFrame {}
+pub trait ReferenceFrame {
+    
+}
 
 /// Trait for fixed (non-rotating) frames
 pub trait FixedFrame<T: Float> : ReferenceFrame {}
 
 /// Trait for rotating frames with time-dependent orientation
-pub trait RotatingFrame<T: Float>: ReferenceFrame {
+pub trait RotatingFrame<T: Float, RF: ReferenceFrame> {
     /// Angular velocity in the body-fixed frame
-    fn angular_velocity(&self) -> Vector<T, 3>;
+    fn angular_velocity(&self) -> Cartesian<T, RF>;
 
     /// Epoch of the angular velocity
     fn epoch(&self) -> T;

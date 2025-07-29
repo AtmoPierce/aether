@@ -1,4 +1,5 @@
 use crate::math::Vector;
+use crate::reference_frame::ReferenceFrame;
 use num_traits::Float;
 use crate::attitude::{Quaternion, DirectionCosineMatrix};
 use core::ops::{Mul};
@@ -27,10 +28,10 @@ impl<T: Float> Rotation<T> {
     }
 }
 
-impl<T: Float> TryFrom<&DirectionCosineMatrix<T>> for Rotation<T> {
+impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMatrix<T, A, B>> for Rotation<T> {
     type Error = ();
 
-    fn try_from(dcm: &DirectionCosineMatrix<T>) -> Result<Self, Self::Error> {
+    fn try_from(dcm: &DirectionCosineMatrix<T, A, B>) -> Result<Self, Self::Error> {
         Quaternion::try_from(dcm).map(Self::from_quaternion)
     }
 }

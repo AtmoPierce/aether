@@ -1,39 +1,50 @@
 use super::euler::Euler;
 use super::quaternion::Quaternion;
-use crate::math::Matrix;
+use crate::{math::Matrix, reference_frame::ReferenceFrame};
 use num_traits::Float;
 use core::ops::{Mul, Add, Sub, Neg, Div};
+use core::marker::PhantomData;
 
 #[derive(Debug, Clone, Copy, Default)]
-pub struct DirectionCosineMatrix<T: Float> {
+pub struct DirectionCosineMatrix<T: Float, From: ReferenceFrame, To: ReferenceFrame> {
     data: Matrix<T, 3, 3>, // still private
+    _from: PhantomData<From>,
+    _to: PhantomData<To>
 }
 
-impl<T: Float> DirectionCosineMatrix<T> {
+impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T, From, To> {
     pub fn new(
         m11: T, m12: T, m13: T,
         m21: T, m22: T, m23: T,
         m31: T, m32: T, m33: T,
     ) -> Self {
+        let data = Matrix {
+            data: [
+                [m11, m12, m13],
+                [m21, m22, m23],
+                [m31, m32, m33],
+            ],
+        };
+
         Self {
-            data: Matrix {
-                data: [
-                    [m11, m12, m13],
-                    [m21, m22, m23],
-                    [m31, m32, m33],
-                ],
-            }
+            data,
+            _from: PhantomData,
+            _to: PhantomData,
         }
     }
 
-    pub fn from_matrix(mat3: Matrix<T, 3, 3>) -> Self {
-        Self { data: mat3 }
+    pub fn from_matrix(data: Matrix<T, 3, 3>) -> Self {
+        Self {
+            data,
+            _from: PhantomData::<From>,
+            _to: PhantomData::<To>,
+        }
     }
 
     pub fn as_matrix(&self) -> &Matrix<T, 3, 3> {
         &self.data
     }
-    
+
     pub fn rotate_x(angle: T) -> Self {
         let (c, s) = (angle.cos(), angle.sin());
         let data: [[T; 3]; 3] = [
@@ -41,7 +52,7 @@ impl<T: Float> DirectionCosineMatrix<T> {
             [T::zero(), c, s],
             [T::zero(), -s, c],
         ];
-        Self { data: Matrix { data } }
+        Self { data: Matrix { data }, _from: PhantomData, _to: PhantomData}
     }
 
     pub fn rotate_y(angle: T) -> Self {
@@ -51,7 +62,7 @@ impl<T: Float> DirectionCosineMatrix<T> {
             [T::zero(), T::one(), T::zero()],
             [s, T::zero(), c],
         ];
-        Self { data: Matrix { data } }
+        Self { data: Matrix { data }, _from: PhantomData, _to: PhantomData }
     }
 
     pub fn rotate_z(angle: T) -> Self {
@@ -62,48 +73,46 @@ impl<T: Float> DirectionCosineMatrix<T> {
             [-s, c, T::zero()],
             [T::zero(), T::zero(), T::one()],
         ];
-        Self { data: Matrix { data } }
+        Self { data: Matrix { data }, _from: PhantomData, _to: PhantomData }
     }
 
 }
 
-// Operators
-// Scalar multiplication: DCM * scalar
-impl<T: Float> Mul<T> for DirectionCosineMatrix<T> {
-    type Output = Self;
-    fn mul(self, rhs: T) -> Self {
-        Self{
-            data: self.data * rhs
-        }
-    }
-}
-impl<T: Float + Mul<Output = T> + Add<Output = T> + Copy + Default> Mul for DirectionCosineMatrix<T> {
-    type Output = Self;
-    fn mul(self, rhs: Self) -> Self::Output {
-        Self {
-            data: self.data * rhs.data, // Now valid
-        }
+impl<T, A, B, C> Mul<DirectionCosineMatrix<T, B, C>> for DirectionCosineMatrix<T, A, B>
+where
+    T: Float,
+    A: ReferenceFrame,
+    B: ReferenceFrame,
+    C: ReferenceFrame,
+{
+    type Output = DirectionCosineMatrix<T, A, C>;
+
+    fn mul(self, rhs: DirectionCosineMatrix<T, B, C>) -> Self::Output {
+        let lhs: Matrix<T, 3, 3> = self.data;
+        let rhs: Matrix<T, 3, 3> = rhs.data;
+        let data: Matrix<T, 3, 3> = lhs * rhs;
+        DirectionCosineMatrix::from_matrix(data)
     }
 }
 
 // From
-impl<T> From<Euler<T>> for DirectionCosineMatrix<T>
+impl<T, A: ReferenceFrame, B: ReferenceFrame> From<Euler<T>> for DirectionCosineMatrix<T, A, B>
 where
     T: Float + Mul<Output = T> + Add<Output = T> + Copy + Default,
 {
     fn from(euler: Euler<T>) -> Self {
         // ZYX Convention
         let [phi, theta, psi] = euler.data.data;
-        let rx = DirectionCosineMatrix::rotate_x(phi);
-        let ry = DirectionCosineMatrix::rotate_y(theta);
-        let rz = DirectionCosineMatrix::rotate_z(psi);
+        let rx: DirectionCosineMatrix<T, _, B> = DirectionCosineMatrix::rotate_x(phi);
+        let ry: DirectionCosineMatrix<T, _, B> = DirectionCosineMatrix::rotate_y(theta);
+        let rz: DirectionCosineMatrix<T, _, B> = DirectionCosineMatrix::rotate_z(psi);
         let c = rz * ry * rx;
 
         return c;
     }
 }
 
-impl<T: Float> From<Quaternion<T>> for DirectionCosineMatrix<T> {
+impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<Quaternion<T>> for DirectionCosineMatrix<T, A, B> {
     fn from(q: Quaternion<T>) -> Self {
         let s = q.data.data[0];
         let i= q.data.data[1];
@@ -133,19 +142,22 @@ impl<T: Float> From<Quaternion<T>> for DirectionCosineMatrix<T> {
                 sp2 - ip2 - jp2 + kp2
             ],
         ];
-        Self { data: Matrix { data } }
+        Self { data: Matrix { data }, _from: PhantomData, _to: PhantomData }
     }
 }
-impl<T: Float> From<&Matrix<T, 3, 3>> for DirectionCosineMatrix<T> {
+
+impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<&Matrix<T, 3, 3>> for DirectionCosineMatrix<T, A, B> {
     fn from(m: &Matrix<T, 3, 3>) -> Self {
         Self {
-            data: *m
+            data: *m,
+            _from: PhantomData,
+            _to: PhantomData
         }
     }
 }
 
 #[cfg(feature = "std")]
-impl<T: Float + std::fmt::Display> std::fmt::Display for DirectionCosineMatrix<T> {
+impl<T: Float + std::fmt::Display, A: ReferenceFrame, B: ReferenceFrame> std::fmt::Display for DirectionCosineMatrix<T, A, B> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.data)
     }

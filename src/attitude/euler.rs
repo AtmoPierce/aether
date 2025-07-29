@@ -1,4 +1,5 @@
 use crate::math::Vector;
+use crate::reference_frame::ReferenceFrame;
 use num_traits::Float;
 use crate::utils::angle_conversion::{ToDegrees, ToRadians};
 use crate::attitude::{Quaternion, DirectionCosineMatrix};
@@ -48,8 +49,8 @@ impl<T: Float> From<&Quaternion<T>> for Euler<T> {
     }
 }
 
-impl<T: Float> From<&DirectionCosineMatrix<T>> for Euler<T> {
-    fn from(dcm: &DirectionCosineMatrix<T>) -> Self {
+impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<&DirectionCosineMatrix<T, A, B>> for Euler<T> {
+    fn from(dcm: &DirectionCosineMatrix<T, A, B>) -> Self {
         let m = &dcm.as_matrix().data;
         let yaw = (m[0][1]/m[0][0]).atan();
         let pitch = -(m[0][2]).asin();

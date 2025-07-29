@@ -1,6 +1,9 @@
 use super::cylindrical::Cylindrical;
 use super::spherical::Spherical;
+use crate::attitude::Quaternion;
 use crate::math::{Vector, Matrix};
+use crate::reference_frame::ReferenceFrame;
+
 use num_traits::Float;
 use core::marker::PhantomData; // Reference frame tracking.
 
@@ -10,13 +13,20 @@ pub struct Cartesian<T: Float, ReferenceFrame> {
     pub _reference_frame: PhantomData<ReferenceFrame>
 }
 
-impl<T: Float, ReferenceFrame> Cartesian<T, ReferenceFrame>{
+impl<T: Float, RF: ReferenceFrame> Cartesian<T, RF>{
     pub fn new(x: T, y: T, z: T) -> Self {
         Self { data: Vector { data: [x, y, z] }, _reference_frame: PhantomData }
     }
     pub fn x(&self) -> T{ self.data.data[0] }
     pub fn y(&self) -> T{ self.data.data[1] }
     pub fn z(&self) -> T{ self.data.data[2] }
+
+    pub fn transform<To: ReferenceFrame>(&self, q_from_to: Quaternion<T>) -> Cartesian<T, To> {
+        Cartesian {
+            data: q_from_to.rotate_vector(self.data),
+            _reference_frame: PhantomData::<To>,
+        }
+    }
 }
 
 
@@ -174,6 +184,23 @@ impl<T: Float + Copy, RF> Div<T> for Cartesian<T, RF> {
         }
     }
 }
+// Indexing
+use core::ops::{Index, IndexMut};
+
+impl<T: Float, ReferenceFrame> Index<usize> for Cartesian<T, ReferenceFrame> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data.data[index]
+    }
+}
+
+impl<T: Float, ReferenceFrame> IndexMut<usize> for Cartesian<T, ReferenceFrame> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data.data[index]
+    }
+}
+
 impl<'a, T: Float + Copy, RF> Div<T> for &'a Cartesian<T, RF>
 where
     Cartesian<T, RF>: Clone,
@@ -197,7 +224,7 @@ impl<T: Float + Copy + Default, F> Mul<Cartesian<T, F>> for Matrix<T, 3, 3> {
 
 
 // Conversions
-impl<T: Float, ReferenceFrame> From<&Spherical<T>> for Cartesian<T, ReferenceFrame> {
+impl<T: Float, RF: ReferenceFrame> From<&Spherical<T>> for Cartesian<T, RF> {
     fn from(p: &Spherical<T>) -> Self {
         let r = p.r();
         let phi = p.phi();     // azimuth
@@ -210,7 +237,7 @@ impl<T: Float, ReferenceFrame> From<&Spherical<T>> for Cartesian<T, ReferenceFra
     }
 }
 
-impl<T: Float, ReferenceFrame> From<&Cylindrical<T>> for Cartesian<T, ReferenceFrame>{
+impl<T: Float, RF: ReferenceFrame> From<&Cylindrical<T>> for Cartesian<T, RF>{
     fn from(c: &Cylindrical<T>) -> Self {
         let x = c.r()*c.theta().cos();
         let y = c.r()*c.theta().sin();

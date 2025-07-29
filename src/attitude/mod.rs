@@ -12,13 +12,15 @@ pub mod tests;
 
 pub mod attitude{
     use num_traits::Float;
+    use crate::reference_frame::ReferenceFrame;
+
     use super::dcm::DirectionCosineMatrix;
     use super::euler::Euler;
     use super::quaternion::Quaternion;
-    pub enum Rotation<T> 
+    pub enum Rotation<T, From: ReferenceFrame, To: ReferenceFrame> 
         where T: Float
             {
-            DCMRotation(DirectionCosineMatrix<T>),
+            DCMRotation(DirectionCosineMatrix<T, From, To>),
             EulerRotation(Euler<T>),
             QuaternionRotation(Quaternion<T>),
     }

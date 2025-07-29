@@ -1,5 +1,5 @@
 use super::vector::Vector;
-use num_traits::Float;
+use num_traits::{Float, Zero, zero};
 use core::ops::{Add, Sub, Mul, Div, Neg};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -56,23 +56,6 @@ where
     }
 }
 
-// Scalar multiplication
-impl<T, const M: usize, const N: usize> Mul<T> for Matrix<T, M, N>
-where
-    T: Float + Mul<Output = T> + Copy,
-{
-    type Output = Self;
-    fn mul(self, rhs: T) -> Self {
-        let mut result = self;
-        for r in 0..M {
-            for c in 0..N {
-                result.data[r][c] = self.data[r][c] * rhs;
-            }
-        }
-        result
-    }
-}
-
 // Scalar division
 impl<T, const M: usize, const N: usize> Div<T> for Matrix<T, M, N>
 where
@@ -107,16 +90,42 @@ where
     }
 }
 
+// Scalar multiplication
+impl<U, S, const M: usize, const N: usize> Mul<S> for Matrix<U, M, N>
+where
+    U: Float + Mul<S, Output = U> + Copy,
+    S: Copy,
+    S: num_traits::Num + core::marker::Sized,
+    // Prevent overlap: S must not be a Matrix
+    // This uses a negative trait bound, which is not yet stable in Rust,
+    // so we use a trait bound that will not be satisfied for Matrix types.
+    // For practical purposes, we can add a bound that S: num_traits::Num, which Matrix does not implement.
+{
+    type Output = Matrix<U, M, N>;
+
+    fn mul(self, rhs: S) -> Self::Output {
+        let mut result = self;
+        for r in 0..M {
+            for c in 0..N {
+                result.data[r][c] = self.data[r][c] * rhs;
+            }
+        }
+        result
+    }
+}
+
 // Matrix multiplication
 impl<T, const M: usize, const N: usize, const P: usize> Mul<Matrix<T, N, P>> for Matrix<T, M, N>
 where
-    T: Float + Mul<Output = T> + Add<Output = T> + Copy + Default,
+    T: Float + Mul<Output = T> + Add<Output = T> + Copy + num_traits::Zero,
 {
     type Output = Matrix<T, M, P>;
+
     fn mul(self, rhs: Matrix<T, N, P>) -> Matrix<T, M, P> {
         let mut result = Matrix {
-            data: [[T::default(); P]; M],
+            data: [[T::zero(); P]; M],
         };
+
         for i in 0..M {
             for j in 0..P {
                 let mut sum = T::zero();
@@ -126,6 +135,7 @@ where
                 result.data[i][j] = sum;
             }
         }
+
         result
     }
 }
@@ -133,11 +143,13 @@ where
 // Matrix × Vector multiplication
 impl<T, const M: usize, const N: usize> Mul<Vector<T, N>> for Matrix<T, M, N>
 where
-    T: Float + Mul<Output = T> + Add<Output = T> + Copy + Default,
+    T: Float + Mul<Output = T> + Add<Output = T> + Copy + num_traits::Zero,
 {
     type Output = Vector<T, M>;
+
     fn mul(self, rhs: Vector<T, N>) -> Vector<T, M> {
-        let mut result = Vector { data: [T::default(); M] };
+        let mut result = Vector { data: [T::zero(); M] };
+
         for i in 0..M {
             let mut sum = T::zero();
             for j in 0..N {
@@ -145,6 +157,7 @@ where
             }
             result.data[i] = sum;
         }
+
         result
     }
 }
@@ -184,9 +197,23 @@ where
     }
 }
 
-impl<T: Copy + core::ops::AddAssign + Default, const N: usize> Matrix<T, N, N> {
+impl<T, const M: usize, const N: usize> Matrix<T, M, N>
+where T: Copy + Default + num_traits::Zero,
+{
+    pub fn transpose(&self) -> Matrix<T, N, M> {
+        let mut out = [[T::zero(); M]; N];
+        for i in 0..M {
+            for j in 0..N {
+                out[j][i] = self.data[i][j];
+            }
+        }
+        Matrix { data: out }
+    }
+}
+
+impl<T: Copy + core::ops::AddAssign + Default + num_traits::Zero, const N: usize> Matrix<T, N, N> {
     pub fn trace(&self) -> T {
-        let mut sum = T::default();
+        let mut sum = T::zero();
         for i in 0..N {
             sum += self.data[i][i];
         }
@@ -246,6 +273,40 @@ impl<T: Float + Copy + Default> Matrix<T, 3, 3> {
         Some(Matrix::new(inv))
     }
 }
+// Larger size matrices to come through LU Decomp or Laplace expansion, need to research.
+impl<T: Float + Copy> Matrix<T, 3, 3> {
+    pub fn inverse(&self) -> Option<Self> {
+        let m = &self.data;
+
+        let det = self.determinant();
+        if det == T::zero() {
+            return None;
+        }
+
+        // Cofactor matrix
+        let c00 =  m[1][1] * m[2][2] - m[1][2] * m[2][1];
+        let c01 = -(m[1][0] * m[2][2] - m[1][2] * m[2][0]);
+        let c02 =  m[1][0] * m[2][1] - m[1][1] * m[2][0];
+
+        let c10 = -(m[0][1] * m[2][2] - m[0][2] * m[2][1]);
+        let c11 =  m[0][0] * m[2][2] - m[0][2] * m[2][0];
+        let c12 = -(m[0][0] * m[2][1] - m[0][1] * m[2][0]);
+
+        let c20 =  m[0][1] * m[1][2] - m[0][2] * m[1][1];
+        let c21 = -(m[0][0] * m[1][2] - m[0][2] * m[1][0]);
+        let c22 =  m[0][0] * m[1][1] - m[0][1] * m[1][0];
+
+        // Adjugate is the transpose of the cofactor matrix
+        let adjugate = Self::new([
+            [c00, c10, c20],
+            [c01, c11, c21],
+            [c02, c12, c22],
+        ]);
+
+        Some(adjugate / det)
+    }
+}
+
 
 // Behavior
 use core::ops::{Index, IndexMut};

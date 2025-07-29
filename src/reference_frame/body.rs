@@ -1,10 +1,7 @@
-//! Body reference frame
-//!
-//! In this context, the `Body` frame is assumed to be a fixed frame relative to the object it is attached to.
-//! It moves with the object (e.g., a spacecraft or aircraft), but it does not rotate independently.
-//! Instead, its orientation is typically defined by the simulation state, such as quaternions or DCMs,
-//! and evolves externally as the object moves through space.
-
+//! The `Body` frame moves with the object (e.g., spacecraft), and its orientation
+//! is defined externally (e.g., from a quaternion in the simulation state).
+//! It is treated as a `FixedFrame` in this context, meaning the transformation to
+//! inertial or world frames must be provided by the surrounding system.
 use crate::reference_frame::{FixedFrame, ReferenceFrame};
 use crate::coordinate::Cartesian;
 use num_traits::Float;

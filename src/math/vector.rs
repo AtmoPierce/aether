@@ -7,7 +7,6 @@ pub struct Vector<T, const N: usize> {
     pub data: [T; N],
 }
 
-
 impl<T: Default + Copy, const N: usize> Default for Vector<T, N> {
     fn default() -> Self {
         Self {
