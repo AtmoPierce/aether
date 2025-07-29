@@ -8,14 +8,14 @@ pub trait TrapezoidalIntegrate {
     fn integrate_trapezoidal(&self, last: &Self, dt: Self::Scalar) -> Self;
 }
 
-impl<T: Float + Copy, const N: usize> TrapezoidalIntegrate for Vector<T, N> {
+impl<T: Float + Copy + Clone, const N: usize> TrapezoidalIntegrate for Vector<T, N> {
     type Scalar = T;
     fn integrate_trapezoidal(&self, last: &Self, dt: T) -> Self {
         (*self + *last) * T::from(0.5).unwrap() * dt
     }
 }
 
-impl<T: Float + Copy, RF: Clone> TrapezoidalIntegrate for Cartesian<T, RF> {
+impl<T: Float + Copy + Clone, RF: Clone> TrapezoidalIntegrate for Cartesian<T, RF> {
     type Scalar = T;
     fn integrate_trapezoidal(&self, last: &Self, dt: T) -> Self {
         Cartesian {

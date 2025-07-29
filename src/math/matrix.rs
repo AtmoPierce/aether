@@ -184,20 +184,6 @@ where
     }
 }
 
-impl<T, const M: usize, const N: usize> Matrix<T, M, N>
-where T: Copy + Default,
-{
-    pub fn transpose(&self) -> Matrix<T, N, M> {
-        let mut out = [[T::default(); M]; N];
-        for i in 0..M {
-            for j in 0..N {
-                out[j][i] = self.data[i][j];
-            }
-        }
-        Matrix { data: out }
-    }
-}
-
 impl<T: Copy + core::ops::AddAssign + Default, const N: usize> Matrix<T, N, N> {
     pub fn trace(&self) -> T {
         let mut sum = T::default();
@@ -222,11 +208,47 @@ impl<T: Float + Copy> Matrix<T, 3, 3> {
       + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
     }
 }
-// Larger size matrices to come through LU Decomp or Laplace expansion, need to research.
+impl<T: Float + Copy + Default> Matrix<T, 3, 3> {
+    pub fn transpose(&self) -> Self {
+        let mut result = Matrix::zeros();
+        for i in 0..3 {
+            for j in 0..3 {
+                result[(i, j)] = self[(j, i)];
+            }
+        }
+        result
+    }
+
+    pub fn inverse(&self) -> Option<Self> {
+        let m = &self.data;
+
+        let det = self.determinant();
+        if det.abs() <= T::epsilon() {
+            return None; // Singular matrix
+        }
+
+        let inv_det = T::one() / det;
+
+        let mut inv = [[T::zero(); 3]; 3];
+
+        inv[0][0] =  (m[1][1] * m[2][2] - m[1][2] * m[2][1]) * inv_det;
+        inv[0][1] = -(m[0][1] * m[2][2] - m[0][2] * m[2][1]) * inv_det;
+        inv[0][2] =  (m[0][1] * m[1][2] - m[0][2] * m[1][1]) * inv_det;
+
+        inv[1][0] = -(m[1][0] * m[2][2] - m[1][2] * m[2][0]) * inv_det;
+        inv[1][1] =  (m[0][0] * m[2][2] - m[0][2] * m[2][0]) * inv_det;
+        inv[1][2] = -(m[0][0] * m[1][2] - m[0][2] * m[1][0]) * inv_det;
+
+        inv[2][0] =  (m[1][0] * m[2][1] - m[1][1] * m[2][0]) * inv_det;
+        inv[2][1] = -(m[0][0] * m[2][1] - m[0][1] * m[2][0]) * inv_det;
+        inv[2][2] =  (m[0][0] * m[1][1] - m[0][1] * m[1][0]) * inv_det;
+
+        Some(Matrix::new(inv))
+    }
+}
 
 // Behavior
 use core::ops::{Index, IndexMut};
-
 impl<T, const M: usize, const N: usize> Index<(usize, usize)> for Matrix<T, M, N> {
     type Output = T;
 

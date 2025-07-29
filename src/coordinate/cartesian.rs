@@ -1,6 +1,6 @@
 use super::cylindrical::Cylindrical;
 use super::spherical::Spherical;
-use crate::math::Vector;
+use crate::math::{Vector, Matrix};
 use num_traits::Float;
 use core::marker::PhantomData; // Reference frame tracking.
 
@@ -19,6 +19,19 @@ impl<T: Float, ReferenceFrame> Cartesian<T, ReferenceFrame>{
     pub fn z(&self) -> T{ self.data.data[2] }
 }
 
+
+// If you want a cross product method, add it to the main impl block:
+impl<T: Float, ReferenceFrame> Cartesian<T, ReferenceFrame> {
+    pub fn cross(&self, rhs: &Self) -> Self {
+        Self {
+            data: self.data.cross(&rhs.data),
+            _reference_frame: PhantomData,
+        }
+    }
+    pub fn norm(&self)->T{
+        self.data.norm()
+    }
+}
 
 use core::ops::{Add, AddAssign, Sub, SubAssign, Neg, Mul, Div};
 // ----- Add -----
@@ -170,6 +183,18 @@ where
         self.clone() / rhs
     }
 }
+
+impl<T: Float + Copy + Default, F> Mul<Cartesian<T, F>> for Matrix<T, 3, 3> {
+    type Output = Cartesian<T, F>;
+    fn mul(self, rhs: Cartesian<T, F>) -> Self::Output {
+        let v = self * rhs.data; // Use existing `Matrix * Vector` implementation
+        Cartesian {
+            data: v,
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
 
 // Conversions
 impl<T: Float, ReferenceFrame> From<&Spherical<T>> for Cartesian<T, ReferenceFrame> {
