@@ -197,20 +197,6 @@ where
     }
 }
 
-impl<T, const M: usize, const N: usize> Matrix<T, M, N>
-where T: Copy + Default + num_traits::Zero,
-{
-    pub fn transpose(&self) -> Matrix<T, N, M> {
-        let mut out = [[T::zero(); M]; N];
-        for i in 0..M {
-            for j in 0..N {
-                out[j][i] = self.data[i][j];
-            }
-        }
-        Matrix { data: out }
-    }
-}
-
 impl<T: Copy + core::ops::AddAssign + Default + num_traits::Zero, const N: usize> Matrix<T, N, N> {
     pub fn trace(&self) -> T {
         let mut sum = T::zero();
@@ -273,40 +259,6 @@ impl<T: Float + Copy + Default> Matrix<T, 3, 3> {
         Some(Matrix::new(inv))
     }
 }
-// Larger size matrices to come through LU Decomp or Laplace expansion, need to research.
-impl<T: Float + Copy> Matrix<T, 3, 3> {
-    pub fn inverse(&self) -> Option<Self> {
-        let m = &self.data;
-
-        let det = self.determinant();
-        if det == T::zero() {
-            return None;
-        }
-
-        // Cofactor matrix
-        let c00 =  m[1][1] * m[2][2] - m[1][2] * m[2][1];
-        let c01 = -(m[1][0] * m[2][2] - m[1][2] * m[2][0]);
-        let c02 =  m[1][0] * m[2][1] - m[1][1] * m[2][0];
-
-        let c10 = -(m[0][1] * m[2][2] - m[0][2] * m[2][1]);
-        let c11 =  m[0][0] * m[2][2] - m[0][2] * m[2][0];
-        let c12 = -(m[0][0] * m[2][1] - m[0][1] * m[2][0]);
-
-        let c20 =  m[0][1] * m[1][2] - m[0][2] * m[1][1];
-        let c21 = -(m[0][0] * m[1][2] - m[0][2] * m[1][0]);
-        let c22 =  m[0][0] * m[1][1] - m[0][1] * m[1][0];
-
-        // Adjugate is the transpose of the cofactor matrix
-        let adjugate = Self::new([
-            [c00, c10, c20],
-            [c01, c11, c21],
-            [c02, c12, c22],
-        ]);
-
-        Some(adjugate / det)
-    }
-}
-
 
 // Behavior
 use core::ops::{Index, IndexMut};
