@@ -5,7 +5,7 @@ use crate::math::Vector;
 use num_traits::Float;
 use core::marker::PhantomData;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct ITRF<T: Float> {
     pub epoch: T,
 }

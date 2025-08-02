@@ -27,3 +27,4 @@ pub trait RotatingFrame<T: Float, RF: ReferenceFrame> {
 pub trait RotationBetween<T: Float, FROM: ReferenceFrame, TO: ReferenceFrame> {
     fn rotation(t: T) -> Quaternion<T>;
 }
+

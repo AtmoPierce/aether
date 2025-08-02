@@ -7,7 +7,7 @@ use crate::reference_frame::ReferenceFrame;
 use num_traits::Float;
 use core::marker::PhantomData; // Reference frame tracking.
 
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Cartesian<T: Float, ReferenceFrame> {
     pub data: Vector<T, 3>,
     pub _reference_frame: PhantomData<ReferenceFrame>

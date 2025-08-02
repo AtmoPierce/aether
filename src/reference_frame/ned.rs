@@ -3,10 +3,11 @@ use crate::coordinate::Cartesian;
 use num_traits::Float;
 
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct NED{
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
+pub struct NED<T: Float>{
+    pub origin: T
 }
 
-impl ReferenceFrame for NED {}
+impl<T: Float> ReferenceFrame for NED<T>{}
 
-impl<T: Float> FixedFrame<T> for NED{}
+impl<T: Float> FixedFrame<T> for NED<T>{}
