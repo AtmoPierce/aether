@@ -41,6 +41,9 @@ impl<T: Float, ReferenceFrame> Cartesian<T, ReferenceFrame> {
     pub fn norm(&self)->T{
         self.data.norm()
     }
+    pub fn magnitude(&self)->T{
+        self.data.norm()
+    }
 }
 
 use core::ops::{Add, AddAssign, Sub, SubAssign, Neg, Mul, Div};
@@ -246,3 +249,20 @@ impl<T: Float, RF: ReferenceFrame> From<&Cylindrical<T>> for Cartesian<T, RF>{
     }
 }
 
+// Print/Display
+use core::fmt;
+impl<T, RF> fmt::Display for Cartesian<T, RF>
+where
+    T: Float + fmt::Display,
+    RF: ReferenceFrame,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Cartesian [x,y,z]: [{}, {}, {}]",
+            self.data.data[0],
+            self.data.data[1],
+            self.data.data[2]
+        )
+    }
+}

@@ -1,6 +1,6 @@
-![MATRSLAB](docs/logo.png)
+![Aether](docs/logo.png)
 
-**MATRSLAB** is a Rust-native, no_std-friendly linear algebra library and interactive “lab” for vectors and matrices.  
+**Aether** is a Rust-native, no_std-friendly linear algebra library and interactive “lab” for vectors and matrices.  
 It provides statically-typed, stack-allocated types, operator overloading, and an optional interactive REPL (Read-Eval-Print Loop) for hands-on computations and experimentation.
 
 ---
@@ -21,14 +21,14 @@ It provides statically-typed, stack-allocated types, operator overloading, and a
 
 > **Note:**  
 > The interactive REPL supports a subset of the available operations and types for demonstration and convenience.  
-> **All operations are available and fully supported when using MATRSLAB as a Rust library.**
+> **All operations are available and fully supported when using Aether as a Rust library.**
 
 ---
 
 ## Library Example
 
 ```rust
-use matrslab::{Vector, Matrix};
+use aether::{Vector, Matrix};
 
 fn main() {
     let v1 = Vector::<f64, 3> { data: [1.0, 2.0, 3.0] };

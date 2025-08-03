@@ -212,6 +212,9 @@ where
         }
         acc.sqrt()
     }
+    pub fn magnitude(&self) -> T {
+        self.norm()
+    }
     pub fn angle(&self, rhs: &Self) -> T {
         let dot = self.dot(rhs);
         let denom = self.norm() * rhs.norm();

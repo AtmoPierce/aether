@@ -1,6 +1,6 @@
 use super::euler::Euler;
 use super::quaternion::Quaternion;
-use crate::{math::Matrix, reference_frame::ReferenceFrame};
+use crate::{math::Matrix, reference_frame::ReferenceFrame, coordinate::Cartesian};
 use num_traits::Float;
 use core::ops::{Mul, Add, Sub, Neg, Div};
 use core::marker::PhantomData;
@@ -155,6 +155,34 @@ impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<&Matrix<T, 3, 3>> for 
         }
     }
 }
+
+// Cartesian Handling
+impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> 
+    Mul<Cartesian<T, From>> for DirectionCosineMatrix<T, From, To> 
+{
+    type Output = Cartesian<T, To>;
+
+    fn mul(self, rhs: Cartesian<T, From>) -> Self::Output {
+        Cartesian {
+            data: self.data * rhs.data,
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
+// Behavior
+impl<T: Float + Copy, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T, From, To> {
+    pub fn m11(&self) -> T { self.data[(0, 0)] }
+    pub fn m12(&self) -> T { self.data[(0, 1)] }
+    pub fn m13(&self) -> T { self.data[(0, 2)] }
+    pub fn m21(&self) -> T { self.data[(1, 0)] }
+    pub fn m22(&self) -> T { self.data[(1, 1)] }
+    pub fn m23(&self) -> T { self.data[(1, 2)] }
+    pub fn m31(&self) -> T { self.data[(2, 0)] }
+    pub fn m32(&self) -> T { self.data[(2, 1)] }
+    pub fn m33(&self) -> T { self.data[(2, 2)] }
+}
+
 
 #[cfg(feature = "std")]
 impl<T: Float + std::fmt::Display, A: ReferenceFrame, B: ReferenceFrame> std::fmt::Display for DirectionCosineMatrix<T, A, B> {

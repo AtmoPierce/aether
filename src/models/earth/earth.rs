@@ -1,9 +1,6 @@
-use matrslab::reference_frame::Body;
-use crate::reference::standards;
-use crate::reference::constants::{*};
-use hifitime::Epoch;
-use united_states_standard_atmosphere::ussa;
-use matrslab::{math::{Vector, Matrix}, attitude::{DirectionCosineMatrix}, coordinate::Cartesian, reference_frame::{ITRF, ICRF}};
+use crate::models::earth::wgs84;
+use crate::models::earth::atmospheres::ussa;
+use crate::{math::{Vector, Matrix}, attitude::{DirectionCosineMatrix}, coordinate::Cartesian, reference_frame::{ITRF, ICRF}};
 
 #[derive(Clone, Debug)]
 pub struct Earth{
@@ -27,8 +24,8 @@ impl Default for Earth{
 impl Earth{
     pub fn new()->Self{
         Earth{
-            mass: standards::iers::geocentric_gravitational_constant / standards::iers::gravitational_constant,
-            radius: standards::iers::earth_equatorial_radius,
+            mass: super::iers::constants::geocentric_gravitational_constant / super::iers::constants::gravitational_constant,
+            radius: super::iers::constants::earth_equatorial_radius,
             rotational_velocity: Cartesian::new(0.0,0.0,7.292115146706979e-5),
             atmosphere: ussa::USSA::new()
         }
@@ -50,42 +47,35 @@ impl Earth{
     }
     
     pub fn solve_gravitational_force(&self, position_from_center: Cartesian<f64, ITRF<f64>>, mass: f64) -> Cartesian<f64, ITRF<f64>>{
-        let gravitational_force = wgs84::gravity::gravity::gravity_rectangular(position_from_center.x(), position_from_center.y(), position_from_center.z()) * mass;
+        let gravitational_force = crate::models::earth::wgs84::gravity::gravity_rectangular(position_from_center.x(), position_from_center.y(), position_from_center.z()) * mass;
         return gravitational_force;
     }
     pub fn solve_gravitational_torque(&self, position_from_center: Cartesian<f64, ITRF<f64>>, inertia_matrix: Matrix<f64, 3, 3>)->Cartesian<f64, ITRF<f64>>{
         let value = inertia_matrix * position_from_center;
         let local = position_from_center.cross(&value);
-        let scalar = (3.0 * standards::iers::geocentric_gravitational_constant) / (position_from_center.norm().powf(5.0));
+        let scalar = (3.0 * super::iers::constants::geocentric_gravitational_constant) / (position_from_center.norm().powf(5.0));
         let gravitational_torque =  local * scalar;
         return gravitational_torque;
     }
     pub fn geocentric_to_ecef(&self, latitude: f64, longitude: f64, altitude: f64)->Cartesian<f64, ITRF<f64>>{
-        return wgs84::transforms::transforms::geocentric_to_ecef(latitude, longitude, altitude);
+        return crate::models::earth::wgs84::transforms::geocentric_to_ecef(latitude, longitude, altitude);
     }
 
     pub fn ecef_to_geocentric_ferrari(&self, x: f64, y: f64, z: f64) -> Vector<f64, 3>{
-        return wgs84::transforms::transforms::ecef_to_geocentric_ferrari(x, y, z);
+        return crate::models::earth::wgs84::transforms::ecef_to_geocentric_ferrari(x, y, z);
     }
 
     pub fn ecef_to_geocentric(&self, x: f64, y: f64, z: f64) -> Vector<f64, 3> {
-        return wgs84::transforms::transforms::ecef_to_geocentric(x, y, z);
+        return crate::models::earth::wgs84::transforms::ecef_to_geocentric(x, y, z);
     }
 
     pub fn eci_to_ecef(&self, time: f64)->DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>>{
-        return DirectionCosineMatrix::new(
-            (self.rotational_velocity.z()*time).cos(), (self.rotational_velocity.z()*time).sin(), 0.0,
-            (-self.rotational_velocity.z()*time).sin(), (self.rotational_velocity.z()*time).cos(), 0.0,
-            0.0 ,0.0 ,1.0
-        );
+        return wgs84::transforms::eci_to_ecef(time, self.rotational_velocity);
     }
     pub fn ecef_to_eci(&self, time: f64)->DirectionCosineMatrix<f64, ITRF<f64>, ICRF<f64>>{
-        return DirectionCosineMatrix::new(
-            (self.rotational_velocity.z()*time).cos(), (-self.rotational_velocity.z()*time).sin(), 0.0,
-            (self.rotational_velocity.z()*time).sin(), (self.rotational_velocity.z()*time).cos(), 0.0,
-            0.0 ,0.0 ,1.0
-        );
+        return wgs84::transforms::ecef_to_eci(time, self.rotational_velocity);
     }
+
 
     pub fn get_temperature(&self, geometric_height: f64)->Result<f64, &'static str>{
         return Ok(self.atmosphere.temperature(geometric_height).expect("Could not get temperature."));
@@ -102,8 +92,8 @@ impl Earth{
 }
 
 mod tests{
-    use hifitime::Epoch;
-    use crate::Earth;
+    // use hifitime::Epoch;
+    // use crate::Earth;
 
     #[test]
     fn test_update_crs_to_trs_dcm(){

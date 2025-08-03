@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::{Vector, Matrix};
+    use crate::{math::Vector, math::Matrix};
 
     #[test]
     fn test_matrix_add_sub_neg() {

@@ -1,10 +1,10 @@
 use super::vector::Vector;
-use num_traits::{Float, Zero, zero};
+use num_traits::{Float};
 use core::ops::{Add, Sub, Mul, Div, Neg};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Matrix<T, const M: usize, const N: usize> {
-    pub data: [[T; N]; M],
+    pub data: [[T; N]; M]
 }
 
 impl<T: Copy, const M: usize, const N: usize> Matrix<T, M, N> {
@@ -262,6 +262,21 @@ impl<T: Float + Copy + Default> Matrix<T, 3, 3> {
 
 // Behavior
 use core::ops::{Index, IndexMut};
+// [m][n]
+impl<T, const M: usize, const N: usize> Index<usize> for Matrix<T, M, N> {
+    type Output = [T; N];
+
+    fn index(&self, row: usize) -> &Self::Output {
+        &self.data[row]
+    }
+}
+
+impl<T, const M: usize, const N: usize> IndexMut<usize> for Matrix<T, M, N> {
+    fn index_mut(&mut self, row: usize) -> &mut Self::Output {
+        &mut self.data[row]
+    }
+}
+// [(m, n)]
 impl<T, const M: usize, const N: usize> Index<(usize, usize)> for Matrix<T, M, N> {
     type Output = T;
 
