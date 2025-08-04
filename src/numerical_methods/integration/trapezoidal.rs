@@ -1,6 +1,8 @@
 use num_traits::Float;
 use crate::math::Vector;
 use crate::coordinate::Cartesian;
+use core::marker::PhantomData;
+
 pub trait TrapezoidalIntegrate {
     type Scalar;
 
@@ -8,19 +10,19 @@ pub trait TrapezoidalIntegrate {
     fn integrate_trapezoidal(&self, last: &Self, dt: Self::Scalar) -> Self;
 }
 
-impl<T: Float + Copy + Clone, const N: usize> TrapezoidalIntegrate for Vector<T, N> {
+impl<T: Float + Copy, const N: usize> TrapezoidalIntegrate for Vector<T, N> {
     type Scalar = T;
     fn integrate_trapezoidal(&self, last: &Self, dt: T) -> Self {
         (*self + *last) * T::from(0.5).unwrap() * dt
     }
 }
 
-impl<T: Float + Copy + Clone, RF: Clone> TrapezoidalIntegrate for Cartesian<T, RF> {
+impl<T: Float + Copy, RF> TrapezoidalIntegrate for Cartesian<T, RF> {
     type Scalar = T;
     fn integrate_trapezoidal(&self, last: &Self, dt: T) -> Self {
         Cartesian {
             data: (self.data + last.data) * (T::from(0.5).unwrap()) * dt,
-            ..self.clone()
+            _reference_frame: PhantomData
         }
     }
 }

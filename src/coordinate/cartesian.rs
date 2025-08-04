@@ -31,7 +31,7 @@ impl<T: Float, RF: ReferenceFrame> Cartesian<T, RF>{
 
 
 // If you want a cross product method, add it to the main impl block:
-impl<T: Float, ReferenceFrame> Cartesian<T, ReferenceFrame> {
+impl<T: Float, RF: ReferenceFrame> Cartesian<T, RF> {
     pub fn cross(&self, rhs: &Self) -> Self {
         Self {
             data: self.data.cross(&rhs.data),
@@ -40,6 +40,15 @@ impl<T: Float, ReferenceFrame> Cartesian<T, ReferenceFrame> {
     }
     pub fn norm(&self)->T{
         self.data.norm()
+    }
+    pub fn normalize(&self) -> Self {
+        Self {
+            data: self.data / self.data.norm(),
+            _reference_frame: PhantomData,
+        }
+    }
+    pub fn dot(&self, rhs: &Self) -> T {
+        self.data.dot(&rhs.data)
     }
     pub fn magnitude(&self)->T{
         self.data.norm()
@@ -57,31 +66,33 @@ impl<T: Float, RF> Add for Cartesian<T, RF> {
         }
     }
 }
-impl<'a, T: Float, RF> Add for &'a Cartesian<T, RF>
-where
-    Cartesian<T, RF>: Clone,
-{
+impl<'a, T: Float, RF> Add for &'a Cartesian<T, RF>{
     type Output = Cartesian<T, RF>;
     fn add(self, rhs: Self) -> Self::Output {
-        self.clone() + rhs.clone()
+        Cartesian {
+            data: self.data + rhs.data,
+            _reference_frame: PhantomData,
+        }
     }
 }
-impl<'a, T: Float, RF> Add<Cartesian<T, RF>> for &'a Cartesian<T, RF>
-where
-    Cartesian<T, RF>: Clone,
-{
+
+impl<'a, T: Float, RF> Add<Cartesian<T, RF>> for &'a Cartesian<T, RF>{
     type Output = Cartesian<T, RF>;
     fn add(self, rhs: Cartesian<T, RF>) -> Self::Output {
-        self.clone() + rhs
+        Cartesian{
+            data: self.data + rhs.data,
+            _reference_frame: PhantomData,
+        }
     }
 }
 impl<'a, T: Float, RF> Add<&'a Cartesian<T, RF>> for Cartesian<T, RF>
-where
-    Cartesian<T, RF>: Clone,
 {
     type Output = Cartesian<T, RF>;
     fn add(self, rhs: &'a Cartesian<T, RF>) -> Self::Output {
-        self + rhs.clone()
+        Cartesian{
+            data: self.data + rhs.data,
+            _reference_frame: PhantomData,
+        }
     }
 }
 
@@ -102,22 +113,22 @@ impl<T: Float, RF> Sub for Cartesian<T, RF> {
         }
     }
 }
-impl<'a, T: Float, RF> Sub for &'a Cartesian<T, RF>
-where
-    Cartesian<T, RF>: Clone,
-{
+impl<'a, T: Float, RF> Sub for &'a Cartesian<T, RF>{
     type Output = Cartesian<T, RF>;
     fn sub(self, rhs: Self) -> Self::Output {
-        self.clone() - rhs.clone()
+        Cartesian{
+            data: self.data - rhs.data,
+            _reference_frame: PhantomData,
+        }    
     }
 }
-impl<'a, T: Float, RF> Sub<Cartesian<T, RF>> for &'a Cartesian<T, RF>
-where
-    Cartesian<T, RF>: Clone,
-{
+impl<'a, T: Float, RF> Sub<Cartesian<T, RF>> for &'a Cartesian<T, RF>{
     type Output = Cartesian<T, RF>;
     fn sub(self, rhs: Cartesian<T, RF>) -> Self::Output {
-        self.clone() - rhs
+        Cartesian{
+            data: self.data - rhs.data,
+            _reference_frame: PhantomData,
+        }
     }
 }
 impl<'a, T: Float, RF> Sub<&'a Cartesian<T, RF>> for Cartesian<T, RF>
@@ -126,7 +137,10 @@ where
 {
     type Output = Cartesian<T, RF>;
     fn sub(self, rhs: &'a Cartesian<T, RF>) -> Self::Output {
-        self - rhs.clone()
+        Cartesian{
+            data: self.data - rhs.data,
+            _reference_frame: PhantomData,
+        }
     }
 }
 
@@ -141,7 +155,7 @@ impl<T: Float + SubAssign, RF> SubAssign for Cartesian<T, RF> {
 impl<T: Float, RF> Neg for Cartesian<T, RF> {
     type Output = Self;
     fn neg(self) -> Self::Output {
-        Self {
+        Cartesian {
             data: -self.data,
             _reference_frame: PhantomData,
         }
@@ -153,7 +167,10 @@ where
 {
     type Output = Cartesian<T, RF>;
     fn neg(self) -> Self::Output {
-        -self.clone()
+        Cartesian {
+            data: -self.data,
+            _reference_frame: PhantomData,
+        }    
     }
 }
 
@@ -163,27 +180,27 @@ impl<T: Float + Copy, RF> Mul<T> for Cartesian<T, RF> {
     fn mul(self, rhs: T) -> Self {
         Self {
             data: self.data * rhs,
-            ..self
+            _reference_frame: PhantomData,
         }
     }
 }
-impl<'a, T: Float + Copy, RF> Mul<T> for &'a Cartesian<T, RF>
-where
-    Cartesian<T, RF>: Clone,
-{
+impl<'a, T: Float + Copy, RF> Mul<T> for &'a Cartesian<T, RF>{
     type Output = Cartesian<T, RF>;
     fn mul(self, rhs: T) -> Self::Output {
-        self.clone() * rhs
+        Cartesian {
+            data: self.data * rhs,
+            _reference_frame: PhantomData,
+        }
     }
 }
 
 // ----- Scalar Div -----
 impl<T: Float + Copy, RF> Div<T> for Cartesian<T, RF> {
     type Output = Self;
-    fn div(self, rhs: T) -> Self {
-        Self {
+    fn div(self, rhs: T) -> Self::Output {
+        Cartesian {
             data: self.data / rhs,
-            ..self
+            _reference_frame: PhantomData,
         }
     }
 }
@@ -210,9 +227,13 @@ where
 {
     type Output = Cartesian<T, RF>;
     fn div(self, rhs: T) -> Self::Output {
-        self.clone() / rhs
+        Cartesian{
+            data: self.data / rhs,
+            _reference_frame: PhantomData,
+        }
     }
 }
+
 
 impl<T: Float + Copy + Default, F> Mul<Cartesian<T, F>> for Matrix<T, 3, 3> {
     type Output = Cartesian<T, F>;
@@ -248,6 +269,7 @@ impl<T: Float, RF: ReferenceFrame> From<&Cylindrical<T>> for Cartesian<T, RF>{
         Cartesian::new(x, y, z)
     }
 }
+
 
 // Print/Display
 use core::fmt;

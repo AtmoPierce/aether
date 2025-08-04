@@ -1,1 +1,1 @@
-pub mod earth;
+pub mod terrestial;

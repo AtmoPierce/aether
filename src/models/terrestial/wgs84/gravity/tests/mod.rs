@@ -1,4 +1,4 @@
-use crate::models::earth::wgs84::gravity::gravity_rectangular;
+use crate::models::terrestial::wgs84::gravity::gravity_rectangular;
 #[test]
 fn gravity_test(){
     let x = 6378137.0;

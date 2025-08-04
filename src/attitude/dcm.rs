@@ -76,9 +76,10 @@ impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T
         Self { data: Matrix { data }, _from: PhantomData, _to: PhantomData }
     }
 
+    
 }
 
-impl<T, A, B, C> Mul<DirectionCosineMatrix<T, B, C>> for DirectionCosineMatrix<T, A, B>
+impl<T, A, B, C> Mul<DirectionCosineMatrix<T, A, B>> for DirectionCosineMatrix<T, B, C>
 where
     T: Float,
     A: ReferenceFrame,
@@ -87,10 +88,10 @@ where
 {
     type Output = DirectionCosineMatrix<T, A, C>;
 
-    fn mul(self, rhs: DirectionCosineMatrix<T, B, C>) -> Self::Output {
-        let lhs: Matrix<T, 3, 3> = self.data;
-        let rhs: Matrix<T, 3, 3> = rhs.data;
-        let data: Matrix<T, 3, 3> = lhs * rhs;
+    fn mul(self, rhs: DirectionCosineMatrix<T, A, B>) -> Self::Output {
+        let lhs: Matrix<T, 3, 3> = self.data;     // B → C
+        let rhs: Matrix<T, 3, 3> = rhs.data;      // A → B
+        let data: Matrix<T, 3, 3> = lhs * rhs;    // A → C
         DirectionCosineMatrix::from_matrix(data)
     }
 }
@@ -181,6 +182,19 @@ impl<T: Float + Copy, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineM
     pub fn m31(&self) -> T { self.data[(2, 0)] }
     pub fn m32(&self) -> T { self.data[(2, 1)] }
     pub fn m33(&self) -> T { self.data[(2, 2)] }
+    pub fn transpose(&self) -> DirectionCosineMatrix<T, To, From> {
+        let mut result = Matrix::<T, 3, 3>::zeros();
+        for i in 0..3 {
+            for j in 0..3 {
+                result[(i, j)] = self.data[(j, i)];
+            }
+        }
+        DirectionCosineMatrix {
+            data: result,
+            _from: PhantomData,
+            _to: PhantomData,
+        }
+    }
 }
 
 

@@ -144,7 +144,7 @@ impl USSA{
 
     pub fn speed_of_sound(&self, geometric_height: f64)->Result<f64, &'static str>{
         let temperature = self.temperature(geometric_height).expect("Could not determine temperature.");
-        return Ok((1.4*Self::R_Star/Self::air_molar_mass*temperature));
+        return Ok(1.4*Self::R_Star/Self::air_molar_mass*temperature);
     }
 
     pub fn dynamic_viscosity(&self, geometric_height: f64)->Result<f64, &'static str>{

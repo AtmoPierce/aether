@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 use crate::{coordinate::{coordinate::Coordinate, Cartesian}, math::{Matrix, Vector}, reference_frame::ITRF};
-use crate::models::earth::wgs84::{constants::{a, b, e2, g_e, k, w, E, GM}, transforms::ecef_to_geocentric_ferrari};
+use crate::models::terrestial::wgs84::{constants::{a, b, e2, g_e, k, w, E, GM}, transforms::ecef_to_geocentric_ferrari};
 
 pub fn gravity_normal(latitude: f64)->f64{
     return g_e * (1.0+k*latitude.sin().sin())/(1.0-e2*latitude.sin().sin());
@@ -35,10 +35,10 @@ pub fn gravity_ellipsoidal(x: f64, y:f64, z: f64)->Vector<f64, 3>{
     let q_0 = 0.5 * ((1.0+3.0*b.powf(2.0)/E.powf(2.0))*(E/b).atan()-3.0*b/E);
     let qprime = 3.0 * (1.0 + u.powf(2.0)/E.powf(2.0))*(1.0 - u/E * (E/u).atan())-1.0;
 
-    let t1 = -1.0 / ellip_w;
-    let t2 = (GM/(u.powf(2.0)+E.powf(2.0)));
-    let t3 = (w.powf(2.0)*a.powf(2.0)*E)/(u.powf(2.0)+E.powf(2.0));
-    let t4 = (qprime/q_0)*(0.5 * beta.sin().sin()-1.0/6.0);
+    // let t1 = -1.0 / ellip_w;
+    // let t2 = (GM/(u.powf(2.0)+E.powf(2.0)));
+    // let t3 = (w.powf(2.0)*a.powf(2.0)*E)/(u.powf(2.0)+E.powf(2.0));
+    // let t4 = (qprime/q_0)*(0.5 * beta.sin().sin()-1.0/6.0);
 
     let g_u = -1.0 / ellip_w * ((GM/(u.powf(2.0)+E.powf(2.0))) + (w.powf(2.0)*a.powf(2.0)*E)/(u.powf(2.0)+E.powf(2.0))*(qprime/q_0)*(0.5 * beta.sin().sin()-1.0/6.0)) + 1.0 / ellip_w * w.powf(2.0)*u*beta.cos().cos(); 
     let g_b = 1.0 / ellip_w * (w.powf(2.0)*a.powf(2.0)/(u.powf(2.0)+E.powf(2.0))) * q / q_0 * beta.sin()*beta.cos() - 1.0 / ellip_w * w.powf(2.0) * (u.powf(2.0)+E.powf(2.0)).sqrt() * beta.sin()*beta.cos();

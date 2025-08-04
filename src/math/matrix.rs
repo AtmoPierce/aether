@@ -12,7 +12,7 @@ impl<T: Copy, const M: usize, const N: usize> Matrix<T, M, N> {
         Self { data }
     }
 }
-impl<T: Default + Copy, const M: usize, const N: usize> Default for Matrix<T, M, N> {
+impl<T: Default + Copy + num_traits::Zero, const M: usize, const N: usize> Default for Matrix<T, M, N> {
     fn default() -> Self {
         Self {
             data: [[T::default(); N]; M],
@@ -165,7 +165,7 @@ where
 // Generic Matrix Implementations
 impl<T, const M: usize, const N: usize> Matrix<T, M, N>
 where
-    T: Float + Default + Copy,
+    T: Float + Copy,
 {
     pub fn zeros() -> Self {
         Self { data: [[T::zero(); N]; M] }
@@ -177,7 +177,7 @@ where
 
 impl<T, const N: usize> Matrix<T, N, N>
 where
-    T: Float + Default + Copy,
+    T: Float + Copy,
 {
     // Returns an identity matrix
     pub fn identity() -> Self {

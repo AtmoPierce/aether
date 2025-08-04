@@ -1,4 +1,4 @@
-use crate::reference_frame::{RotatingFrame, ReferenceFrame};
+use crate::reference_frame::{ReferenceFrame};
 use crate::coordinate::Cartesian;
 use num_traits::Float;
 

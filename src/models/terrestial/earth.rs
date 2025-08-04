@@ -1,5 +1,5 @@
-use crate::models::earth::wgs84;
-use crate::models::earth::atmospheres::ussa;
+use super::wgs84;
+use super::atmospheres::ussa;
 use crate::{math::{Vector, Matrix}, attitude::{DirectionCosineMatrix}, coordinate::Cartesian, reference_frame::{ITRF, ICRF}};
 
 #[derive(Clone, Debug)]
@@ -7,6 +7,7 @@ pub struct Earth{
     pub mass: f64,
     pub radius: f64,
     pub rotational_velocity: Cartesian<f64, ITRF<f64>>,
+    pub gravitational_constant: f64,
     pub atmosphere: ussa::USSA
 }
 
@@ -16,6 +17,7 @@ impl Default for Earth{
             mass: 0.0,
             radius: 0.0,
             rotational_velocity: Cartesian::new(0.0,0.0,7.292115146706979e-5),
+            gravitational_constant: super::iers::constants::geocentric_gravitational_constant,
             atmosphere: ussa::USSA::new()
         }
     }
@@ -27,6 +29,7 @@ impl Earth{
             mass: super::iers::constants::geocentric_gravitational_constant / super::iers::constants::gravitational_constant,
             radius: super::iers::constants::earth_equatorial_radius,
             rotational_velocity: Cartesian::new(0.0,0.0,7.292115146706979e-5),
+            gravitational_constant: super::iers::constants::geocentric_gravitational_constant,
             atmosphere: ussa::USSA::new()
         }
     }
@@ -47,7 +50,7 @@ impl Earth{
     }
     
     pub fn solve_gravitational_force(&self, position_from_center: Cartesian<f64, ITRF<f64>>, mass: f64) -> Cartesian<f64, ITRF<f64>>{
-        let gravitational_force = crate::models::earth::wgs84::gravity::gravity_rectangular(position_from_center.x(), position_from_center.y(), position_from_center.z()) * mass;
+        let gravitational_force = super::wgs84::gravity::gravity_rectangular(position_from_center.x(), position_from_center.y(), position_from_center.z()) * mass;
         return gravitational_force;
     }
     pub fn solve_gravitational_torque(&self, position_from_center: Cartesian<f64, ITRF<f64>>, inertia_matrix: Matrix<f64, 3, 3>)->Cartesian<f64, ITRF<f64>>{
@@ -58,15 +61,15 @@ impl Earth{
         return gravitational_torque;
     }
     pub fn geocentric_to_ecef(&self, latitude: f64, longitude: f64, altitude: f64)->Cartesian<f64, ITRF<f64>>{
-        return crate::models::earth::wgs84::transforms::geocentric_to_ecef(latitude, longitude, altitude);
+        return super::wgs84::transforms::geocentric_to_ecef(latitude, longitude, altitude);
     }
 
     pub fn ecef_to_geocentric_ferrari(&self, x: f64, y: f64, z: f64) -> Vector<f64, 3>{
-        return crate::models::earth::wgs84::transforms::ecef_to_geocentric_ferrari(x, y, z);
+        return super::wgs84::transforms::ecef_to_geocentric_ferrari(x, y, z);
     }
 
     pub fn ecef_to_geocentric(&self, x: f64, y: f64, z: f64) -> Vector<f64, 3> {
-        return crate::models::earth::wgs84::transforms::ecef_to_geocentric(x, y, z);
+        return super::wgs84::transforms::ecef_to_geocentric(x, y, z);
     }
 
     pub fn eci_to_ecef(&self, time: f64)->DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>>{

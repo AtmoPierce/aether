@@ -72,15 +72,15 @@ pub fn ecef_to_ned(latitude: f64, longitude: f64)->DirectionCosineMatrix<f64, IT
 }
 
 pub fn geocentric_to_ecef(latitude: f64, longitude: f64, altitude: f64)->Cartesian<f64, ITRF<f64>>{
-    return crate::models::earth::wgs84::transforms::geocentric_to_ecef(latitude, longitude, altitude);
+    return crate::models::terrestial::wgs84::transforms::geocentric_to_ecef(latitude, longitude, altitude);
 }
 
 pub fn ecef_to_geocentric_ferrari(x: f64, y: f64, z: f64) -> Vector<f64, 3>{
-    return crate::models::earth::wgs84::transforms::ecef_to_geocentric_ferrari(x, y, z);
+    return crate::models::terrestial::wgs84::transforms::ecef_to_geocentric_ferrari(x, y, z);
 }
 
 pub fn ecef_to_geocentric(x: f64, y: f64, z: f64) -> Vector<f64, 3> {
-    return crate::models::earth::wgs84::transforms::ecef_to_geocentric(x, y, z);
+    return crate::models::terrestial::wgs84::transforms::ecef_to_geocentric(x, y, z);
 }
 
 pub fn eci_to_ecef(time: f64, rotational_velocity: Cartesian<f64, ITRF<f64>>)->DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>>{
@@ -176,10 +176,10 @@ mod tests{
 
     #[test]
     fn test_body_to_ned(){
-        let gravity_in_body: Cartesian<f64, Body<f64>> = Cartesian::new(-9.8_f64, 0.0_f64, 0.0_f64);
+        let gravity_in_body: Cartesian<f64, Body<f64>> = Cartesian::new(9.8_f64, 0.0_f64, 0.0_f64);
 
         let roll: f64 = 0.0_f64.to_radians();
-        let pitch: f64 = 90.0_f64.to_radians();
+        let pitch: f64 = -90.0_f64.to_radians();
         let yaw: f64 = 0.0_f64.to_radians();
         let result: DirectionCosineMatrix<f64, Body<f64>, NED<f64>> = body_to_ned(roll, pitch, yaw);
 
@@ -189,7 +189,7 @@ mod tests{
 
         let grav_positive_in_ned =  result * gravity_in_body;
         println!("Gravity: body - {} | ned - {}", gravity_in_body, grav_positive_in_ned);
-        assert_eq!(gravity_in_body[0], grav_positive_in_ned[2]);
+        assert_eq!(-gravity_in_body[0], grav_positive_in_ned[2]);
         assert_eq!(roll_result, roll);
         assert_eq!(pitch_result, pitch);
         assert_eq!(yaw_result, yaw);

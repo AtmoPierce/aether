@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 use crate::{coordinate::Cartesian, math::{Matrix, Vector}, reference_frame::{ITRF, ICRF}, attitude::DirectionCosineMatrix};
-use crate::models::earth::wgs84::constants::{GM, g_e, b, k, e2, E, w, a};
+use crate::models::terrestial::wgs84::constants::{GM, g_e, b, k, e2, E, w, a};
 
 pub fn eci_to_ecef(time: f64, rotational_velocity: Cartesian<f64, ITRF<f64>>)->DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>>{
     return DirectionCosineMatrix::new(
