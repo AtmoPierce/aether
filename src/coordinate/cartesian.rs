@@ -43,7 +43,7 @@ impl<T: Float, RF: ReferenceFrame> Cartesian<T, RF> {
     }
     pub fn normalize(&self) -> Self {
         Self {
-            data: self.data / self.data.norm(),
+            data: self.data.normalize(),
             _reference_frame: PhantomData,
         }
     }

@@ -37,8 +37,6 @@ where
     }
 }
 
-
-
 // Matrix subtraction
 impl<T, const M: usize, const N: usize> Sub for Matrix<T, M, N>
 where
@@ -257,6 +255,27 @@ impl<T: Float + Copy + Default> Matrix<T, 3, 3> {
         inv[2][2] =  (m[0][0] * m[1][1] - m[0][1] * m[1][0]) * inv_det;
 
         Some(Matrix::new(inv))
+    }
+}
+
+impl<T: Float + Copy> Matrix<T, 4, 4> {
+    pub fn transpose(&self) -> Self {
+        let mut result = Matrix::zeros();
+        for i in 0..4 {
+            for j in 0..4 {
+                result[(i, j)] = self[(j, i)];
+            }
+        }
+        result
+    }
+    pub fn as_flat_array(&self) -> [T; 16] {
+        let mut flat = [self.data[0][0]; 16];
+        for i in 0..4 {
+            for j in 0..4 {
+                flat[i * 4 + j] = self.data[i][j];
+            }
+        }
+        flat
     }
 }
 

@@ -1,6 +1,7 @@
+use num_traits::Float;
 use crate::attitude::DirectionCosineMatrix;
 use crate::coordinate::Cartesian;
-use crate::reference_frame::{Body, ITRF, ICRF, NED};
+use crate::reference_frame::{Body, ITRF, ICRF, NED, ReferenceFrame};
 use crate::math::{Matrix, Vector};
 use crate::matrix;
 
@@ -97,6 +98,9 @@ pub fn ecef_to_eci(time: f64, rotational_velocity: Cartesian<f64, ITRF<f64>>)->D
         0.0 ,0.0 ,1.0
     );
 }
+
+
+
 
 #[cfg(test)]
 mod tests{

@@ -212,6 +212,9 @@ where
         }
         acc.sqrt()
     }
+    pub fn normalize(&self) -> Self {
+        self / self.norm()
+    }
     pub fn magnitude(&self) -> T {
         self.norm()
     }
