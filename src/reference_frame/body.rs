@@ -32,3 +32,37 @@ impl<T: Float> ReferenceFrame for Body<T> {}
 
 // Implement FixedFrame for Body<T>
 impl<T: Float> FixedFrame<T> for Body<T> {}
+
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
+
+#[cfg(feature = "serde")]
+impl<T> Serialize for Body<T>
+where
+    T: Float + Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        (&self.mass_center, &self.lever_arm).serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T> Deserialize<'de> for Body<T>
+where
+    T: Float + Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let (mass_center, lever_arm): (Cartesian<T, Body<T>>, Cartesian<T, Body<T>>) =
+            Deserialize::deserialize(deserializer)?;
+        Ok(Body {
+            mass_center,
+            lever_arm,
+        })
+    }
+}

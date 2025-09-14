@@ -2,6 +2,7 @@ pub mod euler;
 pub mod dcm;
 pub mod quaternion;
 pub mod rotation;
+pub mod determination;
 pub use euler::Euler;
 pub use dcm::DirectionCosineMatrix;
 pub use quaternion::Quaternion;

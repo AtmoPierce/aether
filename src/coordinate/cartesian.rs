@@ -6,6 +6,7 @@ use crate::reference_frame::ReferenceFrame;
 
 use num_traits::Float;
 use core::marker::PhantomData; // Reference frame tracking.
+use core::slice::{Iter, IterMut};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Cartesian<T: Float, ReferenceFrame> {
@@ -270,9 +271,84 @@ impl<T: Float, RF: ReferenceFrame> From<&Cylindrical<T>> for Cartesian<T, RF>{
     }
 }
 
+// Iterator
+// --- AsRef / AsMut ---
+impl<T: num_traits::Float, RF> AsRef<[T; 3]> for Cartesian<T, RF> {
+    #[inline] fn as_ref(&self) -> &[T; 3] { &self.data.data }
+}
+impl<T: num_traits::Float, RF> AsMut<[T; 3]> for Cartesian<T, RF> {
+    #[inline] fn as_mut(&mut self) -> &mut [T; 3] { &mut self.data.data }
+}
+
+// --- Convenience methods ---
+impl<T: num_traits::Float, RF> Cartesian<T, RF> {
+    #[inline] pub fn iter(&self) -> Iter<'_, T> { self.data.iter() }
+    #[inline] pub fn iter_mut(&mut self) -> IterMut<'_, T> { self.data.iter_mut() }
+}
+
+// --- IntoIterator (by value) ---
+impl<T: num_traits::Float, RF> IntoIterator for Cartesian<T, RF> {
+    type Item = T;
+    type IntoIter = <Vector<T, 3> as IntoIterator>::IntoIter;
+    #[inline] fn into_iter(self) -> Self::IntoIter { self.data.into_iter() }
+}
+
+// --- IntoIterator for &Cartesian ---
+impl<'a, T: num_traits::Float, RF> IntoIterator for &'a Cartesian<T, RF> {
+    type Item = &'a T;
+    type IntoIter = <&'a Vector<T, 3> as IntoIterator>::IntoIter;
+    #[inline] fn into_iter(self) -> Self::IntoIter { (&self.data).into_iter() }
+}
+
+// --- IntoIterator for &mut Cartesian ---
+impl<'a, T: num_traits::Float, RF> IntoIterator for &'a mut Cartesian<T, RF> {
+    type Item = &'a mut T;
+    type IntoIter = <&'a mut Vector<T, 3> as IntoIterator>::IntoIter;
+    #[inline] fn into_iter(self) -> Self::IntoIter { (&mut self.data).into_iter() }
+}
+// Iterator Helpers
+impl<T: num_traits::Float, RF> Cartesian<T, RF> {
+    /// Map each component to a new type, preserving the reference frame.
+    pub fn map<U: num_traits::Float, F>(self, f: F) -> Cartesian<U, RF>
+    where
+        F: FnMut(T) -> U,
+    {
+        Cartesian {
+            data: self.data.map(f),  // uses your Vector<T,3>::map(...)
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
+// Serialization with Serde
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+#[cfg(feature = "serde")]
+impl<T: Float + Serialize, RF: ReferenceFrame> Serialize for Cartesian<T, RF> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.data.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T: Float + Deserialize<'de>, RF: ReferenceFrame> Deserialize<'de> for Cartesian<T, RF> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let data = Vector::<T, 3>::deserialize(deserializer)?;
+        Ok(Cartesian {
+            data,
+            _reference_frame: PhantomData,
+        })
+    }
+}
 
 // Print/Display
-use core::fmt;
+use core::{fmt, num};
 impl<T, RF> fmt::Display for Cartesian<T, RF>
 where
     T: Float + fmt::Display,

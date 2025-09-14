@@ -100,8 +100,6 @@ pub fn ecef_to_eci(time: f64, rotational_velocity: Cartesian<f64, ITRF<f64>>)->D
 }
 
 
-
-
 #[cfg(test)]
 mod tests{
     use crate::coordinate::Spherical;

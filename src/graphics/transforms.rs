@@ -34,7 +34,7 @@ pub fn perspective<T: Float>(aspect: T, fov_y_rad: T, near: T, far: T) -> Matrix
         data: [
             [f / aspect, T::zero(), T::zero(), T::zero()],
             [T::zero(),  f,         T::zero(), T::zero()],
-            [T::zero(),  T::zero(), (far + near) * nf, T::from(-1.0).unwrap()],
+            [T::zero(),  T::zero(), (far + near) * nf, -T::one()],
             [T::zero(),  T::zero(), (T::from(2.0).unwrap() * far * near) * nf, T::zero()],
         ]
     }

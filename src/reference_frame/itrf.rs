@@ -5,6 +5,7 @@ use crate::math::Vector;
 use num_traits::Float;
 use core::marker::PhantomData;
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Default, Clone, Copy)]
 pub struct ITRF<T: Float> {
     pub epoch: T,

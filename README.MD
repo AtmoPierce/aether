@@ -1,7 +1,8 @@
-![Aether](docs/logo.png)
 
 **Aether** is a Rust-native, no_std-friendly linear algebra library and interactive “lab” for vectors and matrices.  
 It provides statically-typed, stack-allocated types, operator overloading, and an optional interactive REPL (Read-Eval-Print Loop) for hands-on computations and experimentation.
+
+![Aether](docs/images/aether.png)
 
 ---
 

@@ -187,6 +187,30 @@ impl<T: Float> Div<T> for Quaternion<T> {
     }
 }
 
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
+#[cfg(feature = "serde")]
+impl<T: Float + Serialize> Serialize for Quaternion<T> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.data.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T: Float + Deserialize<'de>> Deserialize<'de> for Quaternion<T> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let data = Vector::<T, 4>::deserialize(deserializer)?;
+        Ok(Quaternion { data })
+    }
+}
+
 
 // std
 #[cfg(feature = "std")]
