@@ -1,5 +1,3 @@
-use num_traits::Float;
-
 /// Trait to convert an angle-like value to radians.
 pub trait ToRadians {
     type Output;

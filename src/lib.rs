@@ -1,6 +1,8 @@
-pub mod coordinate;
 pub mod attitude;
-pub mod reference_frame;
+pub mod coordinate;
+pub mod graphics;
 pub mod math;
+pub mod models;
 pub mod numerical_methods;
+pub mod reference_frame;
 pub mod utils;

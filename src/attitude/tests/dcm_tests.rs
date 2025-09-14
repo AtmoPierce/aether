@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Matrix;
+    use crate::math::Matrix;
     use crate::matrix;
     use crate::attitude::{DirectionCosineMatrix, Euler, Quaternion};
     use crate::attitude::tests::test_utils::*;

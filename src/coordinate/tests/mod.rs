@@ -1,4 +1,5 @@
 use std::f64::consts::{PI, FRAC_PI_2, FRAC_PI_4};
+use crate::reference_frame::Body;
 
 #[cfg(test)]
 mod tests {
@@ -14,7 +15,7 @@ mod tests {
 
     #[test]
     fn test_cartesian_cylindrical_roundtrip() {
-        let originals = [
+        let originals: [Cartesian<f64, Body<f64>>; 4] = [
             Cartesian::new(3.0_f64, 4.0, 1.0),
             Cartesian::new(0.0, 0.0, 1.0),
             Cartesian::new(-3.0,-4.0, 1.0),
@@ -22,7 +23,7 @@ mod tests {
         ];
         for cart in &originals {
             let cyl: Cylindrical<f64> = cart.into();
-            let cart2: Cartesian<f64> = (&cyl).into();
+            let cart2: Cartesian<f64, Body<f64>> = (&cyl).into();
             assert!(approx_eq(cart.x(), cart2.x()));
             assert!(approx_eq(cart.y(), cart2.y()));
             assert!(approx_eq(cart.z(), cart2.z()));
@@ -30,7 +31,7 @@ mod tests {
     }
     #[test]
     fn test_cartesian_spherical_roundtrip() {
-        let originals = [
+        let originals: [Cartesian<f64, Body<f64>>; 5] = [
             Cartesian::new(1.0, 0.0, 0.0),
             Cartesian::new(0.0, 1.0, 0.0),
             Cartesian::new(0.0, 0.0, 1.0),
@@ -40,7 +41,7 @@ mod tests {
 
         for cart in &originals {
             let sph: Spherical<f64> = cart.into();
-            let cart2: Cartesian<f64> = (&sph).into();
+            let cart2: Cartesian<f64,Body<f64>> = (&sph).into();
 
             assert!(approx_eq(cart.x(), cart2.x()), "x: {} vs {}", cart.x(), cart2.x());
             assert!(approx_eq(cart.y(), cart2.y()), "y: {} vs {}", cart.y(), cart2.y());
@@ -57,7 +58,7 @@ mod tests {
             Cylindrical::new(3.0, 2.0, 1.0)
         ];
         for cyl in &originals {
-            let cart: Cartesian<f64> = cyl.into();
+            let cart: Cartesian<f64, Body<f64>> = cyl.into();
             let cyl2: Cylindrical<f64> = (&cart).into();
             assert!(approx_eq(cyl.r(), cyl2.r()));
             assert!(approx_eq(cyl.theta(), cyl2.theta()));
@@ -109,7 +110,7 @@ mod tests {
             Spherical::new(1.0, 0.0, PI),               // -z pole
         ];
         for sph in &originals {
-            let cart: Cartesian<f64> = sph.into();
+            let cart: Cartesian<f64, Body<f64>> = sph.into();
             let sph2: Spherical<f64> = (&cart).into();
 
             assert!(approx_eq(sph.r(), sph2.r()));

@@ -1,10 +1,10 @@
 use super::vector::Vector;
-use num_traits::Float;
+use num_traits::{Float};
 use core::ops::{Add, Sub, Mul, Div, Neg};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Matrix<T, const M: usize, const N: usize> {
-    pub data: [[T; N]; M],
+    pub data: [[T; N]; M]
 }
 
 impl<T: Copy, const M: usize, const N: usize> Matrix<T, M, N> {
@@ -12,7 +12,7 @@ impl<T: Copy, const M: usize, const N: usize> Matrix<T, M, N> {
         Self { data }
     }
 }
-impl<T: Default + Copy, const M: usize, const N: usize> Default for Matrix<T, M, N> {
+impl<T: Default + Copy + num_traits::Zero, const M: usize, const N: usize> Default for Matrix<T, M, N> {
     fn default() -> Self {
         Self {
             data: [[T::default(); N]; M],
@@ -37,8 +37,6 @@ where
     }
 }
 
-
-
 // Matrix subtraction
 impl<T, const M: usize, const N: usize> Sub for Matrix<T, M, N>
 where
@@ -50,23 +48,6 @@ where
         for r in 0..M {
             for c in 0..N {
                 result.data[r][c] = self.data[r][c] - rhs.data[r][c];
-            }
-        }
-        result
-    }
-}
-
-// Scalar multiplication
-impl<T, const M: usize, const N: usize> Mul<T> for Matrix<T, M, N>
-where
-    T: Float + Mul<Output = T> + Copy,
-{
-    type Output = Self;
-    fn mul(self, rhs: T) -> Self {
-        let mut result = self;
-        for r in 0..M {
-            for c in 0..N {
-                result.data[r][c] = self.data[r][c] * rhs;
             }
         }
         result
@@ -107,16 +88,42 @@ where
     }
 }
 
+// Scalar multiplication
+impl<U, S, const M: usize, const N: usize> Mul<S> for Matrix<U, M, N>
+where
+    U: Float + Mul<S, Output = U> + Copy,
+    S: Copy,
+    S: num_traits::Num + core::marker::Sized,
+    // Prevent overlap: S must not be a Matrix
+    // This uses a negative trait bound, which is not yet stable in Rust,
+    // so we use a trait bound that will not be satisfied for Matrix types.
+    // For practical purposes, we can add a bound that S: num_traits::Num, which Matrix does not implement.
+{
+    type Output = Matrix<U, M, N>;
+
+    fn mul(self, rhs: S) -> Self::Output {
+        let mut result = self;
+        for r in 0..M {
+            for c in 0..N {
+                result.data[r][c] = self.data[r][c] * rhs;
+            }
+        }
+        result
+    }
+}
+
 // Matrix multiplication
 impl<T, const M: usize, const N: usize, const P: usize> Mul<Matrix<T, N, P>> for Matrix<T, M, N>
 where
-    T: Float + Mul<Output = T> + Add<Output = T> + Copy + Default,
+    T: Float + Mul<Output = T> + Add<Output = T> + Copy + num_traits::Zero,
 {
     type Output = Matrix<T, M, P>;
+
     fn mul(self, rhs: Matrix<T, N, P>) -> Matrix<T, M, P> {
         let mut result = Matrix {
-            data: [[T::default(); P]; M],
+            data: [[T::zero(); P]; M],
         };
+
         for i in 0..M {
             for j in 0..P {
                 let mut sum = T::zero();
@@ -126,6 +133,7 @@ where
                 result.data[i][j] = sum;
             }
         }
+
         result
     }
 }
@@ -133,11 +141,13 @@ where
 // Matrix × Vector multiplication
 impl<T, const M: usize, const N: usize> Mul<Vector<T, N>> for Matrix<T, M, N>
 where
-    T: Float + Mul<Output = T> + Add<Output = T> + Copy + Default,
+    T: Float + Mul<Output = T> + Add<Output = T> + Copy + num_traits::Zero,
 {
     type Output = Vector<T, M>;
+
     fn mul(self, rhs: Vector<T, N>) -> Vector<T, M> {
-        let mut result = Vector { data: [T::default(); M] };
+        let mut result = Vector { data: [T::zero(); M] };
+
         for i in 0..M {
             let mut sum = T::zero();
             for j in 0..N {
@@ -145,6 +155,7 @@ where
             }
             result.data[i] = sum;
         }
+
         result
     }
 }
@@ -152,7 +163,7 @@ where
 // Generic Matrix Implementations
 impl<T, const M: usize, const N: usize> Matrix<T, M, N>
 where
-    T: Float + Default + Copy,
+    T: Float + Copy,
 {
     pub fn zeros() -> Self {
         Self { data: [[T::zero(); N]; M] }
@@ -164,7 +175,7 @@ where
 
 impl<T, const N: usize> Matrix<T, N, N>
 where
-    T: Float + Default + Copy,
+    T: Float + Copy,
 {
     // Returns an identity matrix
     pub fn identity() -> Self {
@@ -184,23 +195,9 @@ where
     }
 }
 
-impl<T, const M: usize, const N: usize> Matrix<T, M, N>
-where T: Copy + Default,
-{
-    pub fn transpose(&self) -> Matrix<T, N, M> {
-        let mut out = [[T::default(); M]; N];
-        for i in 0..M {
-            for j in 0..N {
-                out[j][i] = self.data[i][j];
-            }
-        }
-        Matrix { data: out }
-    }
-}
-
-impl<T: Copy + core::ops::AddAssign + Default, const N: usize> Matrix<T, N, N> {
+impl<T: Copy + core::ops::AddAssign + Default + num_traits::Zero, const N: usize> Matrix<T, N, N> {
     pub fn trace(&self) -> T {
-        let mut sum = T::default();
+        let mut sum = T::zero();
         for i in 0..N {
             sum += self.data[i][i];
         }
@@ -222,11 +219,83 @@ impl<T: Float + Copy> Matrix<T, 3, 3> {
       + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
     }
 }
-// Larger size matrices to come through LU Decomp or Laplace expansion, need to research.
+impl<T: Float + Copy + Default> Matrix<T, 3, 3> {
+    pub fn transpose(&self) -> Self {
+        let mut result = Matrix::zeros();
+        for i in 0..3 {
+            for j in 0..3 {
+                result[(i, j)] = self[(j, i)];
+            }
+        }
+        result
+    }
+
+    pub fn inverse(&self) -> Option<Self> {
+        let m = &self.data;
+
+        let det = self.determinant();
+        if det.abs() <= T::epsilon() {
+            return None; // Singular matrix
+        }
+
+        let inv_det = T::one() / det;
+
+        let mut inv = [[T::zero(); 3]; 3];
+
+        inv[0][0] =  (m[1][1] * m[2][2] - m[1][2] * m[2][1]) * inv_det;
+        inv[0][1] = -(m[0][1] * m[2][2] - m[0][2] * m[2][1]) * inv_det;
+        inv[0][2] =  (m[0][1] * m[1][2] - m[0][2] * m[1][1]) * inv_det;
+
+        inv[1][0] = -(m[1][0] * m[2][2] - m[1][2] * m[2][0]) * inv_det;
+        inv[1][1] =  (m[0][0] * m[2][2] - m[0][2] * m[2][0]) * inv_det;
+        inv[1][2] = -(m[0][0] * m[1][2] - m[0][2] * m[1][0]) * inv_det;
+
+        inv[2][0] =  (m[1][0] * m[2][1] - m[1][1] * m[2][0]) * inv_det;
+        inv[2][1] = -(m[0][0] * m[2][1] - m[0][1] * m[2][0]) * inv_det;
+        inv[2][2] =  (m[0][0] * m[1][1] - m[0][1] * m[1][0]) * inv_det;
+
+        Some(Matrix::new(inv))
+    }
+}
+
+impl<T: Float + Copy> Matrix<T, 4, 4> {
+    pub fn transpose(&self) -> Self {
+        let mut result = Matrix::zeros();
+        for i in 0..4 {
+            for j in 0..4 {
+                result[(i, j)] = self[(j, i)];
+            }
+        }
+        result
+    }
+    pub fn as_flat_array(&self) -> [T; 16] {
+        let mut flat = [self.data[0][0]; 16];
+        for i in 0..4 {
+            for j in 0..4 {
+                flat[i * 4 + j] = self.data[i][j];
+            }
+        }
+        flat
+    }
+}
 
 // Behavior
 use core::ops::{Index, IndexMut};
+// [m][n]
+impl<T, const M: usize, const N: usize> Index<usize> for Matrix<T, M, N> {
+    type Output = [T; N];
 
+    fn index(&self, row: usize) -> &Self::Output {
+        &self.data[row]
+    }
+}
+
+impl<T, const M: usize, const N: usize> IndexMut<usize> for Matrix<T, M, N> {
+    fn index_mut(&mut self, row: usize) -> &mut Self::Output {
+        &mut self.data[row]
+    }
+}
+// [(m, n)]
 impl<T, const M: usize, const N: usize> Index<(usize, usize)> for Matrix<T, M, N> {
     type Output = T;
 

@@ -1,5 +1,6 @@
 use crate::math::{Vector, Matrix};
 use crate::attitude::{Euler, DirectionCosineMatrix};
+use crate::reference_frame::ReferenceFrame;
 use num_traits::Float;
 use core::ops::{Mul, Add, Sub, Neg, Div};
 
@@ -43,7 +44,20 @@ impl<T: Float> Quaternion<T> {
     pub fn k(&self)->T{
         return self.data[3];
     }
-    
+}
+
+impl<T: Float + Copy> Quaternion<T> {
+    pub fn rotate_vector(&self, v: Vector<T, 3>) -> Vector<T, 3> {
+        let s = self.data[0]; // scalar part (w)
+        let u = Vector::new([self.data[1], self.data[2], self.data[3]]); // vector part (x, y, z)
+
+        let dot_uv = u.dot(&v);
+        let dot_uu = u.dot(&u);
+        let cross_uv = u.cross(&v);
+
+        let two = T::one() + T::one();
+        u * (two * dot_uv) + v * (s * s - dot_uu) + cross_uv * (two * s)
+    }
 }
 
 // Hamilton product for quaternion * quaternion
@@ -63,9 +77,9 @@ impl<T: Float> Mul for Quaternion<T> {
 }
 
 
-impl<T: Float> TryFrom<&DirectionCosineMatrix<T>> for Quaternion<T> {
+impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMatrix<T, A, B>> for Quaternion<T> {
     type Error = ();
-    fn try_from(dcm: &DirectionCosineMatrix<T>) -> Result<Self, Self::Error> {
+    fn try_from(dcm: &DirectionCosineMatrix<T, A, B>) -> Result<Self, Self::Error> {
         // Norm Constraint
         // https://motoq.github.io/doc/tnotes/dcmq.pdf
         let m = &dcm.as_matrix().data;
@@ -170,6 +184,30 @@ impl<T: Float> Div<T> for Quaternion<T> {
     type Output = Self;
     fn div(self, rhs: T) -> Self {
         Self { data: self.data / rhs }
+    }
+}
+
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
+#[cfg(feature = "serde")]
+impl<T: Float + Serialize> Serialize for Quaternion<T> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.data.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T: Float + Deserialize<'de>> Deserialize<'de> for Quaternion<T> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let data = Vector::<T, 4>::deserialize(deserializer)?;
+        Ok(Quaternion { data })
     }
 }
 

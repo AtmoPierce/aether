@@ -1,8 +1,8 @@
 use super::*;
 use approx::assert_relative_eq;
-use crate::Matrix;
-use crate::matrix;
+use crate::{matrix, math::Matrix};
 use crate::attitude::{DirectionCosineMatrix, Euler, Quaternion};
+use crate::reference_frame::Body;
 use num_traits::Float;
 
 pub fn matrices_approx_eq<T: Float + std::fmt::Debug>(
@@ -26,13 +26,13 @@ pub fn matrices_approx_eq<T: Float + std::fmt::Debug>(
     ok
 }
 
-pub fn test_round_trip<T>(dcm: DirectionCosineMatrix<T>, epsilon: T)
+pub fn test_round_trip<T>(dcm: DirectionCosineMatrix<T, Body<f64>, Body<f64>>, epsilon: T)
 where
     T: Float + std::fmt::Debug,
 {
     let q: Quaternion<T> = (&dcm).try_into().unwrap();        
     let q_n = q.normalized();
-    let dcm_rt = DirectionCosineMatrix::from(q_n);
+    let dcm_rt: DirectionCosineMatrix<T, Body<f64>, Body<f64>> = DirectionCosineMatrix::from(q_n);
     assert!(matrices_approx_eq(
         dcm.as_matrix(),
         dcm_rt.as_matrix(),
