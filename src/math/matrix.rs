@@ -311,6 +311,22 @@ impl<T, const M: usize, const N: usize> IndexMut<(usize, usize)> for Matrix<T, M
         &mut self.data[r][c]
     }
 }
+use num_traits::{NumCast, ToPrimitive};
+impl<T: ToPrimitive + Copy, const M: usize, const N: usize> Matrix<T, M, N> {
+    pub fn try_cast<U: NumCast + Copy>(self) -> Option<Matrix<U, M, N>> {
+        let mut out = [[U::from(0.0)?; N]; M]; // seed (any U value works)
+        for r in 0..M {
+            for c in 0..N {
+                out[r][c] = U::from(self.data[r][c])?;
+            }
+        }
+        Some(Matrix { data: out })
+    }
+
+    pub fn cast<U: NumCast + Copy>(self) -> Matrix<U, M, N> {
+        self.try_cast().expect("Matrix::cast: not able to cast matrix....")
+    }
+}
 
 // std
 #[cfg(feature = "std")]

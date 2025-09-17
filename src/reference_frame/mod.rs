@@ -9,14 +9,14 @@ mod icrf;
 mod itrf;
 mod ned;
 mod body;
-// mod unknown;
+mod unknown;
 
 pub use traits::{ReferenceFrame, FixedFrame, RotatingFrame};
 pub use icrf::ICRF;
 pub use itrf::ITRF;
 pub use ned::NED;
 pub use body::Body;
-// pub use unkown::Unknown;
+pub use unknown::Unknown;
 
 /// Enum for checking frame categories at runtime if needed
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

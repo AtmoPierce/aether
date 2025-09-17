@@ -297,6 +297,23 @@ impl<T, const N: usize> IndexMut<usize> for Vector<T, N> {
         &mut self.data[idx]
     }
 }
+use num_traits::{NumCast, ToPrimitive};
+impl<T: ToPrimitive + Copy, const N: usize> Vector<T, N> {
+    /// Fallible element-wise cast using `NumCast`
+    pub fn try_cast<U: NumCast + Copy>(self) -> Option<Vector<U, N>> {
+        // seed with a representable zero of U
+        let mut out = [U::from(0u8)?; N];
+        for i in 0..N {
+            out[i] = U::from(self.data[i])?;
+        }
+        Some(Vector { data: out })
+    }
+
+    /// Infallible (panics on unrepresentable value)
+    pub fn cast<U: NumCast + Copy>(self) -> Vector<U, N> {
+        self.try_cast().expect("Vector::cast: vector not castable.")
+    }
+}
 
 // Iterator
 // --- AsRef / AsMut ---
