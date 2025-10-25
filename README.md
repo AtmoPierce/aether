@@ -80,7 +80,7 @@ aether_core = { git = "https://github.com/atmopierce/aether.git", package = "aet
 
 ## Examples
 A basic Matrix and Vector multiplication.
-https://github.com/AtmoPierce/aether/blob/main/crates/aether_examples/src/matrix.rs
+https://github.com/AtmoPierce/aether/blob/2d9bad69b08f03916f7f264fce7eb26e2f15abd8/crates/aether_examples/src/matrix.rs
 
 Aether encodes reference frames in the type system, and gives you physically meaningful transforms as first-class functions.
 
@@ -89,7 +89,7 @@ Below we’ll:
 2. Rotate it into local **NED** (North-East-Down) using `body_to_ned(...)`.
 3. (Optionally) map that NED vector into an Earth-fixed frame using `ecef_to_ned(...)`.
 
-https://github.com/AtmoPierce/aether/blob/main/crates/aether_examples/src/coordinates.rs
+https://github.com/AtmoPierce/aether/blob/2d9bad69b08f03916f7f264fce7eb26e2f15abd8/crates/aether_examples/src/coordinates.rs
 
 ## Citation
 Michael Angeles. Aether: A Strongly-Typed Scientific Computing Framework for Simulation in Rust. 2025.
