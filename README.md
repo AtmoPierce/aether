@@ -2,6 +2,8 @@
 
 > **Aether** — an open, strongly-typed scientific computing framework for aerospace and physics simulation in Rust.
 
+![Aether](./docs/images/aether.png)
+
 This workspace contains the family of crates that make up **Aether**, a modular library suite for high-fidelity dynamics, control, and visualization.  
 Aether was designed to enable rigorous, reference-frame-aware computation for spacecraft, aircraft, and robotic systems — without sacrificing performance or clarity. Please feel free to contribute your own models, mathematics, and thoughts on this work.
 
