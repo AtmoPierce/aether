@@ -1,0 +1,5 @@
+[env]
+# Ensure cspice-sys can find the locally built CSPICE when building from the workspace root.
+# This points to aether_viz's vendored CSPICE built by its cargo-make tasks.
+CSPICE_DIR = { value = "crates/aether_viz/dependencies/cspice", relative = true }
+
