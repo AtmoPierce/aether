@@ -1,5 +1,4 @@
 #![cfg(feature = "std")]
-
 pub mod gaussian;
 pub mod multivariate;
 pub mod bernoulli;
