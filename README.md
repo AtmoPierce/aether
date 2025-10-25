@@ -75,7 +75,7 @@ cargo build --release
 To include a singular package via git
 ```toml
 [dependencies]
-aether_core = { git = "https://github.com/nuntius-aerospace/aether.git", package = "aether_core" }
+aether_core = { git = "https://github.com/atmopierce/aether.git", package = "aether_core" }
 ```
 
 ## Example
