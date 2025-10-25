@@ -5,10 +5,10 @@ use std::string::ToString;
 #[cfg(all(test, feature = "std"))]
 mod gd_stochastic_tests {
     use crate::gradient_descent::GDStochastic;
-    use aether::math::Vector;
+    use aether_core::math::Vector;
     use aether_rand::randomizers::xor_shift::XorShift64Star;
 
-    // Noisy quadratic: f(x) = 0.5 ||x||^2, grad = x + noise
+    // Noisy quadratic: f(x) = 0.5 ||x||^2, grad = x + noise``
     #[test]
     fn sgd_noisy_quadratic_converges() {
         let mut sgd: GDStochastic<2> = GDStochastic::new(0xDEADBEEF);

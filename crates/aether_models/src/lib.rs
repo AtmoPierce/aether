@@ -1,5 +1,5 @@
 // Re-export core modules so `crate::{math, coordinate, ...}` resolve
-pub use aether::{attitude, coordinate, math, numerical_methods, reference_frame, utils};
+pub use aether_core::{attitude, coordinate, math, numerical_methods, reference_frame, utils};
 
 // Expose this crate's content under `crate::models::...` as expected by modules
 pub mod models;

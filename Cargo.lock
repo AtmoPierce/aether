@@ -6,7 +6,17 @@ version = 4
 name = "aether"
 version = "0.1.0"
 dependencies = [
+ "aether_benchmark",
  "aether_core",
+ "aether_examples",
+ "aether_fluids",
+ "aether_graphics",
+ "aether_ml",
+ "aether_models",
+ "aether_opt",
+ "aether_rand",
+ "aether_shapes",
+ "aether_stats",
 ]
 
 [[package]]
@@ -44,7 +54,7 @@ version = "0.1.0"
 name = "aether_graphics"
 version = "0.1.0"
 dependencies = [
- "aether",
+ "aether_core",
  "num-traits",
 ]
 
@@ -52,7 +62,7 @@ dependencies = [
 name = "aether_ml"
 version = "0.1.0"
 dependencies = [
- "aether",
+ "aether_core",
  "aether_opt",
  "csv",
  "minstant",
@@ -65,14 +75,14 @@ dependencies = [
 name = "aether_models"
 version = "0.1.0"
 dependencies = [
- "aether",
+ "aether_core",
 ]
 
 [[package]]
 name = "aether_opt"
 version = "0.1.0"
 dependencies = [
- "aether",
+ "aether_core",
  "aether_rand",
  "num-traits",
 ]

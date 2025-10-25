@@ -1,5 +1,5 @@
-use aether::math::Vector;
-use aether::reference_frame::ReferenceFrame;
+use aether_core::math::Vector;
+use aether_core::reference_frame::ReferenceFrame;
 
 // 1) Define a phantom camera frame
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

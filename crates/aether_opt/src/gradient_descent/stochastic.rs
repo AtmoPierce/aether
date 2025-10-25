@@ -1,6 +1,6 @@
 #![cfg_attr(not(test), no_std)]
 
-use aether::math::Vector;
+use aether_core::math::Vector;
 
 // Use the shared RNG implementation from `crate::randomizers`.
 use aether_rand::randomizers::XorShift64Star;
@@ -137,7 +137,7 @@ impl<const N: usize> GDStochastic<N> {
 
     #[inline]
     fn norm2(v: &Vector<f64, N>) -> f64 {
-        let mut s = 0.0;
+        let mut s: f64 = 0.0;
         for i in 0..N {
             s += v[i] * v[i];
         }

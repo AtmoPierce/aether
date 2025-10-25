@@ -3,7 +3,7 @@
 // Requires std (parallelism via std::thread)
 use std::thread;
 
-use aether::math::Vector;
+use aether_core::math::Vector;
 use aether_rand::randomizers::XorShift64Star;
 use num_traits::{cast::cast, Float};
 

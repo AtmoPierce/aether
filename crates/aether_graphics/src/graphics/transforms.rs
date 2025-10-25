@@ -1,7 +1,7 @@
-use aether::attitude::DirectionCosineMatrix;
-use aether::coordinate::Cartesian;
-use aether::math::{Matrix, Vector};
-use aether::reference_frame::ReferenceFrame;
+use aether_core::attitude::DirectionCosineMatrix;
+use aether_core::coordinate::Cartesian;
+use aether_core::math::{Matrix, Vector};
+use aether_core::reference_frame::ReferenceFrame;
 use num_traits::Float;
 
 pub fn look_at<T: Float, F: ReferenceFrame>(

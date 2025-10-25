@@ -5,7 +5,7 @@ use std::string::ToString;
 mod gd_tests {
     extern crate std;
     use crate::gradient_descent::GradientDescentGeneric;
-    use aether::math::Vector;
+    use aether_core::math::Vector;
 
     // f(x) = 0.5 * ||x||^2, grad = x
     #[test]

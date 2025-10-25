@@ -8,6 +8,16 @@ crate-type = ["rlib"]
 
 [dependencies]
 aether_core = { path = "../aether_core" }
+aether_benchmark = { path = "../aether_benchmark" }
+aether_examples = { path = "../aether_examples" }
+aether_fluids = { path = "../aether_fluids" }
+aether_graphics = { path = "../aether_graphics" }
+aether_ml = { path = "../aether_ml" }
+aether_models = { path = "../aether_models" }
+aether_opt = { path = "../aether_opt" }
+aether_rand = { path = "../aether_rand" }
+aether_shapes = { path = "../aether_shapes" }
+aether_stats = { path = "../aether_stats" }
 
 [features]
 default = []

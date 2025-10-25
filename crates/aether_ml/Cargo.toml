@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-aether = {path = "../aether"}
 aether_opt = {path = "../aether_opt"}
+aether_core = { path = "../aether_core" }
 minstant = {version = "0.1.7"}
 once_cell = {version = "1.0"}
 num-traits = "0.2"

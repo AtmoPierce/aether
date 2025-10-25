@@ -1,7 +1,7 @@
 #[cfg(all(test, feature = "std"))]
 mod stochastic_parallel_tests {
     use crate::gradient_descent::GDStochasticParallel;
-    use aether::math::Vector;
+    use aether_core::math::Vector;
 
     // Converges on f(x) = 0.5||x||^2 with noisy grads.
     #[test]

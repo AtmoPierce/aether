@@ -1,6 +1,6 @@
 #![cfg_attr(not(test), no_std)]
 
-use aether::math::Vector;
+use aether_core::math::Vector;
 use num_traits::{cast::cast, Float};
 
 /// No-alloc, no_std gradient descent with optional momentum, projection,

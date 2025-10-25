@@ -7,5 +7,5 @@ edition = "2021"
 crate-type = ["rlib"]
 
 [dependencies]
-aether = { path = "../aether" }
 num-traits = "0.2"
+aether_core = { path = "../aether_core" }
