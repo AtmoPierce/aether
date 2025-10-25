@@ -1,11 +1,11 @@
 # Aether Workspace
 
-> **Aether** — an open, strongly-typed scientific computing framework for aerospace and physics simulation in Rust.
+> **Aether** - an open, strongly-typed scientific computing framework for aerospace and physics simulation in Rust.
 
 ![Aether](./docs/images/aether.png)
 
 This workspace contains the family of crates that make up **Aether**, a modular library suite for high-fidelity dynamics, control, and visualization.  
-Aether was designed to enable rigorous, reference-frame-aware computation for spacecraft, aircraft, and robotic systems — without sacrificing performance or clarity. Please feel free to contribute your own models, mathematics, and thoughts on this work.
+Aether was designed to enable rigorous, reference-frame-aware computation for spacecraft, aircraft, and robotic systems - without sacrificing performance or clarity. Please feel free to contribute your own models, mathematics, and thoughts on this work.
 
 ---
 
@@ -16,11 +16,11 @@ The intent behind publishing these crates is to **advance open, verifiable resea
 
 Our goals for the open library family are:
 
-1. **Transparency and reproducibility** — scientific methods should be inspectable, not black boxes.
-2. **Type-safe physics** — coordinate frames, units, and state representations should be encoded in the type system.
-3. **Performance through purity** — numerics should compile down to optimal code paths, suitable for HPC and embedded environments alike.
-4. **Interdisciplinary reusability** — the same primitives should serve orbital dynamics, machine learning, and structural analysis.
-5. **Open acceleration of science** — researchers, students, and engineers should be able to build upon a common foundation of reliable math and simulation code.
+1. **Transparency and reproducibility** - scientific methods should be inspectable, not black boxes.
+2. **Type-safe physics** - coordinate frames, units, and state representations should be encoded in the type system.
+3. **Performance through purity** - numerics should compile down to optimal code paths, suitable for HPC and embedded environments alike.
+4. **Interdisciplinary reusability** - the same primitives should serve orbital dynamics, machine learning, and structural analysis.
+5. **Open acceleration of science** - researchers, students, and engineers should be able to build upon a common foundation of reliable math and simulation code.
 
 Aether's open core is therefore made public to contribute to a verifiable, type-safe, and hardware-accelerated ecosystem for computational physics.
 
@@ -33,7 +33,7 @@ This workspace collects the following crates:
 | Crate | Description |
 |-------|--------------|
 | **aether** | Umbrella crate aggregating core modules for convenience. |
-| **aether_core** | Strongly-typed math foundation — matrices, vectors, quaternions, and reference frame abstractions. |
+| **aether_core** | Strongly-typed math foundation - matrices, vectors, quaternions, and reference frame abstractions. |
 | **aether_models** | Physical and dynamical models (rigid bodies, atmosphere, gravitation, etc.). |
 | **aether_fluids** | Fluid dynamics and continuum-mechanics primitives. |
 | **aether_shapes** | Geometric primitives for collision, inertia, and volumetric modeling. |
@@ -52,7 +52,7 @@ Aether is built on three core principles:
 
 1. **Strong Types for Strong Science**  
    Physical correctness is encoded at compile-time using the Rust type system.  
-   Reference frames, units, and coordinate systems are not strings — they are types.
+   Reference frames, units, and coordinate systems are not strings - they are types.
 
 2. **Numerical Transparency**  
    Every algorithm is written with clear linear-algebraic intent, leveraging static matrices, explicit arithmetic, and traceable computation steps.
@@ -106,6 +106,6 @@ Michael Angeles. Aether: A Strongly-Typed Scientific Computing Framework for Sim
 https://github.com/atmopierce/aether
 
 ## Contributing
-While Aether is primarily developed in support of my research, community contributions are welcome — especially those improving mathematical clarity, documentation, or academic integration (e.g., external bindings, notebooks, examples).
+While Aether is primarily developed in support of my research, community contributions are welcome - especially those improving mathematical clarity, documentation, or academic integration (e.g., external bindings, notebooks, examples).
 
 Please open an issue or pull request if you wish to contribute.
