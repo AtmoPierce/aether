@@ -1,0 +1,11 @@
+[package]
+name = "aether_examples"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "matrix"
+path = "src/example_matrix.rs"
+
+[dependencies]
+aether_core = {path = "../aether_core"}

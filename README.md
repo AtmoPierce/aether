@@ -78,6 +78,29 @@ To include a singular package via git
 aether_core = { git = "https://github.com/nuntius-aerospace/aether.git", package = "aether_core" }
 ```
 
+## Example
+```rust
+use aether_core::math::{Matrix, Vector};
+
+fn main() {
+    // Define a 3×3 rotation matrix (example: 45° rotation about Z-axis)
+    let theta = std::f64::consts::FRAC_PI_4;
+    let rot_z = Matrix::<f64, 3, 3>::new([
+        [ theta.cos(), -theta.sin(), 0.0 ],
+        [ theta.sin(),  theta.cos(), 0.0 ],
+        [ 0.0,          0.0,         1.0 ],
+    ]);
+
+    // Define a 3×1 vector (position, velocity, or generic state)
+    let v = Vector::<f64, 3>::new([1.0, 0.0, 0.0]);
+
+    // Apply the rotation
+    let v_rot = rot_z * v;
+
+    println!("Rotated vector: {:?}", v_rot);
+}
+```
+
 ## Citation
 Michael Angeles. Aether: A Strongly-Typed Scientific Computing Framework for Simulation in Rust. 2025.
 https://github.com/atmopierce/aether

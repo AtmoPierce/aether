@@ -4,6 +4,7 @@ members = [
     "crates/aether",
     "crates/aether_benchmark",
     "crates/aether_core", 
+    "crates/aether_examples", 
     "crates/aether_fluids",
     "crates/aether_graphics",
     "crates/aether_ml",

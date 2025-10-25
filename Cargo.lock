@@ -30,6 +30,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aether_examples"
+version = "0.1.0"
+dependencies = [
+ "aether_core",
+]
+
+[[package]]
 name = "aether_fluids"
 version = "0.1.0"
 
