@@ -78,27 +78,20 @@ To include a singular package via git
 aether_core = { git = "https://github.com/atmopierce/aether.git", package = "aether_core" }
 ```
 
-## Example
+## Examples
 ```rust
-use aether_core::math::{Matrix, Vector};
+# crates/aether_examples/matrix.rs
+```
 
-fn main() {
-    // Define a 3×3 rotation matrix (example: 45° rotation about Z-axis)
-    let theta = std::f64::consts::FRAC_PI_4;
-    let rot_z = Matrix::<f64, 3, 3>::new([
-        [ theta.cos(), -theta.sin(), 0.0 ],
-        [ theta.sin(),  theta.cos(), 0.0 ],
-        [ 0.0,          0.0,         1.0 ],
-    ]);
+Aether encodes reference frames in the type system, and gives you physically meaningful transforms as first-class functions.
 
-    // Define a 3×1 vector (position, velocity, or generic state)
-    let v = Vector::<f64, 3>::new([1.0, 0.0, 0.0]);
+Below we’ll:
+1. Define a vector in the **Body** frame of an aircraft/vehicle.
+2. Rotate it into local **NED** (North-East-Down) using `body_to_ned(...)`.
+3. (Optionally) map that NED vector into an Earth-fixed frame using `ecef_to_ned(...)`.
 
-    // Apply the rotation
-    let v_rot = rot_z * v;
-
-    println!("Rotated vector: {:?}", v_rot);
-}
+```rust
+# crates/aether_examples/coordinates.rs
 ```
 
 ## Citation

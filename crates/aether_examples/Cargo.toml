@@ -5,7 +5,11 @@ edition = "2021"
 
 [[bin]]
 name = "matrix"
-path = "src/example_matrix.rs"
+path = "src/matrix.rs"
+
+[[bin]]
+name = "coordinates"
+path = "src/coordinates.rs"
 
 [dependencies]
 aether_core = {path = "../aether_core"}
