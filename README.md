@@ -79,8 +79,27 @@ aether_core = { git = "https://github.com/atmopierce/aether.git", package = "aet
 ```
 
 ## Examples
-A basic Matrix and Vector multiplication.
-https://github.com/AtmoPierce/aether/blob/2d9bad69b08f03916f7f264fce7eb26e2f15abd8/crates/aether_examples/src/matrix.rs
+```rust
+use aether_core::math::{Matrix, Vector};
+
+fn main() {
+    // Define a 3×3 rotation matrix (example: 45° rotation about Z-axis)
+    let theta = std::f64::consts::FRAC_PI_4;
+    let rot_z = Matrix::<f64, 3, 3>::new([
+        [ theta.cos(), -theta.sin(), 0.0 ],
+        [ theta.sin(),  theta.cos(), 0.0 ],
+        [ 0.0,          0.0,         1.0 ],
+    ]);
+
+    // Define a 3×1 vector (position, velocity, or generic state)
+    let v = Vector::<f64, 3>::new([1.0, 0.0, 0.0]);
+
+    // Apply the rotation
+    let v_rot = rot_z * v;
+
+    println!("Rotated vector: {:?}", v_rot);
+}
+```
 
 Aether encodes reference frames in the type system, and gives you physically meaningful transforms as first-class functions.
 
@@ -89,7 +108,61 @@ Below we’ll:
 2. Rotate it into local **NED** (North-East-Down) using `body_to_ned(...)`.
 3. (Optionally) map that NED vector into an Earth-fixed frame using `ecef_to_ned(...)`.
 
-https://github.com/AtmoPierce/aether/blob/2d9bad69b08f03916f7f264fce7eb26e2f15abd8/crates/aether_examples/src/coordinates.rs
+```rust
+use aether_core::attitude::DirectionCosineMatrix;
+use aether_core::coordinate::Cartesian;
+use aether_core::reference_frame::{Body, NED, ITRF};
+use aether_core::reference_frame::transforms::{body_to_ned, ecef_to_ned};
+
+fn main() {
+    // Example 1: gravity measured in the BODY frame
+    //
+    // Imagine an IMU on a vehicle. In body coordinates, it "sees" gravity
+    // along +X (nose-forward) due to pitch attitude.
+    let gravity_body: Cartesian<f64, Body<f64>> = Cartesian::new(9.8, 0.0, 0.0);
+
+    // Current attitude: roll, pitch, yaw (rad)
+    let roll  = 0.0_f64.to_radians();
+    let pitch = -90.0_f64.to_radians(); // nose straight down
+    let yaw   = 0.0_f64.to_radians();
+
+    // Build the Body -> NED direction cosine matrix from Euler angles.
+    // body_to_ned() returns a DirectionCosineMatrix<Body, NED>.
+    let dcm_body_to_ned: DirectionCosineMatrix<f64, Body<f64>, NED<f64>> =
+        body_to_ned(roll, pitch, yaw);
+
+    // Rotate the measurement into NED coordinates.
+    let gravity_ned: Cartesian<f64, NED<f64>> = dcm_body_to_ned * gravity_body;
+
+    println!("Gravity in body frame: {}", gravity_body);
+    println!("Gravity in NED frame:  {}", gravity_ned);
+
+    // At this point, gravity_ned is tagged as NED<f64>, so downstream code
+    // cannot accidentally treat it as if it's already in Earth-fixed or inertial
+    // coordinates. The frame is part of the type.
+
+    // ---------------------------------------------------------
+    // Example 2: connect local navigation to Earth-fixed
+    // ---------------------------------------------------------
+
+    // Suppose we know where we are on Earth:
+    let latitude  = 34.7304_f64.to_radians();   // e.g. Huntsville, AL
+    let longitude = -86.5861_f64.to_radians();
+
+    // Build the ECEF(ITRF) -> NED transform at that geodetic location.
+    // ecef_to_ned() returns DirectionCosineMatrix<ITRF, NED>.
+    let dcm_ecef_to_ned: DirectionCosineMatrix<f64, ITRF<f64>, NED<f64>> =
+        ecef_to_ned(latitude, longitude);
+
+    // If we had some global force/velocity/etc. in ITRF/ECEF, we could move it into
+    // local navigation frame with dcm_ecef_to_ned. Conversely, its inverse (or `.transpose()`
+    // if you expose that) moves local NED vectors back to Earth-fixed coordinates.
+
+    // This gives you an auditable pipeline like:
+    // Body --> NED --> ITRF --> ICRF
+    // with no chance of "oops I mixed frames" bugs.
+}
+```
 
 ## Citation
 Michael Angeles. Aether: A Strongly-Typed Scientific Computing Framework for Simulation in Rust. 2025.
