@@ -18,7 +18,7 @@ exclude = []
 
 [workspace.package]
 edition = "2024"
-license-file = "licenses/proprietary/AETHER.LICENSE"
+license-file = "LICENSE.txt"
 rust-version = "1.88"
 version = "0.1.0"
 
