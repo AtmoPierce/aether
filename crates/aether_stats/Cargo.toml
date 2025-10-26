@@ -1,9 +1,18 @@
 [package]
 name = "aether_stats"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+
+[features]
+default = ["no_std"]
+std = []
+no_std = []
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
+num-traits = {version = "0.2"}
+aether_core = {path = "../aether_core"}
+aether_rand = {path = "../aether_rand"}
+aether_opt =  {path = "../aether_opt"}

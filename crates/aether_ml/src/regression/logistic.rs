@@ -1,5 +1,5 @@
 #![cfg(feature = "std")]
-use aether::math::Vector;
+use aether_core::math::Vector;
 use aether_opt::gradient_descent::GradientDescentGeneric;
 use num_traits::{cast::cast, Float};
 use std::vec::Vec;
@@ -92,11 +92,11 @@ impl<F: Float + Copy, const N: usize> LogisticRegression<F, N> {
             p_arr[i] = self.weights[i];
         }
         p_arr[N] = self.bias;
-        let x0 = aether::math::Vector::new(p_arr);
+        let x0 = Vector::new(p_arr);
 
         let tiny = F::one() / (F::one() + (F::one() + F::one()));
 
-        let f = |pv: &aether::math::Vector<F, M>| -> F {
+        let f = |pv: &Vector<F, M>| -> F {
             let mut loss = F::zero();
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut s = pv[N];
@@ -111,7 +111,7 @@ impl<F: Float + Copy, const N: usize> LogisticRegression<F, N> {
             loss / m
         };
 
-        let g = |pv: &aether::math::Vector<F, M>| -> aether::math::Vector<F, M> {
+        let g = |pv: &Vector<F, M>| -> Vector<F, M> {
             let mut grads: [F; M] = [F::zero(); M];
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut s = pv[N];
@@ -128,7 +128,7 @@ impl<F: Float + Copy, const N: usize> LogisticRegression<F, N> {
             for i in 0..M {
                 grads[i] = grads[i] / m;
             }
-            aether::math::Vector::new(grads)
+            Vector::new(grads)
         };
 
         let (p_opt, _fval, _iters, _conv) = opt.minimize(x0, f, g);
@@ -142,7 +142,7 @@ impl<F: Float + Copy, const N: usize> LogisticRegression<F, N> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aether::math::Vector;
+    use aether_core::math::Vector;
 
     #[test]
     fn train_linearly_separable() {

@@ -1,5 +1,5 @@
 #![cfg(feature = "std")]
-use aether::math::{Matrix, Vector};
+use aether_core::math::{Matrix, Vector};
 
 /// Linear Discriminant Analysis (Gaussian with shared covariance)
 pub struct Lda<const N: usize> {

@@ -46,7 +46,8 @@ digraph {
     "aether::math" [label="pub mod|math", fillcolor="#81c169"]; // "mod" node
     "aether::math::macros" [label="pub mod|math::macros", fillcolor="#81c169"]; // "mod" node
     "aether::math::matrix" [label="pub(self) mod|math::matrix", fillcolor="#db5367"]; // "mod" node
-    "aether::math::vector" [label="pub(self) mod|math::vector", fillcolor="#db5367"]; // "mod" node
+    "use aether_core::math::Vector;
+" [label="pub(self) mod|math::vector", fillcolor="#db5367"]; // "mod" node
     "aether::models" [label="pub mod|models", fillcolor="#81c169"]; // "mod" node
     "aether::models::terrestial" [label="pub mod|models::terrestial", fillcolor="#81c169"]; // "mod" node
     "aether::models::terrestial::atmospheres" [label="pub mod|models::terrestial::atmospheres", fillcolor="#81c169"]; // "mod" node
@@ -102,7 +103,8 @@ digraph {
     "aether::graphics" -> "aether::graphics::transforms" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "aether::math" -> "aether::math::macros" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "aether::math" -> "aether::math::matrix" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::math" -> "aether::math::vector" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::math" -> "use aether_core::math::Vector;
+" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "aether::models" -> "aether::models::terrestial" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "aether::models::terrestial" -> "aether::models::terrestial::atmospheres" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "aether::models::terrestial" -> "aether::models::terrestial::earth" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

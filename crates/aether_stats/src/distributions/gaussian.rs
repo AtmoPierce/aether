@@ -1,6 +1,6 @@
 #![cfg(feature = "std")]
-use aether::math::Vector;
-use crate::randomizers::XorShift64Star;
+use aether_core::math::Vector;
+use aether_rand::randomizers::XorShift64Star;
 use num_traits::{Float, FloatConst, cast};
 
 /// Univariate Gaussian distribution helpers parameterized over a floating type F.

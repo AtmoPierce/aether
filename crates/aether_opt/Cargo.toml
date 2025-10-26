@@ -1,7 +1,12 @@
 [package]
 name = "aether_opt"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+
+[features]
+default = ["no_std"]
+std = []
+no_std = []
 
 [lib]
 crate-type = ["rlib"]
@@ -10,7 +15,3 @@ crate-type = ["rlib"]
 aether_core = { path = "../aether_core" }
 aether_rand = { path = "../aether_rand" }
 num-traits = "0.2"
-
-[features]
-default = ["std"]
-std = []

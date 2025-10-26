@@ -1,5 +1,5 @@
 #![cfg(feature = "std")]
-use aether::math::Vector;
+use aether_core::math::Vector;
 use aether_opt::gradient_descent::GradientDescentGeneric;
 use num_traits::{cast::cast, Float};
 
@@ -86,10 +86,10 @@ impl<F: Float + Copy, const N: usize> LinearSvm<F, N> {
             p_arr[i] = self.weights[i];
         }
         p_arr[N] = self.bias;
-        let x0 = aether::math::Vector::new(p_arr);
+        let x0 = Vector::new(p_arr);
         let c = self.c;
 
-        let f = move |pv: &aether::math::Vector<F, M>| -> F {
+        let f = move |pv: &Vector<F, M>| -> F {
             let mut loss = F::zero();
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut s = pv[N];
@@ -111,7 +111,7 @@ impl<F: Float + Copy, const N: usize> LinearSvm<F, N> {
             loss / m + (rw / (two * c))
         };
 
-        let g = move |pv: &aether::math::Vector<F, M>| -> aether::math::Vector<F, M> {
+        let g = move |pv: &Vector<F, M>| -> Vector<F, M> {
             let mut grads: [F; M] = [F::zero(); M];
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let y_f: F = if yi >= 0 { F::one() } else { -F::one() };
@@ -131,7 +131,7 @@ impl<F: Float + Copy, const N: usize> LinearSvm<F, N> {
                 grads[i] = grads[i] / m + pv[i] / c;
             }
             grads[N] = grads[N] / m;
-            aether::math::Vector::new(grads)
+            aether_core::math::Vector::new(grads)
         };
 
         let (p_opt, _fval, _iters, _conv) = opt.minimize(x0, f, g);
@@ -145,7 +145,7 @@ impl<F: Float + Copy, const N: usize> LinearSvm<F, N> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aether::math::Vector;
+    use aether_core::math::Vector;
 
     #[test]
     fn svm_simple() {

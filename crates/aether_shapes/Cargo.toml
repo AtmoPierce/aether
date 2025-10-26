@@ -5,6 +5,11 @@ license-file.workspace = true
 rust-version.workspace = true
 version.workspace = true
 
+[features]
+default = ["no_std"]
+std = []
+no_std = []
+
 [dependencies]
 aether_core = {path = "../aether_core"}
 num-traits = "0.2"

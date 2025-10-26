@@ -1,5 +1,5 @@
 #![cfg(feature = "std")]
-use aether::math::Vector;
+use aether_core::math::Vector;
 use aether_opt::gradient_descent::GradientDescentGeneric;
 use num_traits::{cast::cast, Float};
 
@@ -77,10 +77,10 @@ impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
             p_arr[i] = self.weights[i];
         }
         p_arr[N] = self.bias;
-        let x0 = aether::math::Vector::new(p_arr);
+        let x0 = Vector::new(p_arr);
         let alpha = self.alpha;
         let two = F::one() + F::one();
-        let f = move |pv: &aether::math::Vector<F, M>| -> F {
+        let f = move |pv: &Vector<F, M>| -> F {
             let mut loss = F::zero();
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut pred = pv[N];
@@ -98,7 +98,7 @@ impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
             (loss / m) + alpha * rw
         };
 
-        let g = move |pv: &aether::math::Vector<F, M>| -> aether::math::Vector<F, M> {
+        let g = move |pv: &Vector<F, M>| -> Vector<F, M> {
             let mut grads: [F; M] = [F::zero(); M];
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut pred = pv[N];
@@ -115,7 +115,7 @@ impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
                 grads[i] = grads[i] / m + two * alpha * pv[i];
             }
             grads[N] = grads[N] / m;
-            aether::math::Vector::new(grads)
+            Vector::new(grads)
         };
 
         let (p_opt, _fval, _iters, _conv) = opt.minimize(x0, f, g);
@@ -129,7 +129,7 @@ impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aether::math::Vector;
+    use aether_core::math::Vector;
 
     #[test]
     fn ridge_handles_overfit() {

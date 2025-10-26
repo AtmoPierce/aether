@@ -1,10 +1,15 @@
 [package]
 name = "aether_benchmark"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [lib]
 crate-type = ["rlib"]
+
+[features]
+default = ["no_std"]
+std = []
+no_std = []
 
 [dependencies]
 minstant = "0.1.7"

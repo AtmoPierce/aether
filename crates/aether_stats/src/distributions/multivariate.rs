@@ -1,5 +1,5 @@
 #![cfg(feature = "std")]
-use aether::math::{Vector, Matrix};
+use aether_core::math::{Vector, Matrix};
 use num_traits::{Float, cast::cast };
 
 /// Multivariate Normal distribution with mean vector and covariance matrix.
@@ -35,7 +35,7 @@ pub type MultivariateNormalF64<const N: usize> = MultivariateNormal<f64, N>;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aether::math::{Vector, Matrix};
+    use aether_core::math::{Vector, Matrix};
 
     #[test]
     fn mvn_pdf_1d_matches_univariate() {

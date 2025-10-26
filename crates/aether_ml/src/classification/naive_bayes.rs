@@ -1,5 +1,5 @@
 #![cfg(feature = "std")]
-use aether::math::Vector;
+use aether_core::math::Vector;
 
 /// Gaussian Naive Bayes for fixed-size feature vectors.
 pub struct GaussianNB<const N: usize> {
@@ -84,7 +84,7 @@ impl<const N: usize> GaussianNB<N> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aether::math::Vector;
+    use aether_core::math::Vector;
 
     #[test]
     fn gnb_simple() {

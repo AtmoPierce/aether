@@ -1,18 +1,20 @@
 [package]
 name = "aether_ml"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+
+[features]
+default = ["no_std"]
+std = []
+no_std = []
 
 [dependencies]
 aether_opt = {path = "../aether_opt"}
 aether_core = { path = "../aether_core" }
 minstant = {version = "0.1.7"}
 once_cell = {version = "1.0"}
-num-traits = "0.2"
+num-traits = {version = "*"}
 csv = {version = "*"}
 serde = {version = "1.0", features = ["derive"]}
-[features]
-default = []
-std = []
 
 [target.'cfg(feature = "std")'.dependencies]

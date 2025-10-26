@@ -318,17 +318,21 @@
 <polygon fill="#000000" stroke="#000000" points="1149.85,-158.02 1154.04,-148.29 1144.69,-153.29 1149.85,-158.02"/>
 <text text-anchor="middle" x="1064.51" y="-235.14" font-family="monospace" font-size="10.00">owns</text>
 </g>
-<!-- aether::math::vector -->
+<!-- use aether_core::math::Vector;
+ -->
 <g id="node18" class="node">
-<title>aether::math::vector</title>
+<title>use aether_core::math::Vector;
+</title>
 <polygon fill="#db5367" stroke="black" points="840.33,-91.78 840.33,-129.78 935.33,-129.78 935.33,-91.78 840.33,-91.78"/>
 <text text-anchor="middle" x="887.83" y="-117.78" font-family="monospace" font-size="10.00">pub(self) mod</text>
 <polyline fill="none" stroke="black" points="840.33,-110.78 935.33,-110.78 "/>
 <text text-anchor="middle" x="887.83" y="-98.78" font-family="monospace" font-size="10.00">math::vector</text>
 </g>
-<!-- aether::math&#45;&gt;aether::math::vector -->
+<!-- aether::math&#45;&gt;use aether_core::math::Vector;
+ -->
 <g id="edge21" class="edge">
-<title>aether::math&#45;&gt;aether::math::vector</title>
+<title>aether::math&#45;&gt;use aether_core::math::Vector;
+</title>
 <path fill="none" stroke="#000000" d="M980.29,-308.4C962.36,-270.06 922.09,-183.98 901.11,-139.15"/>
 <polygon fill="#000000" stroke="#000000" points="904.23,-137.56 896.82,-129.98 897.89,-140.52 904.23,-137.56"/>
 <text text-anchor="middle" x="928.2" y="-226.77" font-family="monospace" font-size="10.00">owns</text>
