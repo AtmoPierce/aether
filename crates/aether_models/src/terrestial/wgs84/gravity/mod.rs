@@ -1,4 +1,4 @@
-use crate::models::terrestial::wgs84::{
+use crate::models::terrestrial::wgs84::{
     constants::{a, b, e2, g_e, k, w, E, GM},
     transforms::ecef_to_geocentric_ferrari,
 };

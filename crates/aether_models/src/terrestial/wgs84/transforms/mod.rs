@@ -1,4 +1,4 @@
-use crate::models::terrestial::wgs84::constants::{a, b, e2, g_e, k, w, E, GM};
+use crate::models::terrestrial::wgs84::constants::{a, b, e2, g_e, k, w, E, GM};
 use crate::{
     attitude::DirectionCosineMatrix,
     coordinate::Cartesian,

@@ -49,25 +49,25 @@ digraph {
     "use aether_core::math::Vector;
 " [label="pub(self) mod|math::vector", fillcolor="#db5367"]; // "mod" node
     "aether::models" [label="pub mod|models", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial" [label="pub mod|models::terrestial", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres" [label="pub mod|models::terrestial::atmospheres", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres::isa" [label="pub mod|models::terrestial::atmospheres::isa", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres::layers" [label="pub mod|models::terrestial::atmospheres::layers", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres::layers::mesopause" [label="pub mod|models::terrestial::atmospheres::layers::mesopause", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres::layers::mesosphere" [label="pub mod|models::terrestial::atmospheres::layers::mesosphere", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres::layers::stratopause" [label="pub mod|models::terrestial::atmospheres::layers::stratopause", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres::layers::stratosphere" [label="pub mod|models::terrestial::atmospheres::layers::stratosphere", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres::layers::tropopause" [label="pub mod|models::terrestial::atmospheres::layers::tropopause", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres::layers::troposphere" [label="pub mod|models::terrestial::atmospheres::layers::troposphere", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::atmospheres::ussa" [label="pub mod|models::terrestial::atmospheres::ussa", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::earth" [label="pub mod|models::terrestial::earth", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::earth::tests" [label="pub(self) mod|models::terrestial::earth::tests", fillcolor="#db5367"]; // "mod" node
-    "aether::models::terrestial::iers" [label="pub mod|models::terrestial::iers", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::iers::constants" [label="pub mod|models::terrestial::iers::constants", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::wgs84" [label="pub mod|models::terrestial::wgs84", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::wgs84::constants" [label="pub mod|models::terrestial::wgs84::constants", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::wgs84::gravity" [label="pub mod|models::terrestial::wgs84::gravity", fillcolor="#81c169"]; // "mod" node
-    "aether::models::terrestial::wgs84::transforms" [label="pub mod|models::terrestial::wgs84::transforms", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial" [label="pub mod|models::terrestrial", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres" [label="pub mod|models::terrestrial::atmospheres", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres::isa" [label="pub mod|models::terrestrial::atmospheres::isa", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres::layers" [label="pub mod|models::terrestrial::atmospheres::layers", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres::layers::mesopause" [label="pub mod|models::terrestrial::atmospheres::layers::mesopause", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres::layers::mesosphere" [label="pub mod|models::terrestrial::atmospheres::layers::mesosphere", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres::layers::stratopause" [label="pub mod|models::terrestrial::atmospheres::layers::stratopause", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres::layers::stratosphere" [label="pub mod|models::terrestrial::atmospheres::layers::stratosphere", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres::layers::tropopause" [label="pub mod|models::terrestrial::atmospheres::layers::tropopause", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres::layers::troposphere" [label="pub mod|models::terrestrial::atmospheres::layers::troposphere", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::atmospheres::ussa" [label="pub mod|models::terrestrial::atmospheres::ussa", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::earth" [label="pub mod|models::terrestrial::earth", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::earth::tests" [label="pub(self) mod|models::terrestrial::earth::tests", fillcolor="#db5367"]; // "mod" node
+    "aether::models::terrestrial::iers" [label="pub mod|models::terrestrial::iers", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::iers::constants" [label="pub mod|models::terrestrial::iers::constants", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::wgs84" [label="pub mod|models::terrestrial::wgs84", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::wgs84::constants" [label="pub mod|models::terrestrial::wgs84::constants", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::wgs84::gravity" [label="pub mod|models::terrestrial::wgs84::gravity", fillcolor="#81c169"]; // "mod" node
+    "aether::models::terrestrial::wgs84::transforms" [label="pub mod|models::terrestrial::wgs84::transforms", fillcolor="#81c169"]; // "mod" node
     "aether::numerical_methods" [label="pub mod|numerical_methods", fillcolor="#81c169"]; // "mod" node
     "aether::numerical_methods::integration" [label="pub mod|numerical_methods::integration", fillcolor="#81c169"]; // "mod" node
     "aether::numerical_methods::integration::euler" [label="pub mod|numerical_methods::integration::euler", fillcolor="#81c169"]; // "mod" node
@@ -105,25 +105,25 @@ digraph {
     "aether::math" -> "aether::math::matrix" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "aether::math" -> "use aether_core::math::Vector;
 " [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models" -> "aether::models::terrestial" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial" -> "aether::models::terrestial::atmospheres" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial" -> "aether::models::terrestial::earth" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial" -> "aether::models::terrestial::iers" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial" -> "aether::models::terrestial::wgs84" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::atmospheres" -> "aether::models::terrestial::atmospheres::isa" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::atmospheres" -> "aether::models::terrestial::atmospheres::layers" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::atmospheres" -> "aether::models::terrestial::atmospheres::ussa" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::atmospheres::layers" -> "aether::models::terrestial::atmospheres::layers::mesopause" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::atmospheres::layers" -> "aether::models::terrestial::atmospheres::layers::mesosphere" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::atmospheres::layers" -> "aether::models::terrestial::atmospheres::layers::stratopause" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::atmospheres::layers" -> "aether::models::terrestial::atmospheres::layers::stratosphere" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::atmospheres::layers" -> "aether::models::terrestial::atmospheres::layers::tropopause" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::atmospheres::layers" -> "aether::models::terrestial::atmospheres::layers::troposphere" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::earth" -> "aether::models::terrestial::earth::tests" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::iers" -> "aether::models::terrestial::iers::constants" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::wgs84" -> "aether::models::terrestial::wgs84::constants" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::wgs84" -> "aether::models::terrestial::wgs84::gravity" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "aether::models::terrestial::wgs84" -> "aether::models::terrestial::wgs84::transforms" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models" -> "aether::models::terrestrial" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial" -> "aether::models::terrestrial::atmospheres" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial" -> "aether::models::terrestrial::earth" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial" -> "aether::models::terrestrial::iers" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial" -> "aether::models::terrestrial::wgs84" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::atmospheres" -> "aether::models::terrestrial::atmospheres::isa" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::atmospheres" -> "aether::models::terrestrial::atmospheres::layers" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::atmospheres" -> "aether::models::terrestrial::atmospheres::ussa" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::atmospheres::layers" -> "aether::models::terrestrial::atmospheres::layers::mesopause" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::atmospheres::layers" -> "aether::models::terrestrial::atmospheres::layers::mesosphere" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::atmospheres::layers" -> "aether::models::terrestrial::atmospheres::layers::stratopause" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::atmospheres::layers" -> "aether::models::terrestrial::atmospheres::layers::stratosphere" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::atmospheres::layers" -> "aether::models::terrestrial::atmospheres::layers::tropopause" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::atmospheres::layers" -> "aether::models::terrestrial::atmospheres::layers::troposphere" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::earth" -> "aether::models::terrestrial::earth::tests" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::iers" -> "aether::models::terrestrial::iers::constants" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::wgs84" -> "aether::models::terrestrial::wgs84::constants" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::wgs84" -> "aether::models::terrestrial::wgs84::gravity" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "aether::models::terrestrial::wgs84" -> "aether::models::terrestrial::wgs84::transforms" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "aether::numerical_methods" -> "aether::numerical_methods::integration" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "aether::numerical_methods::integration" -> "aether::numerical_methods::integration::euler" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "aether::numerical_methods::integration" -> "aether::numerical_methods::integration::rk4" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

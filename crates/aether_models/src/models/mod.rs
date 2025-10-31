@@ -1,7 +1,7 @@
 // Bridge module to match expected `crate::models::...` paths
 
-pub mod terrestial {
-    pub use crate::terrestial::*;
+pub mod terrestrial {
+    pub use crate::terrestrial::*;
 }
 
 pub mod celestial {

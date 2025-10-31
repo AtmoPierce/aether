@@ -6,4 +6,4 @@ pub mod models;
 
 // Root modules for this crate's own content
 pub mod celestial;
-pub mod terrestial;
+pub mod terrestrial;
