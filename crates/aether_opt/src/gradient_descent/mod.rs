@@ -4,9 +4,9 @@ pub use basic::*;
 pub mod stochastic;
 pub use stochastic::*;
 
-#[cfg(std)]
+#[cfg(feature = "std")]
 pub mod stochastic_parallel;
-#[cfg(std)]
+#[cfg(feature = "std")]
 pub use stochastic_parallel::*;
 
 #[cfg(test)]
