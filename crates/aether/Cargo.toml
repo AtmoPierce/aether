@@ -21,10 +21,32 @@ aether_stats = { path = "../aether_stats" }
 
 [features]
 default = []
-# Pass-through commonly used features to aether_core
+# Pass-through commonly used features to the subcrates
 serde = ["aether_core/serde"]
-std = ["aether_core/std"]
-no_std = ["aether_core/no_std"]
+std = [
+    "aether_core/std",
+    "aether_benchmark/std",
+    "aether_fluids/std",
+    "aether_graphics/std",
+    "aether_ml/std",
+    "aether_models/std",
+    "aether_opt/std",
+    "aether_rand/std",
+    "aether_shapes/std",
+    "aether_stats/std",
+]
+no_std = [
+    "aether_core/no_std",
+    "aether_benchmark/no_std",
+    "aether_fluids/no_std",
+    "aether_graphics/no_std",
+    "aether_ml/no_std",
+    "aether_models/no_std",
+    "aether_opt/no_std",
+    "aether_rand/no_std",
+    "aether_shapes/no_std",
+    "aether_stats/no_std",
+]
 regex = ["aether_core/regex"]
 rustyline = ["aether_core/rustyline"]
 serde-json-core = ["aether_core/serde-json-core"]
