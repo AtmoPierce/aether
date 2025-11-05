@@ -4,6 +4,7 @@ use core::iter::FromIterator;
 use core::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 use core::slice::{Iter, IterMut};
 use num_traits::Float;
+use crate::math::Matrix;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector<T, const N: usize> {
