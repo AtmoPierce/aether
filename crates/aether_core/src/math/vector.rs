@@ -311,6 +311,19 @@ impl<T: ToPrimitive + Copy, const N: usize> Vector<T, N> {
     }
 }
 
+// Convert to matrix.
+impl<T: Copy, const N: usize> Vector<T, N> {
+    #[inline]
+    pub fn row(self) -> Matrix<T, 1, N> {
+        Matrix { data: [self.data] }                // [[T; N]; 1]
+    }
+
+    #[inline]
+    pub fn col(self) -> Matrix<T, N, 1> {
+        Matrix { data: self.data.map(|x| [x]) }     // [[T; 1]; N]
+    }
+}
+
 // Iterator
 // --- AsRef / AsMut ---
 impl<T, const N: usize> AsRef<[T; N]> for Vector<T, N> {

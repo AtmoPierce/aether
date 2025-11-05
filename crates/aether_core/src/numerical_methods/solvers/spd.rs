@@ -10,7 +10,6 @@ impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
     /// Compute lower Cholesky: A = L * L^t. Returns None if not SPD.
     pub fn cholesky_lower(&self) -> Option<CholLower<T, N>> {
         let mut l = Matrix::<T, N, N>::zeros();
-
         for i in 0..N {
             for j in 0..=i {
                 let mut s = self[(i, j)];
