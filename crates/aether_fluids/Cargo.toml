@@ -1,9 +1,9 @@
 [package]
 name = "aether_fluids"
 edition.workspace = true
-license-file.workspace = true
 rust-version.workspace = true
 version.workspace = true
+license-file.workspace = true
 
 [features]
 default = ["no_std"]

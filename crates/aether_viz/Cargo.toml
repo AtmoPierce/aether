@@ -1,9 +1,10 @@
 [package]
 name = "aether_viz"
-version = "0.1.1"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license-file.workspace = true
 description = "Plotting helpers for Aether (errors, vectors, heatmaps)."
-license = "MIT OR Apache-2.0"
 
 [dependencies]
 plotters = { version = "0.3.7", default-features = true, features = [] }

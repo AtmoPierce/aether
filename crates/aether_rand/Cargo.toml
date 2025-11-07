@@ -1,7 +1,9 @@
 [package]
 name = "aether_rand"
-version = "0.1.1"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license-file.workspace = true
 
 [features]
 default = ["no_std"]
