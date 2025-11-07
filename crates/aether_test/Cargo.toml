@@ -1,0 +1,30 @@
+[package]
+name = "aether_test"
+version = "0.1.1"
+edition = "2021"
+description = "Testing utilities and plotting tools for the Aether math and simulation ecosystem."
+authors = ["Michael Angeles <michael@nuntius.us>"]
+license = "MIT OR Apache-2.0"
+repository = "https://git.nuntius.us/aether"
+readme = "README.md"
+categories = ["science", "mathematics", "development-tools::testing"]
+keywords = ["aether", "matrix", "vector", "test", "plot"]
+
+[features]
+plots = ["dep:aether_viz", "aether_viz/svg"]     # or "aether_viz/bitmap"
+
+[dependencies]
+aether_core = { path = "../aether_core", version = "0.1.1" }
+aether_viz = { path = "../aether_viz", optional = true, default-features = false }
+thiserror = "*"
+
+# Numerical and comparison helpers
+num-traits = "0.2"
+approx = "0.5" # For float comparison (assert_abs_diff_eq, etc.)
+
+[dev-dependencies]
+
+
+[lib]
+name = "aether_test"
+path = "src/lib.rs"

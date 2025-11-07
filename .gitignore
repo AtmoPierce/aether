@@ -1,1 +1,6 @@
 /target
+*.svg
+*.png
+*.bmp
+*.pdf
+*.log

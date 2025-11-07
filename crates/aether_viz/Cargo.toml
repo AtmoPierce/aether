@@ -1,0 +1,20 @@
+[package]
+name = "aether_viz"
+version = "0.1.1"
+edition = "2021"
+description = "Plotting helpers for Aether (errors, vectors, heatmaps)."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+plotters = { version = "0.3.7", default-features = true, features = [] }
+
+[features]
+svg = ["plotters/svg_backend"]
+bitmap = ["plotters/bitmap_backend"]
+line_series = ["plotters/line_series"]
+
+default = ["svg", "line_series"]   # or make this empty if you want opt-in
+
+[lib]
+name = "aether_viz"
+path = "src/lib.rs"

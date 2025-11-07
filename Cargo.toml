@@ -13,6 +13,8 @@ members = [
     "crates/aether_rand",
     "crates/aether_shapes",
     "crates/aether_stats", 
+    "crates/aether_test", 
+    "crates/aether_viz"
 ]
 exclude = []
 
@@ -20,7 +22,7 @@ exclude = []
 edition = "2021"
 license-file = "LICENSE.txt"
 rust-version = "1.88"
-version = "0.1.0"
+version = "0.1.1"
 
 [workspace.lints.rust]
 # Make warnings fail in CI without breaking local dev:

@@ -34,7 +34,7 @@ mod tests {
             let original = euler.data.data[i];
             let recovered = euler_back.data.data[i];
 
-            // Optionally unwrap the angle difference to (-π, π)
+            // Optionally unwrap the angle difference to (-pi, pi)
             let diff = (original - recovered + std::f64::consts::PI) % (2.0 * std::f64::consts::PI)
                 - std::f64::consts::PI;
 

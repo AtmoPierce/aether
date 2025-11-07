@@ -124,3 +124,20 @@ mod cholesky_tests {
         println!("Non-SPD matrix correctly rejected");
     }
 }
+
+#[cfg(test)]
+mod newton_raphson_tests {
+    use crate::numerical_methods::solvers::newton::NewtonRaphson;
+    #[test]
+    fn test_newton_raphson() {
+        let solver = NewtonRaphson::new(1e-7, 100);
+        // Test: f(x) = x^2 - 2, root at sqrt(2)
+        let f = |x: f64| x * x - 2.0;
+        let df = |x: f64| 2.0 * x;
+        let initial_guess = 1.0;
+        let root = solver.solve(initial_guess, f, df).expect("Failed to find root");
+        let expected = 2f64.sqrt();
+        assert!((root - expected).abs() < 1e-7, "Root found: {}, expected: {}", root, expected);
+        println!("Newton-Raphson test passed: root = {}, expected = {}", root, expected);
+    }
+}
