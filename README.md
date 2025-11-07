@@ -33,16 +33,20 @@ This workspace collects the following crates:
 | Crate | Description |
 |-------|--------------|
 | **aether** | Umbrella crate aggregating core modules for convenience. |
-| **aether_core** | Strongly-typed math foundation - matrices, vectors, quaternions, and reference frame abstractions. |
+| **aether_core** | Strongly-typed math foundation — matrices, vectors, quaternions, and reference frame abstractions. |
 | **aether_models** | Physical and dynamical models (rigid bodies, atmosphere, gravitation, etc.). |
-| **aether_fluids** | Fluid dynamics and continuum-mechanics primitives. |
 | **aether_shapes** | Geometric primitives for collision, inertia, and volumetric modeling. |
+| **aether_fluids** | Fluid dynamics and continuum-mechanics primitives. |
 | **aether_graphics** | Rendering and visualization utilities for simulation and analysis. |
-| **aether_ml** | Lightweight scientific machine learning and regression utilities integrated with Aether math types. |
+| **aether_viz** | Unified plotting and visualization crate (based on Plotters), supporting line and point series, multi-series overlays, and optional SVG/bitmap backends. |
 | **aether_opt** | Optimization and control algorithms (gradient descent, Riccati solvers, MPC scaffolding). |
-| **aether_rand** | Deterministic RNGs and sampling utilities for simulations. |
+| **aether_ml** | Lightweight scientific machine learning and regression utilities integrated with Aether math types. |
 | **aether_stats** | Statistical analysis, regression, and signal-processing tools. |
+| **aether_rand** | Deterministic RNGs and sampling utilities for simulations. |
+| **aether_test** | Assertion and validation utilities for verifying matrix/vector operations, with optional plotting for numerical analysis. |
 | **aether_benchmark** | Performance tests and HPC kernels for benchmarking Aether numerics. |
+| **aether_examples** | Demonstrations, tutorials, and validation notebooks showing how to use the Aether ecosystem together. |
+
 
 ---
 
@@ -163,6 +167,15 @@ fn main() {
     // with no chance of "oops I mixed frames" bugs.
 }
 ```
+
+Notes on Internal Crates
+
+- Crates such as **aether_viz** and **aether_test** are **developer-oriented**, designed to make verification, documentation, and result visualization easier.
+- `aether_viz` can be built with optional features:
+  ```toml
+  [features]
+  svg = ["plotters/svg_backend"]
+  bitmap = ["plotters/bitmap_backend"]
 
 ## Citation
 Michael Angeles. Aether: A Strongly-Typed Scientific Computing Framework for Simulation in Rust. 2025.
