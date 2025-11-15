@@ -1,0 +1,13 @@
+[package]
+name = "aether_units"
+edition.workspace = true
+license-file.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[dependencies]
+aether_core = {path="../aether_core"}
+fpx = {git = "https://github.com/AtmoPierce/fpx.git", features = ["design"]}
+
+[lints]
+workspace = true

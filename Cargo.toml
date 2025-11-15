@@ -13,7 +13,7 @@ members = [
     "crates/aether_rand",
     "crates/aether_shapes",
     "crates/aether_stats", 
-    "crates/aether_test", 
+    "crates/aether_test", "crates/aether_units", 
     "crates/aether_viz"
 ]
 exclude = []
