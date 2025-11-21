@@ -1,10 +1,10 @@
-use num_traits::Float;
-pub struct NewtonRaphson<T: Float> {
+use crate::real::Real;
+pub struct NewtonRaphson<T: Real> {
     tolerance: T,
     max_iterations: usize,
 }
 
-impl <T: Float> NewtonRaphson<T> {
+impl <T: Real> NewtonRaphson<T> {
     pub fn new(tolerance: T, max_iterations: usize) -> Self {
         Self {
             tolerance,
@@ -20,7 +20,7 @@ impl <T: Float> NewtonRaphson<T> {
             let f_val = f(guess);
             let df_val = df(guess);
 
-            if df_val.is_zero() {
+            if df_val == T::ZERO {
                 return Err("Derivative is zero; no solution found.");
             }
 

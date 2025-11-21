@@ -9,6 +9,8 @@ license-file.workspace = true
 default = ["no_std"]
 std = []
 no_std = []
+f16 = []
+f128 = []
 
 [lib]
 crate-type=["rlib", "staticlib", "cdylib"]
@@ -35,7 +37,6 @@ codegen-units = 256
 
 [dependencies]
 num-traits = "0.2"
-fpx = { git = "https://github.com/AtmoPierce/fpx.git" }
 rustyline = { version = "13", optional=true}
 regex = { version = "1", optional=true}
 serde = { version = "1.0", default-features=false, features = ["derive"], optional=true}
