@@ -2,9 +2,9 @@ use aether_core::attitude::DirectionCosineMatrix;
 use aether_core::coordinate::Cartesian;
 use aether_core::math::{Matrix, Vector};
 use aether_core::reference_frame::ReferenceFrame;
-use num_traits::Float;
+use aether_core::real::Real;
 
-pub fn look_at<T: Float, F: ReferenceFrame>(
+pub fn look_at<T: Real, F: ReferenceFrame>(
     eye: &Cartesian<T, F>,
     center: &Cartesian<T, F>,
     up: &Cartesian<T, F>,
@@ -17,34 +17,34 @@ pub fn look_at<T: Float, F: ReferenceFrame>(
         [r[0], r[1], r[2], -r.dot(&eye.data)],
         [u[0], u[1], u[2], -u.dot(&eye.data)],
         [-f[0], -f[1], -f[2], f.dot(&eye.data)],
-        [T::zero(), T::zero(), T::zero(), T::one()],
+        [T::ZERO, T::ZERO, T::ZERO, T::ONE],
     ])
 }
 
-pub fn perspective<T: Float>(aspect: T, fov_y_rad: T, near: T, far: T) -> Matrix<T, 4, 4> {
-    // assert!(aspect > T::zero(), "Aspect ratio must be > 0");
-    // assert!(fov_y_rad > T::zero(), "Field of view must be > 0");
+pub fn perspective<T: Real>(aspect: T, fov_y_rad: T, near: T, far: T) -> Matrix<T, 4, 4> {
+    // assert!(aspect > T::ZERO, "Aspect ratio must be > 0");
+    // assert!(fov_y_rad > T::ZERO, "Field of view must be > 0");
     // assert!(near != far, "Near and far planes must not be equal");
 
-    let f = T::one() / (fov_y_rad / T::from(2.0).unwrap()).tan();
-    let nf = T::one() / (near - far);
+    let f = T::ONE / (fov_y_rad / T::from_f32(2.0)).tan();
+    let nf = T::ONE / (near - far);
 
     Matrix {
         data: [
-            [f / aspect, T::zero(), T::zero(), T::zero()],
-            [T::zero(), f, T::zero(), T::zero()],
-            [T::zero(), T::zero(), (far + near) * nf, -T::one()],
+            [f / aspect, T::ZERO, T::ZERO, T::ZERO],
+            [T::ZERO, f, T::ZERO, T::ZERO],
+            [T::ZERO, T::ZERO, (far + near) * nf, -T::ONE],
             [
-                T::zero(),
-                T::zero(),
-                (T::from(2.0).unwrap() * far * near) * nf,
-                T::zero(),
+                T::ZERO,
+                T::ZERO,
+                (T::from_f32(2.0) * far * near) * nf,
+                T::ZERO,
             ],
         ],
     }
 }
 
-pub fn look_at_perspective<T: Float, F: ReferenceFrame>(
+pub fn look_at_perspective<T: Real, F: ReferenceFrame>(
     eye: &Cartesian<T, F>,
     center: &Cartesian<T, F>,
     up: &Cartesian<T, F>,
@@ -58,7 +58,7 @@ pub fn look_at_perspective<T: Float, F: ReferenceFrame>(
     (view, projection)
 }
 
-pub fn translate<T: Float>(mat: &Matrix<T, 4, 4>, trans: &Vector<T, 3>) -> Matrix<T, 4, 4> {
+pub fn translate<T: Real>(mat: &Matrix<T, 4, 4>, trans: &Vector<T, 3>) -> Matrix<T, 4, 4> {
     let mut result = *mat;
 
     // Row-major translation: update the last column (row 0–2, col 3)

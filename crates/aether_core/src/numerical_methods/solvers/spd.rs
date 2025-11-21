@@ -1,12 +1,12 @@
-use num_traits::Float;
+use crate::real::Real;
 use crate::math::{Matrix, Vector};
 
 #[derive(Debug, Clone, Copy)]
-pub struct CholLower<T: Float + Copy, const N: usize> {
+pub struct CholLower<T: Real + Copy, const N: usize> {
     pub l: Matrix<T, N, N>, // lower-triangular with positive diagonal
 }
 
-impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
+impl<T: Real + Copy, const N: usize> Matrix<T, N, N> {
     /// Compute lower Cholesky: A = L * L^t. Returns None if not SPD.
     pub fn cholesky_lower(&self) -> Option<CholLower<T, N>> {
         let mut l = Matrix::<T, N, N>::zeros();
@@ -17,7 +17,7 @@ impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
                     s = s - l[(i, k)] * l[(j, k)];
                 }
                 if i == j {
-                    if s <= T::zero() { return None; }
+                    if s <= T::ZERO { return None; }
                     l[(i, j)] = s.sqrt();
                 } else {
                     l[(i, j)] = s / l[(j, j)];
@@ -25,7 +25,7 @@ impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
             }
             // zero the strict upper part
             for j in (i + 1)..N {
-                l[(i, j)] = T::zero();
+                l[(i, j)] = T::ZERO;
             }
         }
 
@@ -33,7 +33,7 @@ impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
     }
 }
 
-impl<T: Float + Copy, const N: usize> CholLower<T, N> {
+impl<T: Real + Copy, const N: usize> CholLower<T, N> {
     /// Solve A x = b using Cholesky factors (A = L L^t).
     pub fn solve(&self, b: &Vector<T, N>) -> Vector<T, N> {
         let l = &self.l;
@@ -64,7 +64,7 @@ impl<T: Float + Copy, const N: usize> CholLower<T, N> {
 }
 
 /// Convenience: A.cholesky_solve(b)
-impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
+impl<T: Real + Copy, const N: usize> Matrix<T, N, N> {
     pub fn cholesky_solve(&self, b: &Vector<T, N>) -> Option<Vector<T, N>> {
         let chol = self.cholesky_lower()?;
         Some(chol.solve(b))

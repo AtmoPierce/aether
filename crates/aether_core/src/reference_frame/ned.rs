@@ -1,13 +1,12 @@
 use crate::coordinate::Cartesian;
 use crate::reference_frame::{FixedFrame, ReferenceFrame};
-use num_traits::Float;
-
+use crate::real::Real;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
-pub struct NED<T: Float> {
+pub struct NED<T: Real> {
     pub origin: T,
 }
 
-impl<T: Float> ReferenceFrame for NED<T> {}
+impl<T: Real> ReferenceFrame for NED<T> {}
 
-impl<T: Float> FixedFrame<T> for NED<T> {}
+impl<T: Real> FixedFrame<T> for NED<T> {}

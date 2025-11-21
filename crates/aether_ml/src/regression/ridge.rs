@@ -1,25 +1,25 @@
 #![cfg(feature = "std")]
 use aether_core::math::Vector;
 use aether_opt::gradient_descent::GradientDescentGeneric;
-use num_traits::{cast::cast, Float};
+use aether_core::real::Real;
 
 /// Ridge regression (L2) using batch gradient descent
 #[derive(Clone, Copy, Debug)]
-pub struct RidgeRegression<F: Float + Copy, const N: usize> {
+pub struct RidgeRegression<F: Real + Copy, const N: usize> {
     pub weights: Vector<F, N>,
     pub bias: F,
     pub lr: F,
     pub alpha: F,
 }
 
-impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
+impl<F: Real + Copy, const N: usize> RidgeRegression<F, N> {
     pub fn new() -> Self {
         // Neutral defaults: lr = 1, alpha = 1 (caller should set typical small lr/alpha)
         Self {
-            weights: Vector::new([F::zero(); N]),
-            bias: F::zero(),
-            lr: F::one(),
-            alpha: F::one(),
+            weights: Vector::new([F::ZERO; N]),
+            bias: F::ZERO,
+            lr: F::ONE,
+            alpha: F::ONE,
         }
     }
 
@@ -36,10 +36,10 @@ impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
         if m_usize == 0 {
             return;
         }
-        let m: F = cast(m_usize).unwrap();
+        let m: F = F::from_usize(m_usize);
 
-        let mut grad_w = Vector::new([F::zero(); N]);
-        let mut grad_b = F::zero();
+        let mut grad_w = Vector::new([F::ZERO; N]);
+        let mut grad_b = F::ZERO;
 
         for (x, &yi) in x_data.iter().zip(y.iter()) {
             let pred = self.predict(x);
@@ -50,7 +50,7 @@ impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
             grad_b = grad_b + err;
         }
 
-        let two = F::one() + F::one();
+        let two = F::ONE + F::ONE;
         for i in 0..N {
             // L2 term gradient: 2*alpha*w
             self.weights[i] = self.weights[i]
@@ -71,17 +71,17 @@ impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
         if m_usize == 0 {
             return;
         }
-        let m: F = cast(m_usize).unwrap();
-        let mut p_arr: [F; M] = [F::zero(); M];
+        let m: F = F::from_usize(m_usize);
+        let mut p_arr: [F; M] = [F::ZERO; M];
         for i in 0..N {
             p_arr[i] = self.weights[i];
         }
         p_arr[N] = self.bias;
         let x0 = Vector::new(p_arr);
         let alpha = self.alpha;
-        let two = F::one() + F::one();
+        let two = F::ONE + F::ONE;
         let f = move |pv: &Vector<F, M>| -> F {
-            let mut loss = F::zero();
+            let mut loss = F::ZERO;
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut pred = pv[N];
                 for i in 0..N {
@@ -91,7 +91,7 @@ impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
                 loss = loss + e * e;
             }
             // L2 regularizer (alpha * ||w||^2)
-            let mut rw = F::zero();
+            let mut rw = F::ZERO;
             for i in 0..N {
                 rw = rw + pv[i] * pv[i];
             }
@@ -99,7 +99,7 @@ impl<F: Float + Copy, const N: usize> RidgeRegression<F, N> {
         };
 
         let g = move |pv: &Vector<F, M>| -> Vector<F, M> {
-            let mut grads: [F; M] = [F::zero(); M];
+            let mut grads: [F; M] = [F::ZERO; M];
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut pred = pv[N];
                 for i in 0..N {

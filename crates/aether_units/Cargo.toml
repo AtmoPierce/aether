@@ -7,7 +7,6 @@ version.workspace = true
 
 [dependencies]
 aether_core = {path="../aether_core"}
-fpx = {git = "https://github.com/AtmoPierce/fpx.git", features = ["design"]}
 
 [lints]
 workspace = true

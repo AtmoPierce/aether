@@ -3,16 +3,15 @@ use super::quaternion::Quaternion;
 use crate::{coordinate::Cartesian, math::Matrix, reference_frame::ReferenceFrame};
 use core::marker::PhantomData;
 use core::ops::{Add, Div, Mul, Neg, Sub};
-use num_traits::Float;
-
+use crate::real::Real;
 #[derive(Debug, Clone, Copy, Default)]
-pub struct DirectionCosineMatrix<T: Float, From: ReferenceFrame, To: ReferenceFrame> {
+pub struct DirectionCosineMatrix<T: Real, From: ReferenceFrame, To: ReferenceFrame> {
     data: Matrix<T, 3, 3>, // still private
     _from: PhantomData<From>,
     _to: PhantomData<To>,
 }
 
-impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T, From, To> {
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T, From, To> {
     pub fn new(m11: T, m12: T, m13: T, m21: T, m22: T, m23: T, m31: T, m32: T, m33: T) -> Self {
         let data = Matrix {
             data: [[m11, m12, m13], [m21, m22, m23], [m31, m32, m33]],
@@ -40,9 +39,9 @@ impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T
     pub fn rotate_x(angle: T) -> Self {
         let (c, s) = (angle.cos(), angle.sin());
         let data: [[T; 3]; 3] = [
-            [T::one(), T::zero(), T::zero()],
-            [T::zero(), c, s],
-            [T::zero(), -s, c],
+            [T::ONE, T::ZERO, T::ZERO],
+            [T::ZERO, c, s],
+            [T::ZERO, -s, c],
         ];
         Self {
             data: Matrix { data },
@@ -54,9 +53,9 @@ impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T
     pub fn rotate_y(angle: T) -> Self {
         let (c, s) = (angle.cos(), angle.sin());
         let data = [
-            [c, T::zero(), -s],
-            [T::zero(), T::one(), T::zero()],
-            [s, T::zero(), c],
+            [c, T::ZERO, -s],
+            [T::ZERO, T::ONE, T::ZERO],
+            [s, T::ZERO, c],
         ];
         Self {
             data: Matrix { data },
@@ -69,9 +68,9 @@ impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T
         let (c, s) = (angle.cos(), angle.sin());
 
         let data = [
-            [c, s, T::zero()],
-            [-s, c, T::zero()],
-            [T::zero(), T::zero(), T::one()],
+            [c, s, T::ZERO],
+            [-s, c, T::ZERO],
+            [T::ZERO, T::ZERO, T::ONE],
         ];
         Self {
             data: Matrix { data },
@@ -83,7 +82,7 @@ impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T
 
 impl<T, A, B, C> Mul<DirectionCosineMatrix<T, A, B>> for DirectionCosineMatrix<T, B, C>
 where
-    T: Float,
+    T: Real,
     A: ReferenceFrame,
     B: ReferenceFrame,
     C: ReferenceFrame,
@@ -101,7 +100,7 @@ where
 // From
 impl<T, A: ReferenceFrame, B: ReferenceFrame> From<Euler<T>> for DirectionCosineMatrix<T, A, B>
 where
-    T: Float + Mul<Output = T> + Add<Output = T> + Copy + Default,
+    T: Real + Mul<Output = T> + Add<Output = T> + Copy + Default,
 {
     fn from(euler: Euler<T>) -> Self {
         // ZYX Convention
@@ -115,7 +114,7 @@ where
     }
 }
 
-impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<Quaternion<T>>
+impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> From<Quaternion<T>>
     for DirectionCosineMatrix<T, A, B>
 {
     fn from(q: Quaternion<T>) -> Self {
@@ -124,7 +123,7 @@ impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<Quaternion<T>>
         let j = q.data.data[2];
         let k = q.data.data[3];
 
-        let two = T::one() + T::one();
+        let two = T::ONE + T::ONE;
         let sp2 = s.powf(two);
         let ip2 = i.powf(two);
         let jp2 = j.powf(two);
@@ -155,7 +154,7 @@ impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<Quaternion<T>>
     }
 }
 
-impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<&Matrix<T, 3, 3>>
+impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> From<&Matrix<T, 3, 3>>
     for DirectionCosineMatrix<T, A, B>
 {
     fn from(m: &Matrix<T, 3, 3>) -> Self {
@@ -168,7 +167,7 @@ impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<&Matrix<T, 3, 3>>
 }
 
 // Cartesian Handling
-impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> Mul<Cartesian<T, From>>
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<Cartesian<T, From>>
     for DirectionCosineMatrix<T, From, To>
 {
     type Output = Cartesian<T, To>;
@@ -182,7 +181,7 @@ impl<T: Float, From: ReferenceFrame, To: ReferenceFrame> Mul<Cartesian<T, From>>
 }
 
 // Behavior
-impl<T: Float + Copy, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T, From, To> {
+impl<T: Real + Copy, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T, From, To> {
     pub fn m11(&self) -> T {
         self.data[(0, 0)]
     }
@@ -226,7 +225,7 @@ impl<T: Float + Copy, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineM
 }
 
 #[cfg(feature = "std")]
-impl<T: Float + std::fmt::Display, A: ReferenceFrame, B: ReferenceFrame> std::fmt::Display
+impl<T: Real + std::fmt::Display, A: ReferenceFrame, B: ReferenceFrame> std::fmt::Display
     for DirectionCosineMatrix<T, A, B>
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

@@ -55,6 +55,3 @@ panic = "abort"
 [profile.dev.package."*"]
 # Optimize all dependencies even in debug builds
 opt-level = 2
-
-[workspace.dependencies]
-num_traits = {version = "*"}

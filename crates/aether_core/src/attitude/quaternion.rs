@@ -2,14 +2,13 @@ use crate::attitude::{DirectionCosineMatrix, Euler};
 use crate::math::{Matrix, Vector};
 use crate::reference_frame::ReferenceFrame;
 use core::ops::{Add, Div, Mul, Neg, Sub};
-use num_traits::Float;
-
+use crate::real::Real;
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub struct Quaternion<T: Float> {
+pub struct Quaternion<T: Real> {
     pub data: Vector<T, 4>, // [w, i, j, k]
 }
 
-impl<T: Float> Quaternion<T> {
+impl<T: Real> Quaternion<T> {
     pub fn new(w: T, i: T, j: T, k: T) -> Self {
         Self {
             data: Vector { data: [w, i, j, k] },
@@ -27,10 +26,10 @@ impl<T: Float> Quaternion<T> {
     }
     pub fn identity() -> Self {
         Self::new(
-            T::one(), // w = 1
-            T::zero(),
-            T::zero(),
-            T::zero(),
+            T::ONE, // w = 1
+            T::ZERO,
+            T::ZERO,
+            T::ZERO,
         )
     }
     pub fn w(&self) -> T {
@@ -47,7 +46,7 @@ impl<T: Float> Quaternion<T> {
     }
 }
 
-impl<T: Float + Copy> Quaternion<T> {
+impl<T: Real + Copy> Quaternion<T> {
     pub fn rotate_vector(&self, v: Vector<T, 3>) -> Vector<T, 3> {
         let s = self.data[0]; // scalar part (w)
         let u = Vector::new([self.data[1], self.data[2], self.data[3]]); // vector part (x, y, z)
@@ -56,13 +55,13 @@ impl<T: Float + Copy> Quaternion<T> {
         let dot_uu = u.dot(&u);
         let cross_uv = u.cross(&v);
 
-        let two = T::one() + T::one();
+        let two = T::ONE + T::ONE;
         u * (two * dot_uv) + v * (s * s - dot_uu) + cross_uv * (two * s)
     }
 }
 
 // Hamilton product for quaternion * quaternion
-impl<T: Float> Mul for Quaternion<T> {
+impl<T: Real> Mul for Quaternion<T> {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self {
         let [w1, x1, y1, z1] = self.data.data;
@@ -77,7 +76,7 @@ impl<T: Float> Mul for Quaternion<T> {
     }
 }
 
-impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMatrix<T, A, B>>
+impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMatrix<T, A, B>>
     for Quaternion<T>
 {
     type Error = ();
@@ -85,7 +84,7 @@ impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMat
         // Norm Constraint
         // https://motoq.github.io/doc/tnotes/dcmq.pdf
         let m = &dcm.as_matrix().data;
-        let one = T::one();
+        let one = T::ONE;
         let two = one + one;
         let four = two + two;
         let k = one / four;
@@ -128,11 +127,11 @@ impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMat
     }
 }
 
-impl<T: Float> From<&Euler<T>> for Quaternion<T> {
+impl<T: Real> From<&Euler<T>> for Quaternion<T> {
     fn from(e: &Euler<T>) -> Self {
         // e.0, e.1, e.2 are roll, pitch, yaw
         let [roll, pitch, yaw] = e.data.data;
-        let half = T::one() / (T::one() + T::one());
+        let half = T::ONE / (T::ONE + T::ONE);
         let (cr, sr) = ((roll * half).cos(), (roll * half).sin());
         let (cp, sp) = ((pitch * half).cos(), (pitch * half).sin());
         let (cy, sy) = ((yaw * half).cos(), (yaw * half).sin());
@@ -146,7 +145,7 @@ impl<T: Float> From<&Euler<T>> for Quaternion<T> {
     }
 }
 
-impl<T: Float> Mul<T> for Quaternion<T> {
+impl<T: Real> Mul<T> for Quaternion<T> {
     type Output = Quaternion<T>;
     fn mul(self, rhs: T) -> Quaternion<T> {
         Quaternion {
@@ -156,7 +155,7 @@ impl<T: Float> Mul<T> for Quaternion<T> {
 }
 
 // Elementwise addition
-impl<T: Float> Add for Quaternion<T> {
+impl<T: Real> Add for Quaternion<T> {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
         Self {
@@ -166,7 +165,7 @@ impl<T: Float> Add for Quaternion<T> {
 }
 
 // Elementwise subtraction
-impl<T: Float> Sub for Quaternion<T> {
+impl<T: Real> Sub for Quaternion<T> {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self {
         Self {
@@ -176,7 +175,7 @@ impl<T: Float> Sub for Quaternion<T> {
 }
 
 // Elementwise negation
-impl<T: Float> Neg for Quaternion<T> {
+impl<T: Real> Neg for Quaternion<T> {
     type Output = Self;
     fn neg(self) -> Self {
         Self { data: -self.data }
@@ -184,7 +183,7 @@ impl<T: Float> Neg for Quaternion<T> {
 }
 
 // Scalar division (q / scalar)
-impl<T: Float> Div<T> for Quaternion<T> {
+impl<T: Real> Div<T> for Quaternion<T> {
     type Output = Self;
     fn div(self, rhs: T) -> Self {
         Self {
@@ -197,7 +196,7 @@ impl<T: Float> Div<T> for Quaternion<T> {
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "serde")]
-impl<T: Float + Serialize> Serialize for Quaternion<T> {
+impl<T: Real + Serialize> Serialize for Quaternion<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -207,7 +206,7 @@ impl<T: Float + Serialize> Serialize for Quaternion<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<'de, T: Float + Deserialize<'de>> Deserialize<'de> for Quaternion<T> {
+impl<'de, T: Real + Deserialize<'de>> Deserialize<'de> for Quaternion<T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
@@ -219,7 +218,7 @@ impl<'de, T: Float + Deserialize<'de>> Deserialize<'de> for Quaternion<T> {
 
 // std
 #[cfg(feature = "std")]
-impl<T: Float + std::fmt::Display> std::fmt::Display for Quaternion<T> {
+impl<T: Real + std::fmt::Display> std::fmt::Display for Quaternion<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{}", self.data)
     }
