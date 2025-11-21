@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod tests {
+    use fpx::approx;
+
     use crate::Quantity;
     use crate::si::si_base::*;
     use crate::si::si_composites::*;
@@ -155,5 +157,22 @@ mod tests {
         check_prefix_ctor!(x, exagram,    Exagram,    to_kilogram, Kilogram, EXA   * 1.0e-3_f32);
         check_prefix_ctor!(x, zettagram,  Zettagram,  to_kilogram, Kilogram, ZETTA * 1.0e-3_f32);
         check_prefix_ctor!(x, yottagram,  Yottagram,  to_kilogram, Kilogram, YOTTA * 1.0e-3_f32);
+    }
+
+    #[test]
+    fn addition(){
+        let meter = 1.0.m();
+        let km = 1.0.kilometer();
+        let one_one = km + meter.to_kilometer();
+        assert_eq!(one_one.value, 1.001);
+        assert_eq!(1.001.kilometer(), one_one);
+    }
+    #[test]
+    fn subtraction(){
+        let meter = 1.0.m();
+        let km = 1.0.kilometer();
+        let one_one = km - meter.to_kilometer();
+        assert_eq!(one_one.value, 0.999);
+        assert_eq!(0.999.kilometer(), one_one);
     }
 }
