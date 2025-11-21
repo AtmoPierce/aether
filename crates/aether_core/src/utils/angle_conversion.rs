@@ -10,7 +10,7 @@ pub trait ToDegrees {
     fn to_degrees(self) -> Self::Output;
 }
 
-// Implementations for primitive floats
+// Implementations for primitive Reals
 
 impl ToRadians for f32 {
     type Output = f32;

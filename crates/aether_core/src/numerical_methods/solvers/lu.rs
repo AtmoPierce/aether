@@ -1,14 +1,14 @@
-use num_traits::Float;
+use crate::real::Real;
 use crate::math::{Matrix, Vector};
 
 #[derive(Debug, Clone, Copy)]
-pub struct LuDecomp<T: Float + Copy, const N: usize> {
+pub struct LuDecomp<T: Real + Copy, const N: usize> {
     pub lu: Matrix<T, N, N>,       // Combined L (unit diag) and U
     pub piv: [usize; N],           // Row permutations applied to A
     pub sign: i8,                  // +1 or -1 depending on parity
 }
 
-impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
+impl<T: Real + Copy, const N: usize> Matrix<T, N, N> {
     /// Compute LU with partial pivoting. A = P*L*U
     /// Returns None if numerically singular.
     pub fn lu_decompose(&self) -> Option<LuDecomp<T, N>> {
@@ -25,7 +25,7 @@ impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
                 let v = lu[(r, k)].abs();
                 if v > pval { p = r; pval = v; }
             }
-            if pval <= T::epsilon() { return None; } // singular
+            if pval <= T::EPSILON { return None; } // singular
 
             // Swap rows if needed
             if p != k {
@@ -54,11 +54,11 @@ impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
     }
 }
 
-impl<T: Float + Copy, const N: usize> LuDecomp<T, N> {
+impl<T: Real + Copy, const N: usize> LuDecomp<T, N> {
     /// Solve Ax=b using the LU factors (single RHS).
     pub fn solve(&self, b: &Vector<T, N>) -> Vector<T, N> {
         // Apply permutation to b -> Pb
-        let mut x = Vector { data: [T::zero(); N] };
+        let mut x = Vector { data: [T::ZERO; N] };
         for i in 0..N {
             x[i] = b[self.piv[i]];
         }
@@ -91,7 +91,7 @@ impl<T: Float + Copy, const N: usize> LuDecomp<T, N> {
 
         // Apply permutation P to each RHS column
         for col in 0..K {
-            let mut tmp = [T::zero(); N];
+            let mut tmp = [T::ZERO; N];
             for i in 0..N {
                 tmp[i] = x[self.piv[i]][col];
             }
@@ -128,7 +128,7 @@ impl<T: Float + Copy, const N: usize> LuDecomp<T, N> {
 }
 
 /// Convenience: A.solve(b) -> Option<x>
-impl<T: Float + Copy, const N: usize> Matrix<T, N, N> {
+impl<T: Real + Copy, const N: usize> Matrix<T, N, N> {
     pub fn solve(&self, b: &Vector<T, N>) -> Option<Vector<T, N>> {
         let lu = self.lu_decompose()?;
         Some(lu.solve(b))

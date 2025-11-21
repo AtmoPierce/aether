@@ -1,18 +1,17 @@
-use num_traits::{Float, Pow};
-
+use crate::real::Real;
 use super::cartesian::Cartesian;
 use super::cylindrical::Cylindrical;
 use crate::{math::Vector, reference_frame::ReferenceFrame};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Spherical<T: Float> {
+pub struct Spherical<T: Real> {
     /// r: radial distance
     /// phi: azimuthal angle (radians, from +x in xy-plane)
     /// theta: inclination angle (radians (z-axis))
     pub data: Vector<T, 3>, // [r, phi, theta]
 }
 
-impl<T: Float> Spherical<T> {
+impl<T: Real> Spherical<T> {
     pub fn new(r: T, phi: T, theta: T) -> Self {
         Self {
             data: Vector {
@@ -31,15 +30,15 @@ impl<T: Float> Spherical<T> {
     }
 }
 
-impl<T: Float, RF: ReferenceFrame> From<&Cartesian<T, RF>> for Spherical<T> {
+impl<T: Real, RF: ReferenceFrame> From<&Cartesian<T, RF>> for Spherical<T> {
     fn from(cart: &Cartesian<T, RF>) -> Self {
         let x = cart.x();
         let y = cart.y();
         let z = cart.z();
         let rho = (x * x + y * y + z * z).sqrt();
         let theta = y.atan2(x); // azimuth angle in xy-plane
-        let phi = if rho == T::zero() {
-            T::zero()
+        let phi = if rho == T::ZERO {
+            T::ZERO
         } else {
             (z / rho).acos()
         }; // inclination from z-axis
@@ -47,17 +46,17 @@ impl<T: Float, RF: ReferenceFrame> From<&Cartesian<T, RF>> for Spherical<T> {
     }
 }
 
-impl<T: Float> From<&Cylindrical<T>> for Spherical<T> {
+impl<T: Real> From<&Cylindrical<T>> for Spherical<T> {
     fn from(c: &Cylindrical<T>) -> Self {
         let r_cyl = c.r();
         let theta = c.theta(); // azimuthal angle in x-y plane
         let z = c.z();
 
         let rho = (r_cyl * r_cyl + z * z).sqrt(); // spherical radius
-        let phi = if rho != T::zero() {
+        let phi = if rho != T::ZERO {
             (z / rho).acos() // inclination from z-axis
         } else {
-            T::zero()
+            T::ZERO
         };
         Spherical::new(rho, theta, phi)
     }

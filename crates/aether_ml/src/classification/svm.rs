@@ -1,24 +1,24 @@
 #![cfg(feature = "std")]
 use aether_core::math::Vector;
 use aether_opt::gradient_descent::GradientDescentGeneric;
-use num_traits::{cast::cast, Float};
+use aether_core::real::{Real};
 
 /// Linear SVM using hinge loss and L2 regularization trained with batch GD.
 #[derive(Clone, Copy, Debug)]
-pub struct LinearSvm<F: Float + Copy, const N: usize> {
+pub struct LinearSvm<F: Real + Copy, const N: usize> {
     pub weights: Vector<F, N>,
     pub bias: F,
     pub lr: F,
     pub c: F, // regularization weight (higher = less regularization)
 }
 
-impl<F: Float + Copy, const N: usize> LinearSvm<F, N> {
+impl<F: Real + Copy, const N: usize> LinearSvm<F, N> {
     pub fn new() -> Self {
         Self {
-            weights: Vector::new([F::zero(); N]),
-            bias: F::zero(),
-            lr: F::one(),
-            c: F::one(),
+            weights: Vector::new([F::ZERO; N]),
+            bias: F::ZERO,
+            lr: F::ONE,
+            c: F::ONE,
         }
     }
 
@@ -37,20 +37,20 @@ impl<F: Float + Copy, const N: usize> LinearSvm<F, N> {
         if m_usize == 0 {
             return;
         }
-        let m: F = cast(m_usize).unwrap();
+        let m: F = F::from_usize(m_usize);
 
-        let mut grad_w = Vector::new([F::zero(); N]);
-        let mut grad_b = F::zero();
+        let mut grad_w = Vector::new([F::ZERO; N]);
+        let mut grad_b = F::ZERO;
 
         for (x, &yi) in x_data.iter().zip(y.iter()) {
-            let y_f: F = if yi >= 0 { F::one() } else { -F::one() };
+            let y_f: F = if yi >= 0 { F::ONE } else { -F::ONE };
             let margin = y_f * self.decision(x);
-            if margin >= F::one() {
+            if margin >= F::ONE {
                 // loss has zero hinge; gradients are from regularizer only
                 for i in 0..N {
-                    grad_w[i] = grad_w[i] + F::zero();
+                    grad_w[i] = grad_w[i] + F::ZERO;
                 }
-                grad_b = grad_b + F::zero();
+                grad_b = grad_b + F::ZERO;
             } else {
                 // hinge active
                 for i in 0..N {
@@ -61,7 +61,7 @@ impl<F: Float + Copy, const N: usize> LinearSvm<F, N> {
         }
         // apply average + regularization gradient (L2): grad = (1/m)*grad + (2/mC) * w
         for i in 0..N {
-            let two = F::one() + F::one();
+            let two = F::ONE + F::ONE;
             let reg = (two / (self.c * m)) * self.weights[i];
             self.weights[i] = self.weights[i] - self.lr * ((grad_w[i] / m) + reg);
         }
@@ -80,8 +80,8 @@ impl<F: Float + Copy, const N: usize> LinearSvm<F, N> {
         if m_usize == 0 {
             return;
         }
-        let m: F = cast(m_usize).unwrap();
-        let mut p_arr: [F; M] = [F::zero(); M];
+        let m: F = F::from_usize(m_usize);
+        let mut p_arr: [F; M] = [F::ZERO; M];
         for i in 0..N {
             p_arr[i] = self.weights[i];
         }
@@ -90,37 +90,37 @@ impl<F: Float + Copy, const N: usize> LinearSvm<F, N> {
         let c = self.c;
 
         let f = move |pv: &Vector<F, M>| -> F {
-            let mut loss = F::zero();
+            let mut loss = F::ZERO;
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut s = pv[N];
                 for i in 0..N {
                     s = s + pv[i] * x[i];
                 }
-                let y_f: F = if yi >= 0 { F::one() } else { -F::one() };
+                let y_f: F = if yi >= 0 { F::ONE } else { -F::ONE };
                 let margin = y_f * s;
-                if margin < F::one() {
-                    loss = loss + (F::one() - margin);
+                if margin < F::ONE {
+                    loss = loss + (F::ONE - margin);
                 }
             }
             // add L2 reg (1/(2C) * ||w||^2)
-            let mut rw = F::zero();
+            let mut rw = F::ZERO;
             for i in 0..N {
                 rw = rw + pv[i] * pv[i];
             }
-            let two = F::one() + F::one();
+            let two = F::ONE + F::ONE;
             loss / m + (rw / (two * c))
         };
 
         let g = move |pv: &Vector<F, M>| -> Vector<F, M> {
-            let mut grads: [F; M] = [F::zero(); M];
+            let mut grads: [F; M] = [F::ZERO; M];
             for (x, &yi) in x_data.iter().zip(y.iter()) {
-                let y_f: F = if yi >= 0 { F::one() } else { -F::one() };
+                let y_f: F = if yi >= 0 { F::ONE } else { -F::ONE };
                 let mut s = pv[N];
                 for i in 0..N {
                     s = s + pv[i] * x[i];
                 }
                 let margin = y_f * s;
-                if margin < F::one() {
+                if margin < F::ONE {
                     for i in 0..N {
                         grads[i] = grads[i] + -y_f * x[i];
                     }

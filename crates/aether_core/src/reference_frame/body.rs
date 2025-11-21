@@ -4,17 +4,16 @@
 //! inertial or world frames must be provided by the surrounding system.
 use crate::coordinate::Cartesian;
 use crate::reference_frame::{FixedFrame, ReferenceFrame};
-use num_traits::Float;
-
+use crate::real::Real;
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Body<T: Float> {
+pub struct Body<T: Real> {
     /// Vector from origin to center of mass in body coordinates
     pub mass_center: Cartesian<T, Body<T>>,
     /// Vector from origin to sensor/actuator location (e.g., IMU offset)
     pub lever_arm: Cartesian<T, Body<T>>,
 }
 
-impl<T: Float> Body<T> {
+impl<T: Real> Body<T> {
     pub fn new(mass_center: Cartesian<T, Body<T>>, lever_arm: Cartesian<T, Body<T>>) -> Self {
         Self {
             mass_center: mass_center,
@@ -23,7 +22,7 @@ impl<T: Float> Body<T> {
     }
 }
 
-impl<T: Float + Default> Default for Body<T> {
+impl<T: Real + Default> Default for Body<T> {
     fn default() -> Self {
         Self {
             mass_center: Cartesian::default(),
@@ -33,10 +32,10 @@ impl<T: Float + Default> Default for Body<T> {
 }
 
 // Implement ReferenceFrame for Body<T>
-impl<T: Float> ReferenceFrame for Body<T> {}
+impl<T: Real> ReferenceFrame for Body<T> {}
 
 // Implement FixedFrame for Body<T>
-impl<T: Float> FixedFrame<T> for Body<T> {}
+impl<T: Real> FixedFrame<T> for Body<T> {}
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -44,7 +43,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde")]
 impl<T> Serialize for Body<T>
 where
-    T: Float + Serialize,
+    T: Real + Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -57,7 +56,7 @@ where
 #[cfg(feature = "serde")]
 impl<'de, T> Deserialize<'de> for Body<T>
 where
-    T: Float + Deserialize<'de>,
+    T: Real + Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

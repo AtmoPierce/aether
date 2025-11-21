@@ -3,15 +3,14 @@ use crate::math::Vector;
 use crate::reference_frame::ReferenceFrame;
 use core::fmt;
 use core::ops::Mul;
-use num_traits::Float;
-
+use crate::real::Real;
 /// A body-fixed rotation, representing orientation of body w.r.t inertial frame.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub struct Rotation<T: Float> {
+pub struct Rotation<T: Real> {
     quat: Quaternion<T>,
 }
 
-impl<T: Float> Rotation<T> {
+impl<T: Real> Rotation<T> {
     /// Creates a new `Rotation` from a quaternion (assumes normalized).
     pub fn from_quaternion(q: Quaternion<T>) -> Self {
         Self { quat: q }
@@ -28,7 +27,7 @@ impl<T: Float> Rotation<T> {
     }
 }
 
-impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMatrix<T, A, B>>
+impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMatrix<T, A, B>>
     for Rotation<T>
 {
     type Error = ();
@@ -38,20 +37,20 @@ impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMat
     }
 }
 
-impl<T: Float> From<&Quaternion<T>> for Rotation<T> {
+impl<T: Real> From<&Quaternion<T>> for Rotation<T> {
     fn from(q: &Quaternion<T>) -> Self {
         Self::from_quaternion(*q)
     }
 }
 
-impl<T: Float> Mul for Rotation<T> {
+impl<T: Real> Mul for Rotation<T> {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self::Output {
         self.compose(&rhs)
     }
 }
 
-impl<T: Float> Rotation<T> {
+impl<T: Real> Rotation<T> {
     // !TODO Need to validate this with tests and such
     pub fn integrate(&self, omega_b: Vector<T, 3>, dt: T) -> Self {
         let delta_q = Quaternion::from_angular_velocity(omega_b, dt);
@@ -59,16 +58,16 @@ impl<T: Float> Rotation<T> {
     }
 }
 
-impl<T: Float> Quaternion<T> {
+impl<T: Real> Quaternion<T> {
     pub fn from_angular_velocity(omega: Vector<T, 3>, dt: T) -> Self {
         // !TODO Need to validate this with tests and such
         let mag = omega.norm();
-        if mag == T::zero() {
+        if mag == T::ZERO {
             return Self::identity();
         }
         let axis = omega / mag;
         let angle = mag * dt;
-        let half_angle = angle * T::from(0.5).unwrap();
+        let half_angle = angle * T::from_f32(0.5);
         let sin_half = half_angle.sin();
         Self::new(
             half_angle.cos(),
@@ -80,7 +79,7 @@ impl<T: Float> Quaternion<T> {
 }
 
 #[cfg(feature = "std")]
-impl<T: Float + fmt::Display> fmt::Display for Rotation<T> {
+impl<T: Real + fmt::Display> fmt::Display for Rotation<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Rotation: {}", self.quat)
     }
