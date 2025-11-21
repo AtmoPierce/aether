@@ -1,23 +1,23 @@
 #![cfg(feature = "std")]
 use aether_core::math::Vector;
 use aether_opt::gradient_descent::GradientDescentGeneric;
-use num_traits::{cast::cast, Float};
+use aether_core::real::Real;
 
 /// Ordinary Least Squares via batch gradient descent for fixed-size features
 #[derive(Clone, Copy, Debug)]
-pub struct LinearRegression<F: Float + Copy, const N: usize> {
+pub struct LinearRegression<F: Real + Copy, const N: usize> {
     pub weights: Vector<F, N>,
     pub bias: F,
     pub lr: F,
 }
 
-impl<F: Float + Copy, const N: usize> LinearRegression<F, N> {
+impl<F: Real + Copy, const N: usize> LinearRegression<F, N> {
     pub fn new() -> Self {
         // Neutral default learning rate: 1 (callers/tests should set a smaller lr if desired)
         Self {
-            weights: Vector::new([F::zero(); N]),
-            bias: F::zero(),
-            lr: F::one(),
+            weights: Vector::new([F::ZERO; N]),
+            bias: F::ZERO,
+            lr: F::ONE,
         }
     }
 
@@ -35,10 +35,10 @@ impl<F: Float + Copy, const N: usize> LinearRegression<F, N> {
         if m_usize == 0 {
             return;
         }
-        let m: F = cast(m_usize).unwrap();
+        let m: F = F::from_usize(m_usize);
 
-        let mut grad_w = Vector::new([F::zero(); N]);
-        let mut grad_b = F::zero();
+        let mut grad_w = Vector::new([F::ZERO; N]);
+        let mut grad_b = F::ZERO;
 
         for (x, &yi) in x_data.iter().zip(y.iter()) {
             let pred = self.predict(x);
@@ -49,7 +49,7 @@ impl<F: Float + Copy, const N: usize> LinearRegression<F, N> {
             grad_b = grad_b + err;
         }
 
-        let two = F::one() + F::one();
+        let two = F::ONE + F::ONE;
         for i in 0..N {
             self.weights[i] = self.weights[i] - self.lr * (two * grad_w[i] / m);
         }
@@ -69,20 +69,20 @@ impl<F: Float + Copy, const N: usize> LinearRegression<F, N> {
         if m_usize == 0 {
             return;
         }
-        let m: F = cast(m_usize).unwrap();
+        let m: F = F::from_usize(m_usize);
 
         // initial param vector
-        let mut p_arr: [F; M] = [F::zero(); M];
+        let mut p_arr: [F; M] = [F::ZERO; M];
         for i in 0..N {
             p_arr[i] = self.weights[i];
         }
         p_arr[N] = self.bias;
         let x0 = Vector::new(p_arr);
-        let two = F::one() + F::one();
+        let two = F::ONE + F::ONE;
 
         let f = |pv: &Vector<F, M>| -> F {
             // unpack
-            let mut loss = F::zero();
+            let mut loss = F::ZERO;
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut pred = pv[N];
                 for i in 0..N {
@@ -95,7 +95,7 @@ impl<F: Float + Copy, const N: usize> LinearRegression<F, N> {
         };
 
         let g = |pv: &Vector<F, M>| -> Vector<F, M> {
-            let mut grads: [F; M] = [F::zero(); M];
+            let mut grads: [F; M] = [F::ZERO; M];
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut pred = pv[N];
                 for i in 0..N {

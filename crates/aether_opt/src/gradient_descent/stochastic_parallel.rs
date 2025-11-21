@@ -1,14 +1,13 @@
 #![cfg(feature = "std")]
 
-// Requires std (parallelism via std::thread)
 use std::thread;
 
 use aether_core::math::Vector;
 use aether_rand::randomizers::XorShift64Star;
-use num_traits::{cast::cast, Float};
+use aether_core::real::Real;
 
 #[inline]
-fn clamp<F: Float>(x: F, lo: F, hi: F) -> F {
+fn clamp<F: Real>(x: F, lo: F, hi: F) -> F {
     if x < lo {
         lo
     } else if x > hi {
@@ -19,8 +18,8 @@ fn clamp<F: Float>(x: F, lo: F, hi: F) -> F {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct GDStochasticParallel<F: Float + Copy + Send, const N: usize> {
-    // Learning-rate schedule α_k = lr0 / (1 + decay k)
+pub struct GDStochasticParallel<F: Real + Copy + Send, const N: usize> {
+    // Learning-rate schedule a_k = lr0 / (1 + decay k)
     pub lr0: F,
     pub decay: F,
     // Momentum (Polyak) on parameter steps
@@ -44,33 +43,33 @@ pub struct GDStochasticParallel<F: Float + Copy + Send, const N: usize> {
     seed: u64,
 }
 
-impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
+impl<F: Real + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
     pub fn new(seed: u64) -> Self {
         // initialize bounds arrays
-        let mut min_bounds: [F; N] = [F::zero(); N];
-        let mut max_bounds: [F; N] = [F::zero(); N];
-        let neg_inf = -F::infinity();
-        let pos_inf = F::infinity();
+        let mut min_bounds: [F; N] = [F::ZERO; N];
+        let mut max_bounds: [F; N] = [F::ZERO; N];
+        let neg_inf = -F::INFINITY;
+        let pos_inf = F::INFINITY;
         for i in 0..N {
             min_bounds[i] = neg_inf;
             max_bounds[i] = pos_inf;
         }
 
         Self {
-            lr0: cast(1e-2_f64).unwrap(),
-            decay: cast(1e-3_f64).unwrap(),
-            momentum: F::zero(),
-            batch_size: 32,
-            ema_beta: cast(0.95_f64).unwrap(),
-            tol_grad_ema: cast(1e-4_f64).unwrap(),
-            tol_step: cast(1e-8_f64).unwrap(),
-            tol_f: F::zero(),
-            min_iters: 0,
-            max_iters: 100_000,
-            has_bounds: false,
+            lr0:           F::from_f64(1e-2),
+            decay:         F::from_f64(1e-3),
+            momentum:      F::ZERO,
+            batch_size:    32,
+            ema_beta:      F::from_f64(0.95),
+            tol_grad_ema:  F::from_f64(1e-4),
+            tol_step:      F::from_f64(1e-8),
+            tol_f:         F::ZERO,
+            min_iters:     0,
+            max_iters:     100_000,
+            has_bounds:    false,
             min_bounds,
             max_bounds,
-            threads: None,
+            threads:       None,
             seed,
         }
     }
@@ -78,58 +77,67 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
     // --------- config (chainable, mutating) ----------
     #[inline]
     pub fn learning_rate(&mut self, lr0: F) -> &mut Self {
-        self.lr0 = if lr0 <= F::zero() { F::zero() } else { lr0 };
+        self.lr0 = if lr0 <= F::ZERO { F::ZERO } else { lr0 };
         self
     }
+
     #[inline]
     pub fn decay(&mut self, d: F) -> &mut Self {
-        self.decay = if d < F::zero() { F::zero() } else { d };
+        self.decay = if d < F::ZERO { F::ZERO } else { d };
         self
     }
+
     #[inline]
     pub fn momentum(&mut self, mu: F) -> &mut Self {
-        self.momentum = clamp(mu, F::zero(), F::one());
+        self.momentum = clamp(mu, F::ZERO, F::ONE);
         self
     }
+
     #[inline]
     pub fn batch_size(&mut self, bs: u32) -> &mut Self {
         self.batch_size = if bs == 0 { 1 } else { bs };
         self
     }
+
     #[inline]
     pub fn ema(&mut self, beta: F) -> &mut Self {
-        self.ema_beta = clamp(beta, F::zero(), F::one());
+        self.ema_beta = clamp(beta, F::ZERO, F::ONE);
         self
     }
+
     #[inline]
     pub fn tolerances(&mut self, tol_grad_ema: F, tol_step: F) -> &mut Self {
-        self.tol_grad_ema = if tol_grad_ema <= F::zero() {
-            F::zero()
+        self.tol_grad_ema = if tol_grad_ema <= F::ZERO {
+            F::ZERO
         } else {
             tol_grad_ema
         };
-        self.tol_step = if tol_step <= F::zero() {
-            F::zero()
+        self.tol_step = if tol_step <= F::ZERO {
+            F::ZERO
         } else {
             tol_step
         };
         self
     }
+
     #[inline]
     pub fn tol_f(&mut self, tf: F) -> &mut Self {
-        self.tol_f = if tf < F::zero() { F::zero() } else { tf };
+        self.tol_f = if tf < F::ZERO { F::ZERO } else { tf };
         self
     }
+
     #[inline]
     pub fn min_iters(&mut self, it: u32) -> &mut Self {
         self.min_iters = it;
         self
     }
+
     #[inline]
     pub fn max_iters(&mut self, it: u32) -> &mut Self {
         self.max_iters = it;
         self
     }
+
     #[inline]
     pub fn set_bounds(&mut self, min_bounds: [F; N], max_bounds: [F; N]) -> &mut Self {
         self.has_bounds = true;
@@ -137,11 +145,13 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
         self.max_bounds = max_bounds;
         self
     }
+
     #[inline]
     pub fn clear_bounds(&mut self) -> &mut Self {
         self.has_bounds = false;
         self
     }
+
     #[inline]
     pub fn threads(&mut self, n: usize) -> &mut Self {
         self.threads = Some(n.max(1));
@@ -169,7 +179,7 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
 
     #[inline]
     fn norm2(v: &Vector<F, N>) -> F {
-        let mut s = F::zero();
+        let mut s = F::ZERO;
         for i in 0..N {
             s = s + v[i] * v[i];
         }
@@ -179,8 +189,8 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
     #[inline]
     fn lr_at(&self, k: u32) -> F {
         // lr0 / (1 + decay * k)
-        let one: F = cast::<u32, F>(1u32).unwrap();
-        let k_f: F = cast::<u32, F>(k as u32).unwrap();
+        let one = F::ONE;
+        let k_f = F::from_u32(k);
         self.lr0 / (one + self.decay * k_f)
     }
 
@@ -215,9 +225,11 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
                     .unwrap_or(1)
             })
             .max(1);
+
         std::println!("Using {threads} threads for batch size {}", self.batch_size);
-        let mut v = Vector::new([F::zero(); N]); // momentum buffer (Δx)
-        let mut ema_g = F::zero();
+
+        let mut v = Vector::new([F::ZERO; N]); // momentum buffer (Δx)
+        let mut ema_g = F::ZERO;
         let mut fx = f(&x);
 
         for k in 0..self.max_iters {
@@ -225,29 +237,23 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
             let t_used = threads.min(bs_total);
             let base = self.seed;
 
-            // Take a shared reference to the gradient sampler so threads don't move G.
             let sg = &sample_grad;
 
-            // Spawn threads that each return (partial_sum, count).
-            // Scoped join handles cannot escape the scope, so collect joined
-            // results (owned) inside the scope into `partials`, which we
-            // then reduce after the scope.
             let mut partials: Vec<(Vector<F, N>, usize)> = Vec::with_capacity(t_used);
 
             thread::scope(|scope| {
-                // create handles inside the scope
                 let mut handles = Vec::with_capacity(t_used);
 
                 for t in 0..t_used {
                     let start = (bs_total * t) / t_used;
                     let end = (bs_total * (t + 1)) / t_used;
                     let seed_t = Self::thread_seed(base, k, t);
-                    let x_local = x; // Copy by value into the thread
-                    let sg_ref = sg; // &'scope G; Send because G: Sync
+                    let x_local = x;  // Copy by value into the thread
+                    let sg_ref = sg;  // &'scope G
 
                     let handle = scope.spawn(move || {
                         let mut rng = XorShift64Star::new(seed_t);
-                        let mut acc = Vector::new([F::zero(); N]);
+                        let mut acc = Vector::new([F::ZERO; N]);
                         for _ in start..end {
                             let gi = sg_ref(&x_local, &mut rng);
                             for i in 0..N {
@@ -260,7 +266,6 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
                     handles.push(handle);
                 }
 
-                // Join inside the scope and move owned results into `partials`.
                 for h in handles {
                     let res = h.join().expect("thread panicked");
                     partials.push(res);
@@ -268,7 +273,7 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
             });
 
             // Reduce partials (sum)
-            let mut g = Vector::new([F::zero(); N]);
+            let mut g = Vector::new([F::ZERO; N]);
             let mut total = 0usize;
             for (acc, cnt) in partials {
                 total += cnt;
@@ -276,15 +281,16 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
                     g[i] = g[i] + acc[i];
                 }
             }
+
             // average gradient over total samples
-            let inv_bs: F = cast::<u32, F>(1u32).unwrap() / cast::<u32, F>(total as u32).unwrap();
+            let inv_bs = F::from_u32(1) / F::from_u32(total as u32);
             for i in 0..N {
                 g[i] = g[i] * inv_bs;
             }
 
             // EMA of grad norm (bias-corrected)
             let gnorm = Self::norm2(&g);
-            let one: F = cast(1u8).unwrap();
+            let one = F::ONE;
             ema_g = self.ema_beta * ema_g + (one - self.ema_beta) * gnorm;
             let ema_hat = {
                 let bpow = self.ema_beta.powi((k as i32) + 1);
@@ -292,7 +298,7 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
             };
 
             if k >= self.min_iters {
-                if ema_hat <= self.tol_grad_ema || (self.tol_f > F::zero() && fx <= self.tol_f) {
+                if ema_hat <= self.tol_grad_ema || (self.tol_f > F::ZERO && fx <= self.tol_f) {
                     return (x, fx, k, true);
                 }
             }
@@ -306,7 +312,7 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
             }
             x_next = self.project(x_next);
 
-            // Momentum buffer v = Δx
+            // Momentum buffer v = dx
             for i in 0..N {
                 v[i] = x_next[i] - x[i];
             }
@@ -321,6 +327,7 @@ impl<F: Float + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
             }
         }
 
-        (x, fx, self.max_iters, F::zero() == F::zero())
+        // Hit max_iters: report not-converged.
+        (x, fx, self.max_iters, false)
     }
 }

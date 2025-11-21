@@ -1,22 +1,22 @@
 #![cfg(feature = "std")]
 use aether_core::math::Vector;
 use aether_opt::gradient_descent::GradientDescentGeneric;
-use num_traits::{cast::cast, Float};
+use aether_core::real::Real;
 
 /// Classic perceptron for binary classification on fixed-size feature vectors.
 #[derive(Clone, Copy, Debug)]
-pub struct Perceptron<F: Float + Copy, const N: usize> {
+pub struct Perceptron<F: Real + Copy, const N: usize> {
     pub weights: Vector<F, N>,
     pub bias: F,
     pub lr: F,
 }
 
-impl<F: Float + Copy, const N: usize> Perceptron<F, N> {
+impl<F: Real + Copy, const N: usize> Perceptron<F, N> {
     pub fn new() -> Self {
         Self {
-            weights: Vector::new([F::zero(); N]),
-            bias: F::zero(),
-            lr: F::one(),
+            weights: Vector::new([F::ZERO; N]),
+            bias: F::ZERO,
+            lr: F::ONE,
         }
     }
 
@@ -28,7 +28,7 @@ impl<F: Float + Copy, const N: usize> Perceptron<F, N> {
         s
     }
     pub fn predict(&self, x: &Vector<F, N>) -> i8 {
-        if self.predict_raw(x) >= F::zero() {
+        if self.predict_raw(x) >= F::ZERO {
             1
         } else {
             -1
@@ -39,8 +39,8 @@ impl<F: Float + Copy, const N: usize> Perceptron<F, N> {
     pub fn train_epoch(&mut self, x_data: &[Vector<F, N>], y: &[i8]) {
         for (x, &label) in x_data.iter().zip(y.iter()) {
             let pred = self.predict_raw(x);
-            let lab_f: F = if label >= 0 { F::one() } else { -F::one() };
-            if lab_f * pred <= F::zero() {
+            let lab_f: F = if label >= 0 { F::ONE } else { -F::ONE };
+            if lab_f * pred <= F::ZERO {
                 // mistaken
                 for i in 0..N {
                     self.weights[i] = self.weights[i] + self.lr * lab_f * x[i];
@@ -62,8 +62,8 @@ impl<F: Float + Copy, const N: usize> Perceptron<F, N> {
         if m_usize == 0 {
             return;
         }
-        let m: F = cast(m_usize).unwrap();
-        let mut p_arr: [F; M] = [F::zero(); M];
+        let m: F = F::from_usize(m_usize);
+        let mut p_arr: [F; M] = [F::ZERO; M];
         for i in 0..N {
             p_arr[i] = self.weights[i];
         }
@@ -72,15 +72,15 @@ impl<F: Float + Copy, const N: usize> Perceptron<F, N> {
 
         let f = move |pv: &Vector<F, M>| -> F {
             // perceptron loss: sum(max(0, -y * (w·x + b)))
-            let mut loss = F::zero();
+            let mut loss = F::ZERO;
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut s = pv[N];
                 for i in 0..N {
                     s = s + pv[i] * x[i];
                 }
-                let yi_f: F = if yi >= 0 { F::one() } else { -F::one() };
+                let yi_f: F = if yi >= 0 { F::ONE } else { -F::ONE };
                 let val = -yi_f * s;
-                if val > F::zero() {
+                if val > F::ZERO {
                     loss = loss + val;
                 }
             }
@@ -88,15 +88,15 @@ impl<F: Float + Copy, const N: usize> Perceptron<F, N> {
         };
 
         let g = move |pv: &Vector<F, M>| -> Vector<F, M> {
-            let mut grads: [F; M] = [F::zero(); M];
+            let mut grads: [F; M] = [F::ZERO; M];
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut s = pv[N];
                 for i in 0..N {
                     s = s + pv[i] * x[i];
                 }
-                let yi_f: F = if yi >= 0 { F::one() } else { -F::one() };
+                let yi_f: F = if yi >= 0 { F::ONE } else { -F::ONE };
                 let val = -yi_f * s;
-                if val > F::zero() {
+                if val > F::ZERO {
                     for i in 0..N {
                         grads[i] = grads[i] + -yi_f * x[i];
                     }

@@ -1,5 +1,5 @@
 // ----------------- SI prefixes & prefixed units -----------------
-use fpx::Real;
+use aether_core::real::Real;
 use crate::si::si_base::*;
 
 // SI prefix factors as f32

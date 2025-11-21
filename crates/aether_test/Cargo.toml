@@ -20,7 +20,7 @@ thiserror = "*"
 
 # Numerical and comparison helpers
 num-traits = "0.2"
-approx = "0.5" # For float comparison (assert_abs_diff_eq, etc.)
+approx = "0.5" # For Real comparison (assert_abs_diff_eq, etc.)
 
 [dev-dependencies]
 

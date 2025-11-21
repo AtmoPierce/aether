@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 use core::ops::{Add, Sub, Mul, Div, Neg};
-use fpx::design::Real;
+use aether_core::real::Real;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Quantity<Unit, T: Real> {

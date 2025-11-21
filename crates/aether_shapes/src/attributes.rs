@@ -3,23 +3,23 @@ use aether_core::{
     reference_frame::{Pose, ReferenceFrame},
 };
 use core::ops::{Add, Sub};
-use num_traits::Float;
+use aether_core::real::Real;
 
 /// Geometry-only contract (principal moments are in the shape's Local frame).
-pub trait Solid<F: Float> {
+pub trait Solid<F: Real> {
     type Local: ReferenceFrame;
     fn volume(&self) -> F;
     fn inertia_principal_cm(&self, mass: F) -> Vector<F, 3>;
 }
 
 /// A realized solid: shape + density + pose (Local → Assembly, CM position in Assembly)
-pub struct MassModel<T: Float, S: Solid<T>> {
+pub struct MassModel<T: Real, S: Solid<T>> {
     pub solid: S,
     pub density: T,
     pub pose: Pose<T, <S as Solid<T>>::Local>,
 }
 
-impl<T: Float, S: Solid<T>> MassModel<T, S> {
+impl<T: Real, S: Solid<T>> MassModel<T, S> {
     pub fn new(solid: S, density: T, pose: Pose<T, <S as Solid<T>>::Local>) -> Self {
         Self {
             solid,
@@ -31,7 +31,7 @@ impl<T: Float, S: Solid<T>> MassModel<T, S> {
 
 /// Resulting mass properties about the **combined CM**, expressed in the Assembly frame.
 #[derive(Debug, Clone, Copy)]
-pub struct MassProps<T: Float> {
+pub struct MassProps<T: Real> {
     pub volume: T,
     pub density: T,
     pub mass: T,
@@ -39,14 +39,14 @@ pub struct MassProps<T: Float> {
     pub inertia_cm: Matrix<T, 3, 3>, // inertia about combined CM, in Assembly frame
 }
 
-impl<T: Float, SO: Solid<T>, SI: Solid<T>> Sub<MassModel<T, SI>> for MassModel<T, SO> {
+impl<T: Real, SO: Solid<T>, SI: Solid<T>> Sub<MassModel<T, SI>> for MassModel<T, SO> {
     type Output = Option<MassProps<T>>;
 
     fn sub(self, inner: MassModel<T, SI>) -> Self::Output {
         // Volumes & masses
         let v_o = self.solid.volume();
         let v_i = inner.solid.volume();
-        if v_o <= T::zero() || v_i <= T::zero() {
+        if v_o <= T::ZERO || v_i <= T::ZERO {
             return None;
         }
         let m_o = self.density * v_o;
@@ -71,7 +71,7 @@ impl<T: Float, SO: Solid<T>, SI: Solid<T>> Sub<MassModel<T, SI>> for MassModel<T
         // Net scalars
         let mass = m_o - m_i;
         let volume = v_o - v_i;
-        if mass <= T::zero() || volume <= T::zero() {
+        if mass <= T::ZERO || volume <= T::ZERO {
             return None;
         }
         let density = mass / volume;
@@ -93,13 +93,13 @@ impl<T: Float, SO: Solid<T>, SI: Solid<T>> Sub<MassModel<T, SI>> for MassModel<T
     }
 }
 
-impl<T: Float, SO: Solid<T>, SI: Solid<T>> Add<MassModel<T, SI>> for MassModel<T, SO> {
+impl<T: Real, SO: Solid<T>, SI: Solid<T>> Add<MassModel<T, SI>> for MassModel<T, SO> {
     type Output = Option<MassProps<T>>;
     fn add(self, other: MassModel<T, SI>) -> Self::Output {
         // Volumes & masses
         let v_a = self.solid.volume();
         let v_b = other.solid.volume();
-        if v_a <= T::zero() || v_b <= T::zero() {
+        if v_a <= T::ZERO || v_b <= T::ZERO {
             return None;
         }
         let m_a = self.density * v_a;
@@ -124,7 +124,7 @@ impl<T: Float, SO: Solid<T>, SI: Solid<T>> Add<MassModel<T, SI>> for MassModel<T
         // Net scalars
         let mass = m_a + m_b;
         let volume = v_a + v_b;
-        if mass <= T::zero() || volume <= T::zero() {
+        if mass <= T::ZERO || volume <= T::ZERO {
             return None;
         }
         let density = mass / volume;
@@ -147,7 +147,7 @@ impl<T: Float, SO: Solid<T>, SI: Solid<T>> Add<MassModel<T, SI>> for MassModel<T
 }
 
 #[inline]
-fn parallel_axis<T: Float>(i_cm: Matrix<T, 3, 3>, m: T, r: Vector<T, 3>) -> Matrix<T, 3, 3> {
+fn parallel_axis<T: Real>(i_cm: Matrix<T, 3, 3>, m: T, r: Vector<T, 3>) -> Matrix<T, 3, 3> {
     // I_P = I_CM + m (‖r‖² I − r rᵀ)
     let r2 = r.dot(&r);
     let eye = Matrix::<T, 3, 3>::identity();
@@ -159,7 +159,7 @@ fn parallel_axis<T: Float>(i_cm: Matrix<T, 3, 3>, m: T, r: Vector<T, 3>) -> Matr
 Optional: keep the "matrix-first" ergonomic API for direct use in tests
 ---------------------------------------------------------------------------- */
 
-pub trait SolidOps<F: Float>: Solid<F> {
+pub trait SolidOps<F: Real>: Solid<F> {
     fn subtract_with<I: Solid<F>>(
         &self,
         inner: &I,
@@ -182,7 +182,7 @@ pub trait SolidOps<F: Float>: Solid<F> {
     ) -> Option<MassProps<F>>;
 }
 
-impl<F: Float, S: Solid<F>> SolidOps<F> for S {
+impl<F: Real, S: Solid<F>> SolidOps<F> for S {
     fn subtract_with<I: Solid<F>>(
         &self,
         inner: &I,
@@ -195,7 +195,7 @@ impl<F: Float, S: Solid<F>> SolidOps<F> for S {
     ) -> Option<MassProps<F>> {
         let v_o = self.volume();
         let v_i = inner.volume();
-        if v_o <= F::zero() || v_i <= F::zero() {
+        if v_o <= F::ZERO || v_i <= F::ZERO {
             return None;
         }
         let m_o = rho_outer * v_o;
@@ -212,7 +212,7 @@ impl<F: Float, S: Solid<F>> SolidOps<F> for S {
 
         let mass = m_o - m_i;
         let volume = v_o - v_i;
-        if mass <= F::zero() || volume <= F::zero() {
+        if mass <= F::ZERO || volume <= F::ZERO {
             return None;
         }
         let density = mass / volume;
@@ -243,7 +243,7 @@ impl<F: Float, S: Solid<F>> SolidOps<F> for S {
     ) -> Option<MassProps<F>> {
         let v_a = self.volume();
         let v_b = other.volume();
-        if v_a <= F::zero() || v_b <= F::zero() {
+        if v_a <= F::ZERO || v_b <= F::ZERO {
             return None;
         }
         let m_a = rho_self * v_a;
@@ -260,7 +260,7 @@ impl<F: Float, S: Solid<F>> SolidOps<F> for S {
 
         let mass = m_a + m_b;
         let volume = v_a + v_b;
-        if mass <= F::zero() || volume <= F::zero() {
+        if mass <= F::ZERO || volume <= F::ZERO {
             return None;
         }
         let density = mass / volume;

@@ -6,8 +6,7 @@ mod tests {
     use crate::math::Matrix;
     use crate::matrix;
     use approx::assert_relative_eq;
-    use num_traits::Float;
-
+    use crate::real::Real;
     const EPSILON: f64 = 1e-6;
 
     #[test]

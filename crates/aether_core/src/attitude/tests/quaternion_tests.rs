@@ -1,8 +1,7 @@
 mod tests {
     use crate::attitude::{DirectionCosineMatrix, Euler, Quaternion};
     use crate::reference_frame::Body;
-    use num_traits::Float;
-
+    use crate::real::Real;
     const EPSILON: f64 = 1e-6;
 
     #[test]

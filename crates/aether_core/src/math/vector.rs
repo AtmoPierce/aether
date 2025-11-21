@@ -1,14 +1,26 @@
 use crate::utils::{ToDegrees, ToRadians};
+use crate::math::Matrix;
+use crate::real::Real;
+
 use core::array::IntoIter as ArrayIntoIter;
 use core::iter::FromIterator;
-use core::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
+use core::ops::{
+    Add, AddAssign, Div, Mul, Neg, Sub, SubAssign, Index, IndexMut
+};
 use core::slice::{Iter, IterMut};
-use num_traits::Float;
-use crate::math::Matrix;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector<T, const N: usize> {
     pub data: [T; N],
+}
+
+/* -------------------- Constructors / Default -------------------- */
+
+impl<T: Copy, const N: usize> Vector<T, N> {
+    #[inline]
+    pub fn new(data: [T; N]) -> Self {
+        Self { data }
+    }
 }
 
 impl<T: Default + Copy, const N: usize> Default for Vector<T, N> {
@@ -19,13 +31,7 @@ impl<T: Default + Copy, const N: usize> Default for Vector<T, N> {
     }
 }
 
-impl<T: Copy, const N: usize> Vector<T, N> {
-    pub fn new(data: [T; N]) -> Self {
-        Self { data }
-    }
-}
-
-// ===== Add =====
+/* -------------------- Add -------------------- */
 
 // Vector + Vector
 impl<T: Add<Output = T> + Copy, const N: usize> Add for Vector<T, N> {
@@ -76,7 +82,7 @@ impl<T: AddAssign + Copy, const N: usize> AddAssign for Vector<T, N> {
     }
 }
 
-// ===== Sub =====
+/* -------------------- Sub -------------------- */
 
 // Vector - Vector
 impl<T: Sub<Output = T> + Copy, const N: usize> Sub for Vector<T, N> {
@@ -127,7 +133,7 @@ impl<T: SubAssign + Copy, const N: usize> SubAssign for Vector<T, N> {
     }
 }
 
-// ===== Neg =====
+/* -------------------- Neg -------------------- */
 
 // -Vector
 impl<T: Neg<Output = T> + Copy, const N: usize> Neg for Vector<T, N> {
@@ -153,7 +159,9 @@ impl<'a, T: Neg<Output = T> + Copy, const N: usize> Neg for &'a Vector<T, N> {
     }
 }
 
-// Scalar multiplication: Vector * scalar
+/* -------------------- Scalar mul/div -------------------- */
+
+// Vector * scalar
 impl<T, const N: usize> Mul<T> for Vector<T, N>
 where
     T: Mul<Output = T> + Copy,
@@ -168,7 +176,7 @@ where
     }
 }
 
-// Scalar division: Vector / scalar
+// Vector / scalar
 impl<T, const N: usize> Div<T> for Vector<T, N>
 where
     T: Div<Output = T> + Copy,
@@ -183,66 +191,87 @@ where
     }
 }
 
-// By reference:
-impl<'a, T: Float + Copy, const N: usize> Mul<T> for &'a Vector<T, N> {
+// By reference: &Vector * scalar
+impl<'a, T: Real, const N: usize> Mul<T> for &'a Vector<T, N> {
     type Output = Vector<T, N>;
     fn mul(self, rhs: T) -> Self::Output {
         (*self).clone() * rhs
     }
 }
 
-impl<'a, T: Float + Copy, const N: usize> Div<T> for &'a Vector<T, N> {
+// By reference: &Vector / scalar
+impl<'a, T: Real, const N: usize> Div<T> for &'a Vector<T, N> {
     type Output = Vector<T, N>;
     fn div(self, rhs: T) -> Self::Output {
         (*self).clone() / rhs
     }
 }
 
+/* -------------------- Norms, dot, angles -------------------- */
+
 impl<T, const N: usize> Vector<T, N>
 where
-    T: Mul<Output = T> + Copy + Float,
+    T: Real,
 {
     pub fn dot(&self, rhs: &Self) -> T {
-        let mut acc = T::zero();
+        let mut acc = T::ZERO;
         for i in 0..N {
             acc = acc + self.data[i] * rhs.data[i];
         }
         acc
     }
+
     pub fn norm(&self) -> T {
-        let mut acc = T::zero();
+        let mut acc = T::ZERO;
         for &x in &self.data {
             acc = acc + x * x;
         }
         acc.sqrt()
     }
+
     pub fn normalize(&self) -> Self {
         self / self.norm()
     }
+
+    /// Returns (normalized, norm). If norm is too small, returns (self, norm).
     pub fn try_normalize(&self) -> (Self, T) {
         let n = self.norm();
-        if n > T::epsilon() {
+        let eps = T::from_f64(1e-12);
+        if n > eps {
             (*self / n, n)
         } else {
-            (*self, n) // unchanged; caller must handle
+            (*self, n)
         }
     }
+
     pub fn magnitude(&self) -> T {
         self.norm()
     }
+
     pub fn angle(&self, rhs: &Self) -> T {
         let dot = self.dot(rhs);
         let denom = self.norm() * rhs.norm();
-        if denom == T::zero() {
-            T::zero()
+        if denom == T::ZERO {
+            T::ZERO
         } else {
-            let cos_theta = (dot / denom).max(T::from(-1.0).unwrap()).min(T::one());
+            let mut cos_theta = dot / denom;
+            let minus_one = T::from_f64(-1.0);
+            let one = T::ONE;
+
+            // clamp to [-1, 1] without max/min
+            if cos_theta > one {
+                cos_theta = one;
+            }
+            if cos_theta < minus_one {
+                cos_theta = minus_one;
+            }
             cos_theta.acos()
         }
     }
 }
 
-// Cross-product: only for N=3
+/* -------------------- Cross product (3D) -------------------- */
+
 impl<T> Vector<T, 3>
 where
     T: Copy + Sub<Output = T> + Mul<Output = T>,
@@ -251,12 +280,17 @@ where
         let [a1, a2, a3] = self.data;
         let [b1, b2, b3] = rhs.data;
         Self {
-            data: [a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1],
+            data: [
+                a2 * b3 - a3 * b2,
+                a3 * b1 - a1 * b3,
+                a1 * b2 - a2 * b1,
+            ],
         }
     }
 }
 
-// units
+/* -------------------- Units helpers -------------------- */
+
 impl<T, const N: usize> ToRadians for Vector<T, N>
 where
     T: ToRadians + Copy,
@@ -279,8 +313,8 @@ where
     }
 }
 
-// Behavior
-use core::ops::{Index, IndexMut};
+/* -------------------- Indexing -------------------- */
+
 impl<T, const N: usize> Index<usize> for Vector<T, N> {
     type Output = T;
 
@@ -294,45 +328,30 @@ impl<T, const N: usize> IndexMut<usize> for Vector<T, N> {
         &mut self.data[idx]
     }
 }
-use num_traits::{NumCast, ToPrimitive};
-impl<T: ToPrimitive + Copy, const N: usize> Vector<T, N> {
-    /// Fallible element-wise cast using `NumCast`
-    pub fn try_cast<U: NumCast + Copy>(self) -> Option<Vector<U, N>> {
-        // seed with a representable zero of U
-        let mut out = [U::from(0u8)?; N];
-        for i in 0..N {
-            out[i] = U::from(self.data[i])?;
-        }
-        Some(Vector { data: out })
-    }
 
-    /// Infallible (panics on unrepresentable value)
-    pub fn cast<U: NumCast + Copy>(self) -> Vector<U, N> {
-        self.try_cast().expect("Vector::cast: vector not castable.")
-    }
-}
+/* -------------------- Matrix conversion -------------------- */
 
-// Convert to matrix.
 impl<T: Copy, const N: usize> Vector<T, N> {
     #[inline]
     pub fn row(self) -> Matrix<T, 1, N> {
-        Matrix { data: [self.data] }                // [[T; N]; 1]
+        Matrix { data: [self.data] }
     }
 
     #[inline]
     pub fn col(self) -> Matrix<T, N, 1> {
-        Matrix { data: self.data.map(|x| [x]) }     // [[T; 1]; N]
+        Matrix { data: self.data.map(|x| [x]) }
     }
 }
 
-// Iterator
-// --- AsRef / AsMut ---
+/* -------------------- AsRef / AsMut, From, Iteration -------------------- */
+
 impl<T, const N: usize> AsRef<[T; N]> for Vector<T, N> {
     #[inline]
     fn as_ref(&self) -> &[T; N] {
         &self.data
     }
 }
+
 impl<T, const N: usize> AsMut<[T; N]> for Vector<T, N> {
     #[inline]
     fn as_mut(&mut self) -> &mut [T; N] {
@@ -340,7 +359,6 @@ impl<T, const N: usize> AsMut<[T; N]> for Vector<T, N> {
     }
 }
 
-// --- Convenience constructors ---
 impl<T, const N: usize> From<[T; N]> for Vector<T, N> {
     #[inline]
     fn from(data: [T; N]) -> Self {
@@ -348,19 +366,17 @@ impl<T, const N: usize> From<[T; N]> for Vector<T, N> {
     }
 }
 
-// --- Borrowed iteration ---
 impl<T, const N: usize> Vector<T, N> {
-    /// Iterate by reference (`&T`)
     #[inline]
     pub fn iter(&self) -> Iter<'_, T> {
         self.data.iter()
     }
-    /// Iterate by mutable reference (`&mut T`)
+
     #[inline]
     pub fn iter_mut(&mut self) -> IterMut<'_, T> {
         self.data.iter_mut()
     }
-    /// If you specifically want values (`T`), keep this helper (requires `T: Copy`)
+
     #[inline]
     pub fn iter_copied(&self) -> impl Iterator<Item = T> + '_
     where
@@ -368,9 +384,14 @@ impl<T, const N: usize> Vector<T, N> {
     {
         self.data.iter().copied()
     }
+
+    pub fn map<U, F: FnMut(T) -> U>(self, mut f: F) -> Vector<U, N> {
+        let data = self.data.map(|x| f(x));
+        Vector { data }
+    }
 }
 
-// --- IntoIterator (by value): moves out each T ---
+// IntoIterator (by value)
 impl<T, const N: usize> IntoIterator for Vector<T, N> {
     type Item = T;
     type IntoIter = ArrayIntoIter<T, N>;
@@ -380,7 +401,7 @@ impl<T, const N: usize> IntoIterator for Vector<T, N> {
     }
 }
 
-// --- IntoIterator for &Vector: yields &T ---
+// IntoIterator for &Vector -> &T
 impl<'a, T, const N: usize> IntoIterator for &'a Vector<T, N> {
     type Item = &'a T;
     type IntoIter = Iter<'a, T>;
@@ -390,7 +411,7 @@ impl<'a, T, const N: usize> IntoIterator for &'a Vector<T, N> {
     }
 }
 
-// --- IntoIterator for &mut Vector: yields &mut T ---
+// IntoIterator for &mut Vector -> &mut T
 impl<'a, T, const N: usize> IntoIterator for &'a mut Vector<T, N> {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
@@ -399,30 +420,22 @@ impl<'a, T, const N: usize> IntoIterator for &'a mut Vector<T, N> {
         self.data.iter_mut()
     }
 }
-// Iterator Helpers
-impl<T, const N: usize> Vector<T, N> {
-    pub fn map<U, F: FnMut(T) -> U>(self, mut f: F) -> Vector<U, N> {
-        let data = self.data.map(|x| f(x));
-        Vector { data }
-    }
-}
+
+/* -------------------- FromIterator -------------------- */
 
 // Build a Vector from any iterator; panics if length != N.
 impl<T, const N: usize> FromIterator<T> for Vector<T, N> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        // Fill fixed-size array from iterator
         let mut it = iter.into_iter();
         let mut data: core::mem::MaybeUninit<[T; N]> = core::mem::MaybeUninit::uninit();
         let ptr = unsafe { &mut *data.as_mut_ptr() } as *mut [T; N] as *mut T;
 
-        // Write elements
         for i in 0..N {
             unsafe {
                 ptr.add(i)
                     .write(it.next().expect("FromIterator: not enough elements"));
             }
         }
-        // Ensure no extra elements
         if it.next().is_some() {
             panic!("FromIterator: too many elements");
         }
@@ -432,7 +445,8 @@ impl<T, const N: usize> FromIterator<T> for Vector<T, N> {
     }
 }
 
-// Serialization with serde
+/* -------------------- Serde -------------------- */
+
 #[cfg(feature = "serde")]
 use core::{fmt, marker::PhantomData};
 #[cfg(feature = "serde")]
@@ -441,6 +455,7 @@ use serde::{
     ser::SerializeSeq,
     Deserialize, Deserializer, Serialize, Serializer,
 };
+
 #[cfg(feature = "serde")]
 impl<T: Serialize, const N: usize> Serialize for Vector<T, N> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -456,7 +471,7 @@ impl<T: Serialize, const N: usize> Serialize for Vector<T, N> {
 }
 
 #[cfg(feature = "serde")]
-impl<'de, T: Float + Deserialize<'de>, const N: usize> Deserialize<'de> for Vector<T, N> {
+impl<'de, T: Real + Deserialize<'de>, const N: usize> Deserialize<'de> for Vector<T, N> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -465,7 +480,7 @@ impl<'de, T: Float + Deserialize<'de>, const N: usize> Deserialize<'de> for Vect
             marker: PhantomData<T>,
         }
 
-        impl<'de, T: Float + Deserialize<'de>, const N: usize> Visitor<'de> for VectorVisitor<T, N> {
+        impl<'de, T: Real + Deserialize<'de>, const N: usize> Visitor<'de> for VectorVisitor<T, N> {
             type Value = Vector<T, N>;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -476,7 +491,7 @@ impl<'de, T: Float + Deserialize<'de>, const N: usize> Deserialize<'de> for Vect
             where
                 A: SeqAccess<'de>,
             {
-                let mut data = [T::zero(); N];
+                let mut data = [T::ZERO; N];
                 for i in 0..N {
                     data[i] = seq
                         .next_element()?
@@ -495,15 +510,16 @@ impl<'de, T: Float + Deserialize<'de>, const N: usize> Deserialize<'de> for Vect
     }
 }
 
-// std
+/* -------------------- Display (std) -------------------- */
+
 #[cfg(feature = "std")]
-impl<T: Float + std::fmt::Display, const N: usize> std::fmt::Display for Vector<T, N> {
+impl<T: Real + std::fmt::Display, const N: usize> std::fmt::Display for Vector<T, N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[")?;
         for (i, val) in self.data.iter().enumerate() {
             write!(f, "{}", val)?;
             if i < N - 1 {
-                write!(f, " ")?; // space between elements
+                write!(f, " ")?;
             }
         }
         write!(f, "]")

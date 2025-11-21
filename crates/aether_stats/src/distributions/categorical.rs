@@ -1,28 +1,31 @@
 #![cfg(feature = "std")]
 
-use num_traits::{Float, cast::cast };
+use aether_core::real::Real;
 
 /// Categorical distribution over K categories.
 #[derive(Clone, Debug)]
-pub struct Categorical<F: Float + > {
+pub struct Categorical<F: Real + > {
     pub probs: Vec<F>,
 }
 
 impl<F> Categorical<F>
 where
-    F: Float + ,
+    F: Real + ,
 {
     pub fn new(probs: Vec<F>) -> Self { Self { probs } }
 
     pub fn pmf(&self, k: usize) -> F {
-        if k < self.probs.len() { self.probs[k] } else { F::zero() }
+        if k < self.probs.len() { self.probs[k] } else { F::ZERO }
     }
 
     /// MLE fit: counts normalized
     pub fn fit_mle(counts: &[usize]) -> Self {
-    let total: usize = counts.iter().sum();
-    let total = total.max(1);
-    let probs = counts.iter().map(|&c| cast::<u32, F>(c as u32).unwrap() / cast::<u32, F>(total as u32).unwrap()).collect();
+        let total: usize = counts.iter().sum();
+        let total_f = F::from_usize(total.max(1));
+        let probs: Vec<F> = counts
+            .iter()
+            .map(|&c| F::from_usize(c) / total_f)
+            .collect();
         Self::new(probs)
     }
 }

@@ -1,15 +1,15 @@
 #![cfg(feature = "std")]
 use aether_core::math::{Vector, Matrix};
-use num_traits::{Float, cast::cast };
+use aether_core::real::Real;
 
 /// Multivariate Normal distribution with mean vector and covariance matrix.
 #[derive(Clone, Debug)]
-pub struct MultivariateNormal<F: Float + , const N: usize> {
+pub struct MultivariateNormal<F: Real + , const N: usize> {
     pub mean: Vector<F, N>,
     pub cov: Matrix<F, N, N>,
 }
 
-impl<F: Float + , const N: usize> MultivariateNormal<F, N> {
+impl<F: Real + , const N: usize> MultivariateNormal<F, N> {
     pub fn new(mean: Vector<F, N>, cov: Matrix<F, N, N>) -> Self { Self { mean, cov } }
 
     /// Evaluate the density at x using the formula
@@ -23,10 +23,10 @@ impl<F: Float + , const N: usize> MultivariateNormal<F, N> {
             diff.dot(&tmp)
         };
         let det = self.cov.determinant();
-        let two = F::one() + F::one();
-        let pi = cast(std::f64::consts::PI).unwrap();
-        let denom = ( (two * pi).powf(cast(N as u32).unwrap()) * det ).sqrt();
-        ( (-F::from(0.5).unwrap()) * quad ).exp() / denom
+        let two = F::ONE + F::ONE;
+        let pi = F::PI;
+        let denom = ( (two * pi).powf(F::from_usize(N)) * det ).sqrt();
+        ( (-F::from_f32(0.5)) * quad ).exp() / denom
     }
 }
 

@@ -1,4 +1,4 @@
-use fpx::Real;
+use aether_core::real::Real;
 use crate::Quantity;
 use crate::si::si_base::*;
 use crate::si::si_composites::*;

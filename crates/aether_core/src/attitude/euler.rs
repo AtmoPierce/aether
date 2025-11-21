@@ -3,14 +3,13 @@ use crate::math::Vector;
 use crate::reference_frame::ReferenceFrame;
 use crate::utils::angle_conversion::{ToDegrees, ToRadians};
 use core::ops::{Add, Div, Mul, Neg, Sub};
-use num_traits::Float;
-
+use crate::real::Real;
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub struct Euler<T: Float> {
+pub struct Euler<T: Real> {
     pub data: Vector<T, 3>, // [roll, pitch, yaw]
 }
 
-impl<T: Float> Euler<T> {
+impl<T: Real> Euler<T> {
     pub fn new(roll: T, pitch: T, yaw: T) -> Self {
         Self {
             data: Vector {
@@ -30,21 +29,21 @@ impl<T: Float> Euler<T> {
     }
 }
 
-impl<T: Float> From<&Quaternion<T>> for Euler<T> {
+impl<T: Real> From<&Quaternion<T>> for Euler<T> {
     fn from(q: &Quaternion<T>) -> Self {
         let w = q.data.data[0];
         let x = q.data.data[1];
         let y = q.data.data[2];
         let z = q.data.data[3];
-        let two = T::one() + T::one();
-        let one = T::one();
+        let two = T::ONE + T::ONE;
+        let one = T::ONE;
 
         let sinr_cosp = two * (w * x + y * z);
         let cosr_cosp = one - two * (x * x + y * y);
         let roll = sinr_cosp.atan2(cosr_cosp);
 
         let sinp = two * (w * y - z * x);
-        let half_pi = T::from(core::f64::consts::FRAC_PI_2).unwrap();
+        let half_pi = T::FRAC_PI_2;
         let pitch = if sinp.abs() >= one {
             half_pi * sinp.signum()
         } else {
@@ -59,7 +58,7 @@ impl<T: Float> From<&Quaternion<T>> for Euler<T> {
     }
 }
 
-impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<&DirectionCosineMatrix<T, A, B>>
+impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> From<&DirectionCosineMatrix<T, A, B>>
     for Euler<T>
 {
     fn from(dcm: &DirectionCosineMatrix<T, A, B>) -> Self {
@@ -72,7 +71,7 @@ impl<T: Float, A: ReferenceFrame, B: ReferenceFrame> From<&DirectionCosineMatrix
 }
 
 // Add
-impl<T: Float> Add for Euler<T> {
+impl<T: Real> Add for Euler<T> {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
         Self {
@@ -82,7 +81,7 @@ impl<T: Float> Add for Euler<T> {
 }
 
 // Sub
-impl<T: Float> Sub for Euler<T> {
+impl<T: Real> Sub for Euler<T> {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self {
         Self {
@@ -92,7 +91,7 @@ impl<T: Float> Sub for Euler<T> {
 }
 
 // Neg
-impl<T: Float> Neg for Euler<T> {
+impl<T: Real> Neg for Euler<T> {
     type Output = Self;
     fn neg(self) -> Self {
         Self { data: -self.data }
@@ -100,7 +99,7 @@ impl<T: Float> Neg for Euler<T> {
 }
 
 // Scalar multiplication
-impl<T: Float> Mul<T> for Euler<T> {
+impl<T: Real> Mul<T> for Euler<T> {
     type Output = Self;
     fn mul(self, rhs: T) -> Self {
         Self {
@@ -110,7 +109,7 @@ impl<T: Float> Mul<T> for Euler<T> {
 }
 
 // Scalar division
-impl<T: Float> Div<T> for Euler<T> {
+impl<T: Real> Div<T> for Euler<T> {
     type Output = Self;
     fn div(self, rhs: T) -> Self {
         Self {
@@ -122,7 +121,7 @@ impl<T: Float> Div<T> for Euler<T> {
 // Unit Conversions
 impl<T> Euler<T>
 where
-    T: Float + ToRadians<Output = T> + ToDegrees<Output = T> + Copy,
+    T: Real + ToRadians<Output = T> + ToDegrees<Output = T> + Copy,
 {
     /// Create Euler angles from degrees vector.
     pub fn from_degrees_vec(deg: Vector<T, 3>) -> Self {
@@ -142,7 +141,7 @@ where
 use std::fmt;
 
 #[cfg(feature = "std")]
-impl<T: Float + fmt::Display> fmt::Display for Euler<T> {
+impl<T: Real + fmt::Display> fmt::Display for Euler<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.data)
     }

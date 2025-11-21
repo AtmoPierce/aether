@@ -1,10 +1,11 @@
 use aether_core::math::Vector;
 use aether_core::reference_frame::ReferenceFrame;
+use aether_core::real::Real;
 
 // 1) Define a phantom camera frame
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Camera<T: num_traits::Float>(core::marker::PhantomData<T>);
-impl<T: num_traits::Float> ReferenceFrame for Camera<T> {}
+pub struct Camera<T: Real>(core::marker::PhantomData<T>);
+impl<T: Real> ReferenceFrame for Camera<T> {}
 
 #[derive(Debug, Clone)]
 pub struct OrbitCamera {

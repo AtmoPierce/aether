@@ -10,9 +10,8 @@ pub mod coordinate {
         coordinate::{Cartesian, Cylindrical, Spherical},
         reference_frame::ReferenceFrame,
     };
-    use num_traits::Float;
-
-    pub enum Coordinate<T: Float, F: ReferenceFrame> {
+    use crate::real::Real;
+    pub enum Coordinate<T: Real, F: ReferenceFrame> {
         CartesianValue(Cartesian<T, F>),
         CylindricalValue(Cylindrical<T>),
         SphericalValue(Spherical<T>),

@@ -1,15 +1,14 @@
-use num_traits::Float;
-
 use super::cartesian::Cartesian;
 use super::spherical::Spherical;
 use crate::math::Vector;
 use crate::reference_frame::ReferenceFrame;
+use crate::real::Real;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Cylindrical<T: Float> {
+pub struct Cylindrical<T: Real> {
     pub data: Vector<T, 3>, // [r, theta, z]
 }
-impl<T: Float> Cylindrical<T> {
+impl<T: Real> Cylindrical<T> {
     pub fn new(r: T, theta: T, z: T) -> Self {
         Self {
             data: Vector {
@@ -28,7 +27,7 @@ impl<T: Float> Cylindrical<T> {
     }
 }
 
-impl<T: Float, RF: ReferenceFrame> From<&Cartesian<T, RF>> for Cylindrical<T> {
+impl<T: Real, RF: ReferenceFrame> From<&Cartesian<T, RF>> for Cylindrical<T> {
     fn from(cart: &Cartesian<T, RF>) -> Self {
         let x = cart.x();
         let y = cart.y();
@@ -39,7 +38,7 @@ impl<T: Float, RF: ReferenceFrame> From<&Cartesian<T, RF>> for Cylindrical<T> {
     }
 }
 
-impl<T: Float> From<&Spherical<T>> for Cylindrical<T> {
+impl<T: Real> From<&Spherical<T>> for Cylindrical<T> {
     fn from(s: &Spherical<T>) -> Self {
         let r = s.r() * s.theta().sin();
         let z = s.r() * s.theta().cos();

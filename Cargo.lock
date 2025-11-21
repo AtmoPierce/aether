@@ -13,7 +13,7 @@ name = "aether"
 version = "0.1.1"
 dependencies = [
  "aether_benchmark",
- "aether_core 0.1.1",
+ "aether_core",
  "aether_examples",
  "aether_fluids",
  "aether_graphics",
@@ -46,18 +46,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "aether_core"
-version = "0.1.1"
-source = "git+https://github.com/AtmoPierce/aether.git#8b4ad4a464a79957baf10dea26a364473be802aa"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
 name = "aether_examples"
 version = "0.1.1"
 dependencies = [
- "aether_core 0.1.1",
+ "aether_core",
 ]
 
 [[package]]
@@ -68,7 +60,7 @@ version = "0.1.1"
 name = "aether_graphics"
 version = "0.1.1"
 dependencies = [
- "aether_core 0.1.1",
+ "aether_core",
  "num-traits",
 ]
 
@@ -76,7 +68,7 @@ dependencies = [
 name = "aether_ml"
 version = "0.1.1"
 dependencies = [
- "aether_core 0.1.1",
+ "aether_core",
  "aether_opt",
  "csv",
  "minstant",
@@ -89,14 +81,14 @@ dependencies = [
 name = "aether_models"
 version = "0.1.1"
 dependencies = [
- "aether_core 0.1.1",
+ "aether_core",
 ]
 
 [[package]]
 name = "aether_opt"
 version = "0.1.1"
 dependencies = [
- "aether_core 0.1.1",
+ "aether_core",
  "aether_rand",
  "num-traits",
 ]
@@ -109,7 +101,7 @@ version = "0.1.1"
 name = "aether_shapes"
 version = "0.1.1"
 dependencies = [
- "aether_core 0.1.1",
+ "aether_core",
  "num-traits",
 ]
 
@@ -117,7 +109,7 @@ dependencies = [
 name = "aether_stats"
 version = "0.1.1"
 dependencies = [
- "aether_core 0.1.1",
+ "aether_core",
  "aether_opt",
  "aether_rand",
  "num-traits",
@@ -127,7 +119,7 @@ dependencies = [
 name = "aether_test"
 version = "0.1.1"
 dependencies = [
- "aether_core 0.1.1",
+ "aether_core",
  "aether_viz",
  "approx",
  "num-traits",
@@ -138,8 +130,7 @@ dependencies = [
 name = "aether_units"
 version = "0.1.1"
 dependencies = [
- "aether_core 0.1.1",
- "fpx",
+ "aether_core",
 ]
 
 [[package]]
@@ -505,15 +496,6 @@ name = "foreign-types-shared"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aa9a19cbb55df58761df49b23516a86d432839add4af60fc256da840f66ed35b"
-
-[[package]]
-name = "fpx"
-version = "0.1.0"
-source = "git+https://github.com/AtmoPierce/fpx.git#6d39e01a253eed197152a05a32edf2df36f34a71"
-dependencies = [
- "aether_core 0.1.1 (git+https://github.com/AtmoPierce/aether.git)",
- "num-traits",
-]
 
 [[package]]
 name = "freetype-sys"

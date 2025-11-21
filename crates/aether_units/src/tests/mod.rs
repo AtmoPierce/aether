@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use fpx::approx;
+    use aether_core::real::Real;
 
     use crate::Quantity;
     use crate::si::si_base::*;

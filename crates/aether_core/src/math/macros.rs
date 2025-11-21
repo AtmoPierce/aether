@@ -51,19 +51,18 @@ pub(crate) use ones;
 
 // Vectors
 use crate::math::Vector;
-use num_traits::Float;
-impl<T, const N: usize> Vector<T, N>
+use crate::real::Real;impl<T, const N: usize> Vector<T, N>
 where
-    T: Float + Copy,
+    T: Real + Copy,
 {
     pub fn zeros() -> Self {
         Self {
-            data: [T::zero(); N],
+            data: [T::ZERO; N],
         }
     }
     pub fn ones() -> Self {
         Self {
-            data: [T::one(); N],
+            data: [T::ONE; N],
         }
     }
 }

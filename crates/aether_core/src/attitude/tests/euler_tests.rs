@@ -5,8 +5,7 @@ mod tests {
     use crate::matrix;
     use crate::reference_frame::Body;
     use approx::assert_relative_eq;
-    use num_traits::Float;
-
+    use crate::real::Real;
     #[test]
     fn test_euler_dcm_roundtrip() {
         let euler = Euler::new(-0.5, 0.1, 0.2);

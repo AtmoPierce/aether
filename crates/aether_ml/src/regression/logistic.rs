@@ -1,31 +1,31 @@
 #![cfg(feature = "std")]
 use aether_core::math::Vector;
 use aether_opt::gradient_descent::GradientDescentGeneric;
-use num_traits::{cast::cast, Float};
+use aether_core::real::{Real};
 use std::vec::Vec;
 
 /// Simple logistic regression for small fixed-size feature vectors.
-/// Generic over N (number of features) and float type F.
+/// Generic over N (number of features) and Real type F.
 #[derive(Clone, Copy, Debug)]
-pub struct LogisticRegression<F: Float + Copy, const N: usize> {
+pub struct LogisticRegression<F: Real + Copy, const N: usize> {
     pub weights: Vector<F, N>,
     pub bias: F,
     pub lr: F,
 }
 
-impl<F: Float + Copy, const N: usize> LogisticRegression<F, N> {
+impl<F: Real + Copy, const N: usize> LogisticRegression<F, N> {
     pub fn new() -> Self {
         Self {
-            weights: Vector::new([F::zero(); N]),
-            bias: F::zero(),
+            weights: Vector::new([F::ZERO; N]),
+            bias: F::ZERO,
             // neutral default lr
-            lr: F::one(),
+            lr: F::ONE,
         }
     }
 
     #[inline]
     fn sigmoid(x: F) -> F {
-        F::one() / (F::one() + (-x).exp())
+        F::ONE / (F::ONE + (-x).exp())
     }
 
     /// Predict probability for a single example
@@ -39,7 +39,7 @@ impl<F: Float + Copy, const N: usize> LogisticRegression<F, N> {
 
     /// Predict 0/1 label
     pub fn predict(&self, x: &Vector<F, N>) -> u8 {
-        if self.predict_probability(x) > (F::one() / (F::one() + F::one())) {
+        if self.predict_probability(x) > (F::ONE / (F::ONE + F::ONE)) {
             1
         } else {
             0
@@ -53,14 +53,14 @@ impl<F: Float + Copy, const N: usize> LogisticRegression<F, N> {
         if m_usize == 0 {
             return;
         }
-        let m: F = cast(m_usize).unwrap();
+        let m: F = F::from_usize(m_usize);
 
-        let mut grad_w = Vector::new([F::zero(); N]);
-        let mut grad_b = F::zero();
+        let mut grad_w = Vector::new([F::ZERO; N]);
+        let mut grad_b = F::ZERO;
 
         for (x, &label) in x_data.iter().zip(y.iter()) {
             let p = self.predict_probability(x);
-            let y_f: F = if label == 0 { F::zero() } else { F::one() };
+            let y_f: F = if label == 0 { F::ZERO } else { F::ONE };
             let err = p - y_f;
             for i in 0..N {
                 grad_w[i] = grad_w[i] + err * x[i];
@@ -86,40 +86,40 @@ impl<F: Float + Copy, const N: usize> LogisticRegression<F, N> {
         if m_usize == 0 {
             return;
         }
-        let m: F = cast(m_usize).unwrap();
-        let mut p_arr: [F; M] = [F::zero(); M];
+        let m: F = F::from_usize(m_usize);
+        let mut p_arr: [F; M] = [F::ZERO; M];
         for i in 0..N {
             p_arr[i] = self.weights[i];
         }
         p_arr[N] = self.bias;
         let x0 = Vector::new(p_arr);
 
-        let tiny = F::one() / (F::one() + (F::one() + F::one()));
+        let tiny = F::ONE / (F::ONE + (F::ONE + F::ONE));
 
         let f = |pv: &Vector<F, M>| -> F {
-            let mut loss = F::zero();
+            let mut loss = F::ZERO;
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut s = pv[N];
                 for i in 0..N {
                     s = s + pv[i] * x[i];
                 }
-                let p = F::one() / (F::one() + (-s).exp());
-                let yv: F = if yi == 0 { F::zero() } else { F::one() };
+                let p = F::ONE / (F::ONE + (-s).exp());
+                let yv: F = if yi == 0 { F::ZERO } else { F::ONE };
                 // binary cross-entropy: -(y ln p + (1-y) ln (1-p))
-                loss = loss - (yv * (p + tiny).ln() + (F::one() - yv) * (F::one() - p + tiny).ln());
+                loss = loss - (yv * (p + tiny).ln() + (F::ONE - yv) * (F::ONE - p + tiny).ln());
             }
             loss / m
         };
 
         let g = |pv: &Vector<F, M>| -> Vector<F, M> {
-            let mut grads: [F; M] = [F::zero(); M];
+            let mut grads: [F; M] = [F::ZERO; M];
             for (x, &yi) in x_data.iter().zip(y.iter()) {
                 let mut s = pv[N];
                 for i in 0..N {
                     s = s + pv[i] * x[i];
                 }
-                let p = F::one() / (F::one() + (-s).exp());
-                let e = p - if yi == 0 { F::zero() } else { F::one() };
+                let p = F::ONE / (F::ONE + (-s).exp());
+                let e = p - if yi == 0 { F::ZERO } else { F::ONE };
                 for i in 0..N {
                     grads[i] = grads[i] + e * x[i];
                 }
