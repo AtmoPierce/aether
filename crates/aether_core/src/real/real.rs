@@ -33,7 +33,7 @@ pub trait Real:
     #[cfg(feature = "f128")]
     fn from_f128(x: f128) -> Self;
 
-    // Elementary ops we need in Remez
+    // Will add as I use stuff...
     fn abs(self) -> Self;
     fn cos(self) -> Self;
     fn sin(self) -> Self;
