@@ -494,7 +494,7 @@ impl<T: Real, const M: usize, const N: usize> Matrix<T, M, N> {
         let mut out = Matrix::<U, M, N>::zeros();
         for r in 0..M {
             for c in 0..N {
-                out[(r, c)] = Real::from_f64(self[(r, c)].to_f64());
+                out[(r, c)] = U::from_f64(self[(r, c)].to_f64());
             }
         }
         out
