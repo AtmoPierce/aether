@@ -13,7 +13,6 @@ plotters = { version = "0.3.7", default-features = true, features = [] }
 svg = ["plotters/svg_backend"]
 bitmap = ["plotters/bitmap_backend"]
 line_series = ["plotters/line_series"]
-
 default = ["svg", "line_series"]   # or make this empty if you want opt-in
 
 [lib]

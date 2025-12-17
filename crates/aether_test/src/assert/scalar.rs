@@ -1,0 +1,1 @@
+// !TODO Sometimes I'm making scalar comparisons and I want some convenience methods here

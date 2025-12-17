@@ -4,6 +4,7 @@ use crate::math::{Matrix, Vector};
 use crate::matrix;
 use crate::reference_frame::{Body, ReferenceFrame, ICRF, ITRF, NED};
 use crate::real::Real;
+
 pub fn angular_rate_dcm(roll: f64, pitch: f64, yaw: f64) -> Matrix<f64, 3, 3> {
     let rotation_matrix = matrix![
         0.0, -yaw, pitch;
