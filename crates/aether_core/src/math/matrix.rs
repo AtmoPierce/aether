@@ -457,6 +457,50 @@ impl<T, const M: usize, const N: usize> IndexMut<(usize, usize)> for Matrix<T, M
     }
 }
 
+/* -------------------- Casting ----------------------------- */
+impl<const M: usize, const N: usize> From<Matrix<f32, M, N>>
+    for Matrix<f64, M, N>
+{
+    #[inline]
+    fn from(src: Matrix<f32, M, N>) -> Self {
+        let mut out = Matrix::<f64, M, N>::zeros();
+        for r in 0..M {
+            for c in 0..N {
+                out[(r, c)] = src[(r, c)] as f64;
+            }
+        }
+        out
+    }
+}
+
+impl<const M: usize, const N: usize> From<Matrix<f64, M, N>>
+    for Matrix<f32, M, N>
+{
+    #[inline]
+    fn from(src: Matrix<f64, M, N>) -> Self {
+        let mut out = Matrix::<f32, M, N>::zeros();
+        for r in 0..M {
+            for c in 0..N {
+                out[(r, c)] = src[(r, c)] as f32;
+            }
+        }
+        out
+    }
+}
+
+impl<T: Real, const M: usize, const N: usize> Matrix<T, M, N> {
+    #[inline]
+    pub fn cast<U: Real>(self) -> Matrix<U, M, N> {
+        let mut out = Matrix::<U, M, N>::zeros();
+        for r in 0..M {
+            for c in 0..N {
+                out[(r, c)] = Real::from_f64(self[(r, c)].to_f64());
+            }
+        }
+        out
+    }
+}
+
 /* -------------------- std-only Display -------------------- */
 
 #[cfg(feature = "std")]
