@@ -1,11 +1,6 @@
 use core::fmt::Debug;
 use core::ops::{Add, Sub, Mul, Div, Neg};
 
-#[cfg(feature = "f16")]
-use core::f16;
-#[cfg(feature = "f128")]
-use core::f128;
-
 pub trait Real:
     RealCast
     + Debug
@@ -165,8 +160,8 @@ impl Real for f64 {
 impl Real for f16 {
     const ZERO:    Self = 0.0;
     const ONE:     Self = 1.0;
-    const PI:      Self = f16::consts::PI;
-    const FRAC_PI_2: Self = f16::consts::FRAC_PI_2;
+    const PI:      Self = core::f16::consts::PI;
+    const FRAC_PI_2: Self = core::f16::consts::FRAC_PI_2;
     const EPSILON: Self = f16::EPSILON;
     const INFINITY: Self = f16::INFINITY;
     const NEG_INFINITY: Self = f16::NEG_INFINITY;
@@ -214,8 +209,8 @@ impl Real for f16 {
 impl Real for f128 {
     const ZERO:    Self = 0.0;
     const ONE:     Self = 1.0;
-    const PI:      Self = f128::consts::PI;
-    const FRAC_PI_2: Self = f128::consts::FRAC_PI_2;
+    const PI:      Self = core::f128::consts::PI;
+    const FRAC_PI_2: Self = core::f128::consts::FRAC_PI_2;
     const EPSILON: Self = f128::EPSILON;
     const INFINITY: Self = f128::INFINITY;
     const NEG_INFINITY: Self = f128::NEG_INFINITY;
@@ -259,27 +254,24 @@ impl Real for f128 {
 
 // Casting
 pub trait RealCast: Copy {
-    // from
     fn from_f32(x: f32) -> Self;
     fn from_f64(x: f64) -> Self;
     fn from_u32(x: u32) -> Self;
     fn from_usize(x: usize) -> Self;
 
-    // to
     fn to_f32(self) -> f32;
     fn to_f64(self) -> f64;
 
     #[cfg(feature = "f16")]
-    fn from_f16(x: core::f16) -> Self;
+    fn from_f16(x: f16) -> Self;
     #[cfg(feature = "f16")]
-    fn to_f16(self) -> core::f16;
+    fn to_f16(self) -> f16;
 
     #[cfg(feature = "f128")]
-    fn from_f128(x: core::f128) -> Self;
+    fn from_f128(x: f128) -> Self;
     #[cfg(feature = "f128")]
-    fn to_f128(self) -> core::f128;
+    fn to_f128(self) -> f128;
 }
-
 
 macro_rules! impl_real_cast_float {
     ($t:ty) => {
@@ -293,14 +285,14 @@ macro_rules! impl_real_cast_float {
             #[inline] fn to_f64(self) -> f64 { self as f64 }
 
             #[cfg(feature = "f16")]
-            #[inline] fn from_f16(x: core::f16) -> Self { x as $t }
+            #[inline] fn from_f16(x: f16) -> Self { x as $t }
             #[cfg(feature = "f16")]
-            #[inline] fn to_f16(self) -> core::f16 { self as core::f16 }
+            #[inline] fn to_f16(self) -> f16 { self as f16 }
 
             #[cfg(feature = "f128")]
-            #[inline] fn from_f128(x: core::f128) -> Self { x as $t }
+            #[inline] fn from_f128(x: f128) -> Self { x as $t }
             #[cfg(feature = "f128")]
-            #[inline] fn to_f128(self) -> core::f128 { self as core::f128 }
+            #[inline] fn to_f128(self) -> f128 { self as f128 }
         }
     };
 }
@@ -309,7 +301,7 @@ impl_real_cast_float!(f32);
 impl_real_cast_float!(f64);
 
 #[cfg(feature = "f16")]
-impl_real_cast_float!(core::f16);
+impl_real_cast_float!(f16);
 
 #[cfg(feature = "f128")]
-impl_real_cast_float!(core::f128);
+impl_real_cast_float!(f128);
