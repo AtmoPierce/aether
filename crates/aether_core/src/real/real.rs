@@ -25,18 +25,6 @@ pub trait Real:
     const INFINITY: Self;
     const NEG_INFINITY: Self;
 
-    // Conversions
-    fn from_f32(x: f32) -> Self;
-    fn from_f64(x: f64) -> Self;
-    fn from_u32(x: u32) -> Self;
-    fn from_usize(x: usize) -> Self;
-
-    #[cfg(feature = "f16")]
-    fn from_f16(x: f16) -> Self;
-
-    #[cfg(feature = "f128")]
-    fn from_f128(x: f128) -> Self;
-
     // Basic math operations (re-exports)
     fn abs(self) -> Self;
     fn signum(self) -> Self;
@@ -86,26 +74,6 @@ impl Real for f32 {
     const INFINITY: Self = core::f32::INFINITY;
     const NEG_INFINITY: Self = core::f32::NEG_INFINITY;
 
-    #[cfg(feature = "f16")]
-    #[inline]
-    fn from_f16(x: f16) -> Self { x as f32 }
-
-    #[inline]
-    fn from_f32(x: f32) -> Self { x }
-
-    #[inline]
-    fn from_f64(x: f64) -> Self { x as f32 }
-
-    #[inline]
-    fn from_u32(x: u32) -> Self { x as f32 }
-
-    #[inline]
-    fn from_usize(x: usize) -> Self { x as f32 }
-
-    #[cfg(feature = "f128")]
-    #[inline]
-    fn from_f128(x: f128) -> Self { x as f32 }
-
     #[inline] fn abs(self) -> Self { f32::abs(self) }
     #[inline] fn signum(self) -> Self { f32::signum(self) }
 
@@ -153,26 +121,6 @@ impl Real for f64 {
     const EPSILON: Self = core::f64::EPSILON;
     const INFINITY: Self = core::f64::INFINITY;
     const NEG_INFINITY: Self = core::f64::NEG_INFINITY;
-
-    #[cfg(feature = "f16")]
-    #[inline]
-    fn from_f16(x: f16) -> Self { x as f64 }
-
-    #[inline]
-    fn from_f32(x: f32) -> Self { x as f64 }
-
-    #[inline]
-    fn from_f64(x: f64) -> Self { x }
-
-    #[inline]
-    fn from_u32(x: u32) -> Self { x as f64 }
-
-    #[inline]
-    fn from_usize(x: usize) -> Self { x as f64 }
-
-    #[cfg(feature = "f128")]
-    #[inline]
-    fn from_f128(x: f128) -> Self { x as f64 }
 
     #[inline] fn abs(self) -> Self { f64::abs(self) }
     #[inline] fn signum(self) -> Self { f64::signum(self) }
