@@ -171,25 +171,6 @@ impl Real for f16 {
     const INFINITY: Self = f16::INFINITY;
     const NEG_INFINITY: Self = f16::NEG_INFINITY;
 
-    #[inline]
-    fn from_f16(x: f16) -> Self { x }
-
-    #[inline]
-    fn from_f32(x: f32) -> Self { x as f16 }
-
-    #[inline]
-    fn from_f64(x: f64) -> Self { x as f16 }
-
-    #[inline]
-    fn from_u32(x: u32) -> Self { x as f16 }
-
-    #[inline]
-    fn from_usize(x: usize) -> Self { x as f16 }
-
-    #[cfg(feature = "f128")]
-    #[inline]
-    fn from_f128(x: f128) -> Self { x as f16 }
-
     #[inline] fn abs(self) -> Self { self.abs() }
     #[inline] fn signum(self) -> Self { self.signum() }
 
@@ -238,25 +219,6 @@ impl Real for f128 {
     const EPSILON: Self = f128::EPSILON;
     const INFINITY: Self = f128::INFINITY;
     const NEG_INFINITY: Self = f128::NEG_INFINITY;
-
-    #[cfg(feature = "f16")]
-    #[inline]
-    fn from_f16(x: f16) -> Self { x as f128 }
-
-    #[inline]
-    fn from_f32(x: f32) -> Self { x as f128 }
-
-    #[inline]
-    fn from_f64(x: f64) -> Self { x as f128 }
-
-    #[inline]
-    fn from_u32(x: u32) -> Self { x as f128 }
-
-    #[inline]
-    fn from_usize(x: usize) -> Self { x as f128 }
-
-    #[inline]
-    fn from_f128(x: f128) -> Self { x }
 
     #[inline] fn abs(self) -> Self { self.abs() }
     #[inline] fn signum(self) -> Self { self.signum() }
