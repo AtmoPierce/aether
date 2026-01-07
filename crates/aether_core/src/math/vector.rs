@@ -452,7 +452,7 @@ use core::{fmt, marker::PhantomData};
 #[cfg(feature = "serde")]
 use serde::{
     de::{self, SeqAccess, Visitor},
-    ser::SerializeSeq,
+    ser::{SerializeSeq,SerializeTuple},
     Deserialize, Deserializer, Serialize, Serializer,
 };
 
