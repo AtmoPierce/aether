@@ -452,7 +452,7 @@ use core::{fmt, marker::PhantomData};
 #[cfg(feature = "serde")]
 use serde::{
     de::{self, SeqAccess, Visitor},
-    ser::SerializeSeq,
+    ser::{SerializeSeq,SerializeTuple},
     Deserialize, Deserializer, Serialize, Serializer,
 };
 
@@ -462,11 +462,11 @@ impl<T: Serialize, const N: usize> Serialize for Vector<T, N> {
     where
         S: Serializer,
     {
-        let mut seq = serializer.serialize_seq(Some(N))?;
+        let mut tup = serializer.serialize_tuple(N)?;
         for elem in &self.data {
-            seq.serialize_element(elem)?;
+            tup.serialize_element(elem)?;
         }
-        seq.end()
+        tup.end()
     }
 }
 
