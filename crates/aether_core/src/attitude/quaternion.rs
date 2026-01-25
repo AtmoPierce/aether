@@ -346,6 +346,25 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
     }
 }
 
+#[cfg(feature = "std")]
+impl<T, From, To> core::fmt::Display for Quaternion<T, From, To>
+where
+    T: Real + core::fmt::Display,
+    From: ReferenceFrame,
+    To: ReferenceFrame,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f,
+            "q=[{}, {}, {}, {}]",
+            self.w(),
+            self.i(),
+            self.j(),
+            self.k(),
+        )
+    }
+}
+
 #[cfg(test)]
 #[path = "tests/quaternion_tests.rs"]
 mod quaternion_tests;
