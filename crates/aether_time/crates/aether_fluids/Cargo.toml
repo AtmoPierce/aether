@@ -1,0 +1,11 @@
+[package]
+name = "aether_fluids"
+edition.workspace = true
+license-file.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true

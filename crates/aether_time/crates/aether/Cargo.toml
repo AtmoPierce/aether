@@ -1,0 +1,20 @@
+[package]
+name = "aether"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+aether_core = { path = "../aether_core" }
+
+[features]
+default = []
+# Pass-through commonly used features to aether_core
+serde = ["aether_core/serde"]
+std = ["aether_core/std"]
+no_std = ["aether_core/no_std"]
+regex = ["aether_core/regex"]
+rustyline = ["aether_core/rustyline"]
+serde-json-core = ["aether_core/serde-json-core"]
