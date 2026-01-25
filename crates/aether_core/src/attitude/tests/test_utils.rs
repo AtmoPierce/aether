@@ -29,7 +29,7 @@ pub fn test_round_trip<T>(dcm: DirectionCosineMatrix<T, Body<f64>, Body<f64>>, e
 where
     T: Real + std::fmt::Debug,
 {
-    let q: Quaternion<T> = (&dcm).try_into().unwrap();
+    let q: Quaternion<T, Body<f64>, Body<f64>> = (&dcm).try_into().unwrap();
     let q_n = q.normalized();
     let dcm_rt: DirectionCosineMatrix<T, Body<f64>, Body<f64>> = DirectionCosineMatrix::from(q_n);
     assert!(matrices_approx_eq(

@@ -1,4 +1,4 @@
-// tensors.rs — minimal tensor data structures (no math, no allocation)
+// tensors.rs - minimal tensor data structures (no math, no allocation)
 #![allow(non_camel_case_types)]
 
 
