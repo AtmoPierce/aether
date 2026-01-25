@@ -22,7 +22,7 @@ pub mod attitude {
         T: Real,
     {
         DCMRotation(DirectionCosineMatrix<T, From, To>),
-        EulerRotation(Euler<T>),
-        QuaternionRotation(Quaternion<T>),
+        EulerRotation(Euler<T, From, To>),
+        QuaternionRotation(Quaternion<T, From, To>),
     }
 }

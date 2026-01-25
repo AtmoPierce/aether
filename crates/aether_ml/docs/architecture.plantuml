@@ -68,17 +68,17 @@ package "HPC & Infrastructure" {
 
 ' ==== Connections ====
 
-' Applications → Libraries
+' Applications -> Libraries
 TELE -down-> AETHER_BUS
 AST  -down-> AETHER_BUS
 CRAB -down-> AETHER_BUS
 NAV  -down-> AETHER_BUS
 AETHER_BUS -down-> AETH
 
-' Astrum → CUDA
+' Astrum -> CUDA
 AST -down-> CUDALIB
 
-' Libraries → Infrastructure
+' Libraries -> Infrastructure
 CUDALIB -down-> GPU
 AETH -down-> GPU
 
@@ -88,7 +88,7 @@ CI -down-> HPC_BUS
 HPC_BUS -down-> SCHED
 SCHED -down-> GPU
 
-' Repo → CI
+' Repo -> CI
 GIT -down-> CI
 
 ' Metrics flow

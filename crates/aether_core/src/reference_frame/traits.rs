@@ -9,18 +9,20 @@ pub trait ReferenceFrame {}
 pub trait FixedFrame<T: Real>: ReferenceFrame {}
 
 /// Trait for rotating frames with time-dependent orientation
-pub trait RotatingFrame<T: Real, RF: ReferenceFrame> {
-    /// Angular velocity in the body-fixed frame
-    fn angular_velocity(&self) -> Cartesian<T, RF>;
+pub trait RotatingFrame<T: Real, F: ReferenceFrame>: ReferenceFrame {
+    /// Angular velocity expressed in the frame `F`
+    fn angular_velocity(&self) -> Cartesian<T, F>;
 
-    /// Epoch of the angular velocity
+    /// Reference epoch
     fn epoch(&self) -> T;
 
-    /// Orientation at time `t` relative to inertial parent
-    fn orientation_at(&self, t: T) -> Quaternion<T>;
+    /// Orientation of this frame at time `t`
+    ///
+    /// This is a passive transform: F(epoch) -> F(t)
+    fn orientation_at(&self, t: T) -> Quaternion<T, F, F>;
 }
 
-/// Trait for computing the rotation from `FROM` to `TO`
-pub trait RotationBetween<T: Real, FROM: ReferenceFrame, TO: ReferenceFrame> {
-    fn rotation(t: T) -> Quaternion<T>;
+/// Trait for computing the rotation from `From` to `From`
+pub trait RotationBetween<T: Real, From: ReferenceFrame, To: ReferenceFrame> {
+    fn rotation(t: T) -> Quaternion<T, From, To>;
 }
