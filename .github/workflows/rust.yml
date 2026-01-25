@@ -10,30 +10,26 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
+  build-and-test:
+    runs-on: ubuntu-22.04
+
     steps:
+      - uses: actions/checkout@v4
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             pkg-config \
-            libfontconfig1-dev
+            libfontconfig1-dev \
+            fontconfig
 
-  build:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - uses: actions/checkout@v4
+      - name: Set pkg-config path
+        run: |
+          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
 
       - name: Build
         run: cargo build --verbose
 
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run tests
+      - name: Run tests (all features)
         run: cargo +nightly test --verbose --all-features
