@@ -12,7 +12,7 @@ pub trait Solid<F: Real> {
     fn inertia_principal_cm(&self, mass: F) -> Vector<F, 3>;
 }
 
-/// A realized solid: shape + density + pose (Local → Assembly, CM position in Assembly)
+/// A realized solid: shape + density + pose (Local -> Assembly, CM position in Assembly)
 pub struct MassModel<T: Real, S: Solid<T>> {
     pub solid: S,
     pub density: T,
@@ -52,12 +52,12 @@ impl<T: Real, SO: Solid<T>, SI: Solid<T>> Sub<MassModel<T, SI>> for MassModel<T,
         let m_o = self.density * v_o;
         let m_i = inner.density * v_i;
 
-        // Principal inertia (Local) → rotate into Assembly (still at each CM)
+        // Principal inertia (Local) -> rotate into Assembly (still at each CM)
         let Io_prin = Matrix::<T, 3, 3>::diag_from_vector(&self.solid.inertia_principal_cm(m_o));
         let Ii_prin = Matrix::<T, 3, 3>::diag_from_vector(&inner.solid.inertia_principal_cm(m_i));
 
-        let Ro = *self.pose.R_local_to_assembly.as_matrix(); // Local_o → Assembly
-        let Ri = *inner.pose.R_local_to_assembly.as_matrix(); // Local_i → Assembly
+        let Ro = *self.pose.R_local_to_assembly.as_matrix(); // Local_o -> Assembly
+        let Ri = *inner.pose.R_local_to_assembly.as_matrix(); // Local_i -> Assembly
 
         let Io_cm = Ro * Io_prin * Ro.transpose();
         let Ii_cm = Ri * Ii_prin * Ri.transpose();
@@ -79,7 +79,7 @@ impl<T: Real, SO: Solid<T>, SI: Solid<T>> Sub<MassModel<T, SI>> for MassModel<T,
         // Combined COM (Assembly)
         let com = (r_o * m_o - r_i * m_i) / mass;
 
-        // Inertia about Assembly origin → shift back to combined CM
+        // Inertia about Assembly origin -> shift back to combined CM
         let I_O = Io_O - Ii_O;
         let I_cm = I_O - parallel_axis(Matrix::<T, 3, 3>::zeros(), mass, com);
 
@@ -105,12 +105,12 @@ impl<T: Real, SO: Solid<T>, SI: Solid<T>> Add<MassModel<T, SI>> for MassModel<T,
         let m_a = self.density * v_a;
         let m_b = other.density * v_b;
 
-        // Principal inertia (Local) → rotate into Assembly (still at each CM)
+        // Principal inertia (Local) -> rotate into Assembly (still at each CM)
         let Ia_prin = Matrix::<T, 3, 3>::diag_from_vector(&self.solid.inertia_principal_cm(m_a));
         let Ib_prin = Matrix::<T, 3, 3>::diag_from_vector(&other.solid.inertia_principal_cm(m_b));
 
-        let Ra = *self.pose.R_local_to_assembly.as_matrix(); // Local_a → Assembly
-        let Rb = *other.pose.R_local_to_assembly.as_matrix(); // Local_b → Assembly
+        let Ra = *self.pose.R_local_to_assembly.as_matrix(); // Local_a -> Assembly
+        let Rb = *other.pose.R_local_to_assembly.as_matrix(); // Local_b -> Assembly
 
         let Ia_cm = Ra * Ia_prin * Ra.transpose();
         let Ib_cm = Rb * Ib_prin * Rb.transpose();
@@ -132,7 +132,7 @@ impl<T: Real, SO: Solid<T>, SI: Solid<T>> Add<MassModel<T, SI>> for MassModel<T,
         // Combined COM (Assembly)
         let com = (r_a * m_a + r_b * m_b) / mass;
 
-        // Inertia about Assembly origin → shift back to combined CM
+        // Inertia about Assembly origin -> shift back to combined CM
         let I_O = Ia_O + Ib_O;
         let I_cm = I_O - parallel_axis(Matrix::<T, 3, 3>::zeros(), mass, com);
 

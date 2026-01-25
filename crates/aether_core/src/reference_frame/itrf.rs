@@ -2,8 +2,9 @@ use crate::attitude::Quaternion;
 use crate::coordinate::Cartesian;
 use crate::math::Vector;
 use crate::reference_frame::{ReferenceFrame, RotatingFrame};
+use crate::real::Real;
+
 use core::marker::PhantomData;
-use crate::real::{Real};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Default, Clone, Copy)]
@@ -25,13 +26,19 @@ impl<T: Real> RotatingFrame<T, ITRF<T>> for ITRF<T> {
         self.epoch
     }
 
-    fn orientation_at(&self, t: T) -> Quaternion<T> {
-        let omega = T::from_f64(7.2921150e-5); // Earth's rotation rate [rad/s] (ITRF is actually more complicated and comes from ephermerides, more on that later...)
+    fn orientation_at(&self, t: T) -> Quaternion<T, ITRF<T>, ITRF<T>> {
+        // Earth's rotation rate [rad/s]
+        let omega = T::from_f64(7.2921150e-5);
+
         let dtheta = (t - self.epoch) * omega;
         let half_theta = dtheta * T::from_f32(0.5);
 
-        Quaternion {
-            data: Vector::new([half_theta.cos(), T::ZERO, T::ZERO, half_theta.sin()]),
-        }
+        // Passive frame transform: ITRF(epoch) -> ITRF(t)
+        Quaternion::new(
+            half_theta.cos(),
+            T::ZERO,
+            T::ZERO,
+            half_theta.sin(),
+        )
     }
 }

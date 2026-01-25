@@ -113,7 +113,7 @@ mod tests_add_sub {
 
         approx(props.volume, v_net, EPS);
         approx(props.mass, m_net, EPS);
-        approx(props.density, RHO, EPS); // same material → density stays RHO
+        approx(props.density, RHO, EPS); // same material -> density stays RHO
 
         // Expected principal inertia: subtract
         let io_prin = outer_shape.inertia_principal_cm(m_o);
@@ -157,7 +157,7 @@ mod tests_add_sub {
 
         approx(props.volume, v_sum, EPS);
         approx(props.mass, m_sum, EPS);
-        approx(props.density, RHO, EPS); // same material → density stays RHO
+        approx(props.density, RHO, EPS); // same material -> density stays RHO
 
         // Expected principal inertia: add
         let ia_prin = a_shape.inertia_principal_cm(m_a);

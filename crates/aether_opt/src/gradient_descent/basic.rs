@@ -158,8 +158,8 @@ impl<F: Real + Copy, const N: usize> GradientDescentGeneric<F, N> {
 
     /// One optimization run.
     ///
-    /// `f`  — objective value at x
-    /// `g`  — gradient at x (must return same-dimension vector)
+    /// `f`  - objective value at x
+    /// `g`  - gradient at x (must return same-dimension vector)
     ///
     /// Returns: (x_best, f_best, iters_used, converged)
     pub fn minimize<FUN, GRAD>(
