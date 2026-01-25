@@ -31,10 +31,13 @@ impl<T: Real, RF: ReferenceFrame> Cartesian<T, RF> {
         self.data.data[2]
     }
 
-    pub fn transform<To: ReferenceFrame>(&self, q_from_to: Quaternion<T>) -> Cartesian<T, To> {
+    pub fn transform<To: ReferenceFrame>(
+        &self,
+        q_from_to: &Quaternion<T, RF, To>,
+    ) -> Cartesian<T, To> {
         Cartesian {
             data: q_from_to.rotate_vector(self.data),
-            _reference_frame: PhantomData::<To>,
+            _reference_frame: PhantomData,
         }
     }
 }

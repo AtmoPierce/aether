@@ -6,7 +6,7 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 use crate::real::Real;
 #[derive(Debug, Clone, Copy, Default)]
 pub struct DirectionCosineMatrix<T: Real, From: ReferenceFrame, To: ReferenceFrame> {
-    data: Matrix<T, 3, 3>, // still private
+    data: Matrix<T, 3, 3>,
     _from: PhantomData<From>,
     _to: PhantomData<To>,
 }
@@ -90,34 +90,43 @@ where
     type Output = DirectionCosineMatrix<T, A, C>;
 
     fn mul(self, rhs: DirectionCosineMatrix<T, A, B>) -> Self::Output {
-        let lhs: Matrix<T, 3, 3> = self.data; // B → C
-        let rhs: Matrix<T, 3, 3> = rhs.data; // A → B
-        let data: Matrix<T, 3, 3> = lhs * rhs; // A → C
+        let lhs: Matrix<T, 3, 3> = self.data; // B -> C
+        let rhs: Matrix<T, 3, 3> = rhs.data; // A -> B
+        let data: Matrix<T, 3, 3> = lhs * rhs; // A -> C
         DirectionCosineMatrix::from_matrix(data)
     }
 }
 
 // From
-impl<T, A: ReferenceFrame, B: ReferenceFrame> From<Euler<T>> for DirectionCosineMatrix<T, A, B>
+impl<T, A: ReferenceFrame, B: ReferenceFrame> From<Euler<T, A, B>> for DirectionCosineMatrix<T, A, B>
 where
     T: Real + Mul<Output = T> + Add<Output = T> + Copy + Default,
 {
-    fn from(euler: Euler<T>) -> Self {
-        // ZYX Convention
+    fn from(euler: Euler<T, A, B>) -> Self {
+        // Passive ZYX Rotation
         let [phi, theta, psi] = euler.data.data;
         let rx: DirectionCosineMatrix<T, _, B> = DirectionCosineMatrix::rotate_x(phi);
         let ry: DirectionCosineMatrix<T, _, B> = DirectionCosineMatrix::rotate_y(theta);
         let rz: DirectionCosineMatrix<T, _, B> = DirectionCosineMatrix::rotate_z(psi);
-        let c = rz * ry * rx;
-
+        let c = rx * ry * rz;
         return c;
     }
 }
 
-impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> From<Quaternion<T>>
+impl<T: Real, A: ReferenceFrame, B: ReferenceFrame>
+    From<Quaternion<T, A, B>> for DirectionCosineMatrix<T, A, B>
+{
+    #[inline]
+    fn from(q: Quaternion<T, A, B>) -> Self {
+        Self::from(&q)
+    }
+}
+
+
+impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> From<&Quaternion<T, A, B>>
     for DirectionCosineMatrix<T, A, B>
 {
-    fn from(q: Quaternion<T>) -> Self {
+    fn from(q: &Quaternion<T, A, B>) -> Self {
         let s = q.data.data[0];
         let i = q.data.data[1];
         let j = q.data.data[2];
@@ -237,3 +246,6 @@ impl<T: Real + std::fmt::Display, A: ReferenceFrame, B: ReferenceFrame> std::fmt
 #[cfg(test)]
 #[path = "tests/dcm_tests.rs"]
 mod dcm_tests;
+
+
+
