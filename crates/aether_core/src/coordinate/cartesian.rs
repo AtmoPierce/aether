@@ -9,6 +9,7 @@ use core::slice::{Iter, IterMut};
 use crate::real::Real;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
 pub struct Cartesian<T: Real, ReferenceFrame> {
     pub data: Vector<T, 3>,
     pub _reference_frame: PhantomData<ReferenceFrame>,

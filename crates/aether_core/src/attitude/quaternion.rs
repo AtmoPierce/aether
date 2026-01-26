@@ -8,6 +8,7 @@ use core::marker::PhantomData;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
 pub struct Quaternion<T: Real, From: ReferenceFrame, To: ReferenceFrame> {
     pub data: Vector<T, 4>, // [w, i, j, k]
     _from: PhantomData<From>,
@@ -364,6 +365,9 @@ where
         )
     }
 }
+
+
+
 
 #[cfg(test)]
 #[path = "tests/quaternion_tests.rs"]

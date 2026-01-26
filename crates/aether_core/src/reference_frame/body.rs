@@ -5,6 +5,8 @@
 use crate::coordinate::Cartesian;
 use crate::reference_frame::{FixedFrame, ReferenceFrame};
 use crate::real::Real;
+
+#[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Body<T: Real> {
     /// Vector from origin to center of mass in body coordinates
