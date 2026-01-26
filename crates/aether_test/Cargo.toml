@@ -12,10 +12,13 @@ keywords = ["aether", "matrix", "vector", "test", "plot"]
 
 [features]
 plots = ["dep:aether_viz", "aether_viz/svg"]     # or "aether_viz/bitmap"
+bincode = ["dep:bincode"]
 
 [dependencies]
-aether_core = { path = "../aether_core", version = "0.1.1" }
+# aether_core = { path = "../aether_core", version = "0.1.1" }
+aether_core = { path = "../aether_core", features = ["bincode"]}
 aether_viz = { path = "../aether_viz", optional = true, default-features = false }
+bincode = { version = "2.0.1", optional=true }
 thiserror = "*"
 
 # Numerical and comparison helpers

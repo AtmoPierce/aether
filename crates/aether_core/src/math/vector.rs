@@ -10,6 +10,7 @@ use core::ops::{
 use core::slice::{Iter, IterMut};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
 pub struct Vector<T, const N: usize> {
     pub data: [T; N],
 }
