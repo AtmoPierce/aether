@@ -25,6 +25,7 @@ aether_stats = { path = "../aether_stats" }
 default = []
 # Pass-through commonly used features to the subcrates
 serde = ["aether_core/serde"]
+bincode = ["aether_core/bincode"]
 std = [
     "aether_core/std",
     "aether_benchmark/std",
