@@ -1,4 +1,4 @@
-use core::fmt::Debug;
+use core::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use core::ops::{Add, Sub, Mul, Div, Neg};
 
 pub trait Real:
@@ -305,3 +305,11 @@ impl_real_cast_float!(f16);
 
 #[cfg(feature = "f128")]
 impl_real_cast_float!(f128);
+
+#[cfg(feature = "f128")]
+impl Display for f128 {
+    #[inline]
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        Debug::fmt(self, f)
+    }
+}
