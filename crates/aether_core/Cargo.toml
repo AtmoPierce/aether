@@ -8,6 +8,8 @@ license-file.workspace = true
 [features]
 default = ["no_std"]
 bincode = ["dep:bincode"]
+serde = ["dep:serde", "dep:serde-json-core"]
+serde-json-core = ["dep:serde-json-core"]
 std = []
 no_std = []
 f16 = []
