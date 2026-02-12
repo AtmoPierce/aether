@@ -31,7 +31,7 @@ impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame>
         &self,
         rhs: &Rotation<T, Body, Next>,
     ) -> Rotation<T, Inertial, Next> {
-        Rotation::from_quaternion(&self.quat * &rhs.quat)
+        Rotation::from_quaternion(&rhs.quat * &self.quat)
     }
 }
 
@@ -70,12 +70,11 @@ impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame>
 {
     /// Integrate body angular velocity (expressed in Body frame).
     ///
-    /// q_dot = 0.5 * q * w
+    /// q_dot = 0.5 * w * q
     pub fn integrate(&self, omega_body: Vector<T, 3>, dt: T) -> Self {
         let delta_q =
             Quaternion::<T, Body, Body>::from_angular_velocity(omega_body, dt);
-
-        Self::from_quaternion(&self.quat * &delta_q)
+        Self::from_quaternion(&delta_q * &self.quat)
     }
 }
 

@@ -67,4 +67,33 @@ mod tests {
         // ]
         assert_eq!(r.data, [-2.0, -2.0, -2.0]);
     }
+
+    #[cfg(feature = "bincode")]
+    #[test]
+    fn test_matrix_bincode_roundtrip() {
+        let m = Matrix {
+            data: [[1.0_f64, 2.5, -3.0], [4.0, 0.0, 6.25]],
+        };
+
+        let config = bincode::config::standard();
+        let bytes = bincode::encode_to_vec(m, config).unwrap();
+        let (decoded, _len): (Matrix<f64, 2, 3>, usize) =
+            bincode::decode_from_slice(&bytes, config).unwrap();
+
+        assert_eq!(decoded.data, m.data);
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn test_matrix_serde_roundtrip() {
+        let m = Matrix {
+            data: [[1.0_f64, 2.5, -3.0], [4.0, 0.0, 6.25]],
+        };
+
+        let json = serde_json_core::to_string::<_, 256>(&m).unwrap();
+        let (decoded, _): (Matrix<f64, 2, 3>, _) =
+            serde_json_core::from_str(json.as_str()).unwrap();
+
+        assert_eq!(decoded.data, m.data);
+    }
 }
