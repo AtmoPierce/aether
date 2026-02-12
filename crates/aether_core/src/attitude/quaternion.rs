@@ -9,6 +9,7 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 #[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Quaternion<T: Real, From: ReferenceFrame, To: ReferenceFrame> {
     pub data: Vector<T, 4>, // [w, i, j, k]
     _from: PhantomData<From>,
@@ -34,6 +35,12 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
     #[inline] pub fn i(&self) -> T { self.data[1] }
     #[inline] pub fn j(&self) -> T { self.data[2] }
     #[inline] pub fn k(&self) -> T { self.data[3] }
+
+    /// Build a quaternion from scalar + Euler components (x,y,z).
+    #[inline]
+    pub fn from_parts(w: T, v: Cartesian<T, From>) -> Self {
+        Self::new(w, v.x(), v.y(), v.z())
+    }
 
     #[inline]
     pub fn norm2(&self) -> T {
@@ -150,17 +157,77 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
 
         DirectionCosineMatrix::from_matrix(m)
     }
+
+    #[inline]
+    fn mul_raw(&self, rhs: &Self) -> Self {
+        let [w1, x1, y1, z1] = self.data.data;
+        let [w2, x2, y2, z2] = rhs.data.data;
+
+        Self::new(
+            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
+            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+        )
+    }
+
+    /// Integrate quaternion using angular velocity/acceleration (Taylor expansion).
+    #[inline]
+    pub fn integrate(self, ang_vel: Cartesian<T, From>, ang_acc: Cartesian<T, From>, dt: T) -> Self {
+        let q = self.normalized();
+
+        let one = T::ONE;
+        let two = one + one;
+        let three = two + one;
+        let four = two + two;
+        let nine = three * three;
+
+        let half = one / two;
+        let quarter = one / four;
+        let ninth = one / nine;
+
+        let ang_acc_quat = Quaternion::from_parts(one, ang_acc);
+        let ang_vel_quat = Quaternion::from_parts(one, ang_vel);
+
+        let q_dot = q.mul_raw(&ang_vel_quat) * half;
+        let q_ddot = q.mul_raw(&ang_vel_quat).mul_raw(&ang_vel_quat) * quarter
+            + q.mul_raw(&ang_acc_quat) * half;
+        let q_dddot = q.mul_raw(&ang_vel_quat).mul_raw(&ang_vel_quat).mul_raw(&ang_vel_quat) * (one / (three + three))
+            + q.mul_raw(&ang_acc_quat).mul_raw(&ang_vel_quat) * quarter
+            + q.mul_raw(&ang_vel_quat).mul_raw(&ang_acc_quat) * half;
+
+        let dt2 = dt * dt;
+        let dt3 = dt2 * dt;
+
+        let mut new_q = q + q_dot * dt;
+        new_q = new_q + q_ddot * (quarter * dt2);
+        new_q = new_q + q_dddot * (ninth * dt3);
+
+        new_q.normalized()
+    }
 }
 
-/// (From -> Mid) * (Mid -> To) = (From -> To)
+// ===== Quaternion composition (PASSIVE, matches DCM chaining) =====
+//
+// Convention: Quaternion<T, From, To> is a passive frame transform From -> To.
+//
+// Composition rule (rightmost acts first):
+//   (Mid -> To) * (From -> Mid) = (From -> To)
+//
+// This matches DCM rule: R_ac = R_bc * R_ab
+//
+
+/// (Mid -> To) * (From -> Mid) = (From -> To)
 impl<T: Real, From: ReferenceFrame, Mid: ReferenceFrame, To: ReferenceFrame>
-    Mul<&Quaternion<T, Mid, To>> for &Quaternion<T, From, Mid>
+    Mul<&Quaternion<T, From, Mid>> for &Quaternion<T, Mid, To>
 {
     type Output = Quaternion<T, From, To>;
 
-    fn mul(self, rhs: &Quaternion<T, Mid, To>) -> Self::Output {
-        let [w1, x1, y1, z1] = self.data.data;
-        let [w2, x2, y2, z2] = rhs.data.data;
+    #[inline]
+    fn mul(self, rhs: &Quaternion<T, From, Mid>) -> Self::Output {
+        // Hamilton product: self x rhs
+        let [w1, x1, y1, z1] = self.data.data; // Mid -> To
+        let [w2, x2, y2, z2] = rhs.data.data;  // From -> Mid
 
         Quaternion::new(
             w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
@@ -168,6 +235,17 @@ impl<T: Real, From: ReferenceFrame, Mid: ReferenceFrame, To: ReferenceFrame>
             w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
             w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
         )
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, Mid: ReferenceFrame, To: ReferenceFrame>
+    Mul<Quaternion<T, From, Mid>> for Quaternion<T, Mid, To>
+{
+    type Output = Quaternion<T, From, To>;
+
+    #[inline]
+    fn mul(self, rhs: Quaternion<T, From, Mid>) -> Self::Output {
+        (&self) * (&rhs)
     }
 }
 

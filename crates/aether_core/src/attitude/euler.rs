@@ -5,9 +5,11 @@ use crate::utils::angle_conversion::{ToDegrees, ToRadians};
 use crate::real::Real;
 
 use core::marker::PhantomData;
-use core::ops::{Add, Div, Mul, Neg, Sub};
+use core::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Euler<T: Real, From: ReferenceFrame, To: ReferenceFrame> {
     pub data: Vector<T, 3>, // [roll, pitch, yaw]
     _from: PhantomData<From>,
@@ -26,6 +28,7 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Euler<T, From, To> {
     #[inline] pub fn roll(&self) -> T { self.data[0] }
     #[inline] pub fn pitch(&self) -> T { self.data[1] }
     #[inline] pub fn yaw(&self) -> T { self.data[2] }
+
 }
 
 //
@@ -94,6 +97,49 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Add for Euler<T, From, T
     }
 }
 
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Add<&Euler<T, From, To>>
+    for Euler<T, From, To>
+{
+    type Output = Self;
+    fn add(self, rhs: &Euler<T, From, To>) -> Self {
+        Self { data: self.data + rhs.data, _from: PhantomData, _to: PhantomData }
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Add<Euler<T, From, To>>
+    for &Euler<T, From, To>
+{
+    type Output = Euler<T, From, To>;
+    fn add(self, rhs: Euler<T, From, To>) -> Self::Output {
+        Euler { data: self.data + rhs.data, _from: PhantomData, _to: PhantomData }
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> AddAssign
+    for Euler<T, From, To>
+{
+    fn add_assign(&mut self, rhs: Self) {
+        self.data = self.data + rhs.data;
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> AddAssign<&Euler<T, From, To>>
+    for Euler<T, From, To>
+{
+    fn add_assign(&mut self, rhs: &Euler<T, From, To>) {
+        self.data = self.data + rhs.data;
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Add<&Euler<T, From, To>>
+    for &Euler<T, From, To>
+{
+    type Output = Euler<T, From, To>;
+    fn add(self, rhs: &Euler<T, From, To>) -> Self::Output {
+        Euler { data: self.data + rhs.data, _from: PhantomData, _to: PhantomData }
+    }
+}
+
 impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Sub for Euler<T, From, To> {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self {
@@ -101,10 +147,42 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Sub for Euler<T, From, T
     }
 }
 
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Sub<&Euler<T, From, To>>
+    for Euler<T, From, To>
+{
+    type Output = Self;
+    fn sub(self, rhs: &Euler<T, From, To>) -> Self {
+        Self { data: self.data - rhs.data, _from: PhantomData, _to: PhantomData }
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Sub<Euler<T, From, To>>
+    for &Euler<T, From, To>
+{
+    type Output = Euler<T, From, To>;
+    fn sub(self, rhs: Euler<T, From, To>) -> Self::Output {
+        Euler { data: self.data - rhs.data, _from: PhantomData, _to: PhantomData }
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Sub for &Euler<T, From, To> {
+    type Output = Euler<T, From, To>;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Euler { data: self.data - rhs.data, _from: PhantomData, _to: PhantomData }
+    }
+}
+
 impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Neg for Euler<T, From, To> {
     type Output = Self;
     fn neg(self) -> Self {
         Self { data: -self.data, _from: PhantomData, _to: PhantomData }
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Neg for &Euler<T, From, To> {
+    type Output = Euler<T, From, To>;
+    fn neg(self) -> Self::Output {
+        Euler { data: -self.data, _from: PhantomData, _to: PhantomData }
     }
 }
 
@@ -117,12 +195,30 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<T>
     }
 }
 
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<T>
+    for &Euler<T, From, To>
+{
+    type Output = Euler<T, From, To>;
+    fn mul(self, rhs: T) -> Self::Output {
+        Euler { data: self.data * rhs, _from: PhantomData, _to: PhantomData }
+    }
+}
+
 impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Div<T>
     for Euler<T, From, To>
 {
     type Output = Self;
     fn div(self, rhs: T) -> Self {
         Self { data: self.data / rhs, _from: PhantomData, _to: PhantomData }
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Div<T>
+    for &Euler<T, From, To>
+{
+    type Output = Euler<T, From, To>;
+    fn div(self, rhs: T) -> Self::Output {
+        Euler { data: self.data / rhs, _from: PhantomData, _to: PhantomData }
     }
 }
 

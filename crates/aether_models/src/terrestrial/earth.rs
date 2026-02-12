@@ -1,7 +1,7 @@
 use super::atmospheres::ussa;
 use super::wgs84;
 use crate::{
-    attitude::DirectionCosineMatrix,
+    attitude::{DirectionCosineMatrix, Euler},
     coordinate::Cartesian,
     math::{Matrix, Vector},
     reference_frame::{ICRF, ITRF},
@@ -40,34 +40,32 @@ impl Earth {
         }
     }
 
-    pub fn solve_euler_force(
-        &self,
-        position_from_center: Cartesian<f64, ITRF<f64>>,
-        angular_acceleration: Cartesian<f64, ITRF<f64>>,
-        mass: f64,
-    ) -> Cartesian<f64, ITRF<f64>> {
-        let euler_force = angular_acceleration.cross(&position_from_center) * mass;
-        return euler_force;
-    }
+    // not currently in use as angular acceleration is not being modeled
+    // pub fn solve_euler_force(
+    //     &self,
+    //     position_from_center: Cartesian<f64, ITRF<f64>>,
+    //     mass: f64,
+    // ) -> Cartesian<f64, ITRF<f64>> {
+    //     let euler_force = -(angular_acceleration.cross(&position_from_center) * mass);
+    //     return euler_force;
+    // }
 
     pub fn solve_coriolis_force(
         &self,
         velocity_from_center: Cartesian<f64, ITRF<f64>>,
-        angular_velocity: Cartesian<f64, ITRF<f64>>,
         mass: f64,
     ) -> Cartesian<f64, ITRF<f64>> {
-        let coriolis_force = angular_velocity.cross(&velocity_from_center) * 2.0 * mass;
+        let coriolis_force = -(self.rotational_velocity.cross(&velocity_from_center) * 2.0 * mass);
         return coriolis_force;
     }
 
     pub fn solve_centrifugal_force(
         &self,
         position_from_center: Cartesian<f64, ITRF<f64>>,
-        angular_velocity: Cartesian<f64, ITRF<f64>>,
         mass: f64,
     ) -> Cartesian<f64, ITRF<f64>> {
         let centrifugal_force =
-            angular_velocity.cross(&(angular_velocity.cross(&position_from_center))) * mass;
+            -(self.rotational_velocity.cross(&(self.rotational_velocity.cross(&position_from_center))) * mass);
         return centrifugal_force;
     }
 
@@ -112,11 +110,11 @@ impl Earth {
         return super::wgs84::transforms::ecef_to_geocentric(x, y, z);
     }
 
-    pub fn eci_to_ecef(&self, time: f64) -> DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>> {
-        return wgs84::transforms::eci_to_ecef(time, self.rotational_velocity);
+    pub fn icrf_to_itrf(&self, time: f64) -> DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>> {
+        return wgs84::transforms::icrf_to_itrf(time, self.rotational_velocity);
     }
-    pub fn ecef_to_eci(&self, time: f64) -> DirectionCosineMatrix<f64, ITRF<f64>, ICRF<f64>> {
-        return wgs84::transforms::ecef_to_eci(time, self.rotational_velocity);
+    pub fn itrf_to_icrf(&self, time: f64) -> DirectionCosineMatrix<f64, ITRF<f64>, ICRF<f64>> {
+        return wgs84::transforms::itrf_to_icrf(time, self.rotational_velocity);
     }
 
     pub fn get_temperature(&self, geometric_height: f64) -> Result<f64, &'static str> {

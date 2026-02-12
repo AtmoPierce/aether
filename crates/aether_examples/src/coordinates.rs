@@ -1,7 +1,7 @@
 use aether_core::attitude::DirectionCosineMatrix;
 use aether_core::coordinate::Cartesian;
 use aether_core::reference_frame::{Body, NED, ITRF};
-use aether_core::reference_frame::transforms::{body_to_ned, ecef_to_ned};
+use aether_core::reference_frame::transforms::{body_to_ned, itrf_to_ned};
 
 fn main() {
     // Example 1: gravity measured in the BODY frame
@@ -42,12 +42,12 @@ fn main() {
     let longitude = -90.0_f64.to_radians();
 
     // Build the ECEF(ITRF) -> NED transform at that geodetic location.
-    // ecef_to_ned() returns DirectionCosineMatrix<ITRF, NED>.
-    let dcm_ecef_to_ned: DirectionCosineMatrix<f64, ITRF<f64>, NED<f64>> =
-        ecef_to_ned(latitude, longitude);
+    // itrf_to_ned() returns DirectionCosineMatrix<ITRF, NED>.
+    let dcm_itrf_to_ned: DirectionCosineMatrix<f64, ITRF<f64>, NED<f64>> =
+        itrf_to_ned(latitude, longitude);
 
     // If we had some global force/velocity/etc. in ITRF/ECEF, we could move it into
-    // local navigation frame with dcm_ecef_to_ned. Conversely, its inverse moves local NED vectors back to Earth-fixed coordinates.
+    // local navigation frame with dcm_itrf_to_ned. Conversely, its inverse moves local NED vectors back to Earth-fixed coordinates.
     // inverse/transpose is done by the user, and not automatically stored.
 
     // This gives you an auditable pipeline like:
