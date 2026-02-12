@@ -70,7 +70,7 @@ pub fn body_to_ned(
     return dcm;
 }
 
-pub fn ecef_to_ned(
+pub fn itrf_to_ned(
     latitude: f64,
     longitude: f64,
 ) -> DirectionCosineMatrix<f64, ITRF<f64>, NED<f64>> {
@@ -83,7 +83,7 @@ pub fn ecef_to_ned(
     return dcm;
 }
 
-pub fn eci_to_ecef(
+pub fn icrf_to_itrf(
     time: f64,
     rotational_velocity: Cartesian<f64, ITRF<f64>>,
 ) -> DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>> {
@@ -99,7 +99,7 @@ pub fn eci_to_ecef(
         1.0,
     );
 }
-pub fn ecef_to_eci(
+pub fn itrf_to_icrf(
     time: f64,
     rotational_velocity: Cartesian<f64, ITRF<f64>>,
 ) -> DirectionCosineMatrix<f64, ITRF<f64>, ICRF<f64>> {
@@ -215,7 +215,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ecef_to_ned() {
+    fn test_itrf_to_ned() {
         // let d2r = 3.14159265359/180.0;
         // let latitude = 45.0 * d2r;
         // let longitude = 30.0 * d2r;

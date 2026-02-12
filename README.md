@@ -110,13 +110,13 @@ Aether encodes reference frames in the type system, and gives you physically mea
 Below we’ll:
 1. Define a vector in the **Body** frame of an aircraft/vehicle.
 2. Rotate it into local **NED** (North-East-Down) using `body_to_ned(...)`.
-3. (Optionally) map that NED vector into an Earth-fixed frame using `ecef_to_ned(...)`.
+3. (Optionally) map that NED vector into an Earth-fixed frame using `itrf_to_ned(...)`.
 
 ```rust
 use aether_core::attitude::DirectionCosineMatrix;
 use aether_core::coordinate::Cartesian;
 use aether_core::reference_frame::{Body, NED, ITRF};
-use aether_core::reference_frame::transforms::{body_to_ned, ecef_to_ned};
+use aether_core::reference_frame::transforms::{body_to_ned, itrf_to_ned};
 
 fn main() {
     // Example 1: gravity measured in the BODY frame
@@ -154,12 +154,12 @@ fn main() {
     let longitude = -86.5861_f64.to_radians();
 
     // Build the ECEF(ITRF) -> NED transform at that geodetic location.
-    // ecef_to_ned() returns DirectionCosineMatrix<ITRF, NED>.
-    let dcm_ecef_to_ned: DirectionCosineMatrix<f64, ITRF<f64>, NED<f64>> =
-        ecef_to_ned(latitude, longitude);
+    // itrf_to_ned() returns DirectionCosineMatrix<ITRF, NED>.
+    let dcm_itrf_to_ned: DirectionCosineMatrix<f64, ITRF<f64>, NED<f64>> =
+        itrf_to_ned(latitude, longitude);
 
     // If we had some global force/velocity/etc. in ITRF/ECEF, we could move it into
-    // local navigation frame with dcm_ecef_to_ned. Conversely, its inverse (or `.transpose()`
+    // local navigation frame with dcm_itrf_to_ned. Conversely, its inverse (or `.transpose()`
     // if you expose that) moves local NED vectors back to Earth-fixed coordinates.
 
     // This gives you an auditable pipeline like:

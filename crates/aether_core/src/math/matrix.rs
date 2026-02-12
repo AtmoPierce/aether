@@ -2,6 +2,8 @@ use super::vector::Vector;
 use crate::real::{Real};
 use core::ops::{Add, Sub, Mul, Div, Neg, AddAssign};
 use core::ops::{Index, IndexMut};
+use core::mem::MaybeUninit;
+use core::ptr;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Matrix<T, const M: usize, const N: usize> {
@@ -522,5 +524,285 @@ where
             }
         }
         write!(f, "]")
+    }
+}
+
+/* Serialization and Deserialization */
+#[cfg(feature = "bincode")]
+impl<T, const M: usize, const N: usize> bincode::Encode for Matrix<T, M, N>
+where
+    T: bincode::Encode,
+{
+    fn encode<E: bincode::enc::Encoder>(
+        &self,
+        encoder: &mut E,
+    ) -> Result<(), bincode::error::EncodeError> {
+        for r in 0..M {
+            for c in 0..N {
+                self.data[r][c].encode(encoder)?;
+            }
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "bincode")]
+impl<T, const M: usize, const N: usize, Ctx> bincode::Decode<Ctx> for Matrix<T, M, N>
+where
+    T: bincode::Decode<Ctx>,
+{
+    fn decode<D: bincode::de::Decoder<Context = Ctx>>(
+        decoder: &mut D,
+    ) -> Result<Self, bincode::error::DecodeError> {
+        let mut out = MaybeUninit::<[[T; N]; M]>::uninit();
+        let out_ptr = out.as_mut_ptr() as *mut [T; N];
+        let mut inited_rows = 0usize;
+
+        for r in 0..M {
+            let mut row = MaybeUninit::<[T; N]>::uninit();
+            let row_ptr = row.as_mut_ptr() as *mut T;
+            let mut inited_cols = 0usize;
+
+            for c in 0..N {
+                match T::decode(decoder) {
+                    Ok(v) => {
+                        unsafe { row_ptr.add(c).write(v) };
+                        inited_cols += 1;
+                    }
+                    Err(e) => {
+                        unsafe {
+                            for i in 0..inited_cols {
+                                ptr::drop_in_place(row_ptr.add(i));
+                            }
+                            for i in 0..inited_rows {
+                                ptr::drop_in_place(out_ptr.add(i));
+                            }
+                        }
+                        return Err(e);
+                    }
+                }
+            }
+
+            unsafe { out_ptr.add(r).write(row.assume_init()) };
+            inited_rows += 1;
+        }
+
+        Ok(Matrix { data: unsafe { out.assume_init() } })
+    }
+}
+
+#[cfg(feature = "bincode")]
+impl<'de, T, const M: usize, const N: usize, Ctx> bincode::BorrowDecode<'de, Ctx>
+    for Matrix<T, M, N>
+where
+    T: bincode::BorrowDecode<'de, Ctx>,
+{
+    fn borrow_decode<D: bincode::de::BorrowDecoder<'de, Context = Ctx>>(
+        decoder: &mut D,
+    ) -> Result<Self, bincode::error::DecodeError> {
+        let mut out = MaybeUninit::<[[T; N]; M]>::uninit();
+        let out_ptr = out.as_mut_ptr() as *mut [T; N];
+        let mut inited_rows = 0usize;
+
+        for r in 0..M {
+            let mut row = MaybeUninit::<[T; N]>::uninit();
+            let row_ptr = row.as_mut_ptr() as *mut T;
+            let mut inited_cols = 0usize;
+
+            for c in 0..N {
+                match T::borrow_decode(decoder) {
+                    Ok(v) => {
+                        unsafe { row_ptr.add(c).write(v) };
+                        inited_cols += 1;
+                    }
+                    Err(e) => {
+                        unsafe {
+                            for i in 0..inited_cols {
+                                ptr::drop_in_place(row_ptr.add(i));
+                            }
+                            for i in 0..inited_rows {
+                                ptr::drop_in_place(out_ptr.add(i));
+                            }
+                        }
+                        return Err(e);
+                    }
+                }
+            }
+
+            unsafe { out_ptr.add(r).write(row.assume_init()) };
+            inited_rows += 1;
+        }
+
+        Ok(Matrix { data: unsafe { out.assume_init() } })
+    }
+}
+
+#[cfg(feature = "serde")]
+use core::marker::PhantomData;
+#[cfg(feature = "serde")]
+use serde::ser::SerializeSeq;
+
+#[cfg(feature = "serde")]
+impl<T, const M: usize, const N: usize> serde::Serialize for Matrix<T, M, N>
+where
+    T: serde::Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        struct RowRef<'a, T, const N: usize>(&'a [T; N]);
+
+        impl<'a, T, const N: usize> serde::Serialize for RowRef<'a, T, N>
+        where
+            T: serde::Serialize,
+        {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                S: serde::Serializer,
+            {
+                let mut seq = serializer.serialize_seq(Some(N))?;
+                for v in self.0.iter() {
+                    seq.serialize_element(v)?;
+                }
+                seq.end()
+            }
+        }
+
+        let mut seq = serializer.serialize_seq(Some(M))?;
+        for row in self.data.iter() {
+            seq.serialize_element(&RowRef::<T, N>(row))?;
+        }
+        seq.end()
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T, const M: usize, const N: usize> serde::Deserialize<'de> for Matrix<T, M, N>
+where
+    T: serde::Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct RowSeed<T, const N: usize>(PhantomData<T>);
+
+        impl<'de, T, const N: usize> serde::de::DeserializeSeed<'de> for RowSeed<T, N>
+        where
+            T: serde::Deserialize<'de>,
+        {
+            type Value = [T; N];
+
+            fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct RowVisitor<T, const N: usize>(PhantomData<T>);
+
+                impl<'de, T, const N: usize> serde::de::Visitor<'de> for RowVisitor<T, N>
+                where
+                    T: serde::Deserialize<'de>,
+                {
+                    type Value = [T; N];
+
+                    fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
+                        write!(formatter, "a row with {} elements", N)
+                    }
+
+                    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+                    where
+                        A: serde::de::SeqAccess<'de>,
+                    {
+                        let mut row = MaybeUninit::<[T; N]>::uninit();
+                        let row_ptr = row.as_mut_ptr() as *mut T;
+                        let mut inited = 0usize;
+
+                        for i in 0..N {
+                            match seq.next_element()? {
+                                Some(v) => {
+                                    unsafe { row_ptr.add(i).write(v) };
+                                    inited += 1;
+                                }
+                                None => {
+                                    unsafe {
+                                        for j in 0..inited {
+                                            ptr::drop_in_place(row_ptr.add(j));
+                                        }
+                                    }
+                                    return Err(serde::de::Error::invalid_length(i, &self));
+                                }
+                            }
+                        }
+
+                        if let Some(_) = seq.next_element::<serde::de::IgnoredAny>()? {
+                            unsafe {
+                                for j in 0..inited {
+                                    ptr::drop_in_place(row_ptr.add(j));
+                                }
+                            }
+                            return Err(serde::de::Error::invalid_length(N + 1, &self));
+                        }
+
+                        Ok(unsafe { row.assume_init() })
+                    }
+                }
+
+                deserializer.deserialize_seq(RowVisitor::<T, N>(PhantomData))
+            }
+        }
+
+        struct MatrixVisitor<T, const M: usize, const N: usize>(PhantomData<T>);
+
+        impl<'de, T, const M: usize, const N: usize> serde::de::Visitor<'de>
+            for MatrixVisitor<T, M, N>
+        where
+            T: serde::Deserialize<'de>,
+        {
+            type Value = Matrix<T, M, N>;
+
+            fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
+                write!(formatter, "a {M}x{N} matrix")
+            }
+
+            fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+            where
+                A: serde::de::SeqAccess<'de>,
+            {
+                let mut out = MaybeUninit::<[[T; N]; M]>::uninit();
+                let out_ptr = out.as_mut_ptr() as *mut [T; N];
+                let mut inited = 0usize;
+
+                for i in 0..M {
+                    match seq.next_element_seed(RowSeed::<T, N>(PhantomData))? {
+                        Some(row) => {
+                            unsafe { out_ptr.add(i).write(row) };
+                            inited += 1;
+                        }
+                        None => {
+                            unsafe {
+                                for j in 0..inited {
+                                    ptr::drop_in_place(out_ptr.add(j));
+                                }
+                            }
+                            return Err(serde::de::Error::invalid_length(i, &self));
+                        }
+                    }
+                }
+
+                if let Some(_) = seq.next_element::<serde::de::IgnoredAny>()? {
+                    unsafe {
+                        for j in 0..inited {
+                            ptr::drop_in_place(out_ptr.add(j));
+                        }
+                    }
+                    return Err(serde::de::Error::invalid_length(M + 1, &self));
+                }
+
+                Ok(Matrix { data: unsafe { out.assume_init() } })
+            }
+        }
+
+        deserializer.deserialize_seq(MatrixVisitor::<T, M, N>(PhantomData))
     }
 }

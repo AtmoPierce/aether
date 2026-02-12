@@ -4,7 +4,10 @@ use crate::{coordinate::Cartesian, math::Matrix, reference_frame::ReferenceFrame
 use core::marker::PhantomData;
 use core::ops::{Add, Div, Mul, Neg, Sub};
 use crate::real::Real;
+
 #[derive(Debug, Clone, Copy, Default)]
+#[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct DirectionCosineMatrix<T: Real, From: ReferenceFrame, To: ReferenceFrame> {
     data: Matrix<T, 3, 3>,
     _from: PhantomData<From>,

@@ -7,7 +7,7 @@ use crate::{
 };
 use core::marker::PhantomData;
 
-pub fn eci_to_ecef(
+pub fn icrf_to_itrf(
     time: f64,
     rotational_velocity: Cartesian<f64, ITRF<f64>>,
 ) -> DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>> {
@@ -23,7 +23,7 @@ pub fn eci_to_ecef(
         1.0,
     );
 }
-pub fn ecef_to_eci(
+pub fn itrf_to_icrf(
     time: f64,
     rotational_velocity: Cartesian<f64, ITRF<f64>>,
 ) -> DirectionCosineMatrix<f64, ITRF<f64>, ICRF<f64>> {

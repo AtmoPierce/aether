@@ -41,7 +41,7 @@ impl<const N: usize> Lda<N> {
                 continue;
             }
             for i in 0..N {
-                sum[i] /= (count as f64);
+                sum[i] /= count as f64;
             }
             means.push(sum);
 
@@ -86,14 +86,14 @@ impl<const N: usize> Lda<N> {
                     xm[k] = x[k];
                 }
                 // compute x^T S^{-1} mu
-                let tmp = (sinv * mu.clone()); // Matrix * Vector -> Vector
+                let tmp = sinv * mu.clone(); // Matrix * Vector -> Vector
                 let mut term1 = 0.0;
                 for k in 0..N {
                     term1 += x[k] * tmp[k];
                 }
 
                 // mu^T S^{-1} mu
-                let tmp2 = (sinv * mu.clone());
+                let tmp2 = sinv * mu.clone();
                 let mut term2 = 0.0;
                 for k in 0..N {
                     term2 += mu[k] * tmp2[k];
@@ -134,7 +134,7 @@ impl<const N: usize> Qda<N> {
                 continue;
             }
             for i in 0..N {
-                sum[i] /= (count as f64);
+                sum[i] /= count as f64;
             }
             means.push(sum);
             priors.push((count as f64) / (x_data.len() as f64));

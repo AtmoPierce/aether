@@ -206,6 +206,27 @@ impl<T: Real + Copy, RF> Mul<T> for Cartesian<T, RF> {
         }
     }
 }
+
+// Matrix * Cartesian (3x3)
+impl<T: Real, RF> Mul<Cartesian<T, RF>> for Matrix<T, 3, 3> {
+    type Output = Cartesian<T, RF>;
+    fn mul(self, rhs: Cartesian<T, RF>) -> Self::Output {
+        Cartesian {
+            data: self * rhs.data,
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
+impl<'a, T: Real, RF> Mul<&'a Cartesian<T, RF>> for Matrix<T, 3, 3> {
+    type Output = Cartesian<T, RF>;
+    fn mul(self, rhs: &'a Cartesian<T, RF>) -> Self::Output {
+        Cartesian {
+            data: self * rhs.data,
+            _reference_frame: PhantomData,
+        }
+    }
+}
 impl<'a, T: Real + Copy, RF> Mul<T> for &'a Cartesian<T, RF> {
     type Output = Cartesian<T, RF>;
     fn mul(self, rhs: T) -> Self::Output {
@@ -226,6 +247,7 @@ impl<T: Real + Copy, RF> Div<T> for Cartesian<T, RF> {
         }
     }
 }
+
 // Indexing
 use core::ops::{Index, IndexMut};
 
@@ -251,17 +273,6 @@ where
     fn div(self, rhs: T) -> Self::Output {
         Cartesian {
             data: self.data / rhs,
-            _reference_frame: PhantomData,
-        }
-    }
-}
-
-impl<T: Real + Copy + Default, F> Mul<Cartesian<T, F>> for Matrix<T, 3, 3> {
-    type Output = Cartesian<T, F>;
-    fn mul(self, rhs: Cartesian<T, F>) -> Self::Output {
-        let v = self * rhs.data; // Use existing `Matrix * Vector` implementation
-        Cartesian {
-            data: v,
             _reference_frame: PhantomData,
         }
     }
