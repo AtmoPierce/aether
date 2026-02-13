@@ -53,3 +53,11 @@ no_std = [
 regex = ["aether_core/regex"]
 rustyline = ["aether_core/rustyline"]
 serde-json-core = ["aether_core/serde-json-core"]
+
+[dev-dependencies]
+criterion = "0.5"
+nalgebra = "0.33"
+
+[[bench]]
+name = "throughput"
+harness = false
