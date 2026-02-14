@@ -246,32 +246,6 @@ impl<const M: usize> Matrix<f64, M, 6> {
 
         #[cfg(all(
             feature = "simd",
-            feature = "fma",
-            feature = "std",
-            any(target_arch = "x86", target_arch = "x86_64")
-        ))]
-        {
-            if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse2") {
-                unsafe {
-                    return matrix_simd::mul_vec6_fma128_f64(self, rhs);
-                }
-            }
-        }
-
-        #[cfg(all(
-            feature = "simd",
-            feature = "fma",
-            not(feature = "std"),
-            any(target_arch = "x86", target_arch = "x86_64"),
-            target_feature = "fma",
-            target_feature = "sse2"
-        ))]
-        unsafe {
-            return matrix_simd::mul_vec6_fma128_f64(self, rhs);
-        }
-
-        #[cfg(all(
-            feature = "simd",
             feature = "std",
             any(target_arch = "x86", target_arch = "x86_64")
         ))]
@@ -288,6 +262,12 @@ impl<const M: usize> Matrix<f64, M, 6> {
                 }
             }
 
+            if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse2") {
+                unsafe {
+                    return matrix_simd::mul_vec6_fma128_f64(self, rhs);
+                }
+            }
+
             if std::is_x86_feature_detected!("sse2") {
                 unsafe {
                     return matrix_simd::mul_vec6_sse2_f64(self, rhs);
@@ -297,6 +277,7 @@ impl<const M: usize> Matrix<f64, M, 6> {
 
         #[cfg(all(
             feature = "simd",
+            feature = "fma",
             not(feature = "std"),
             any(target_arch = "x86", target_arch = "x86_64"),
             target_feature = "avx",
@@ -314,6 +295,18 @@ impl<const M: usize> Matrix<f64, M, 6> {
         ))]
         unsafe {
             return matrix_simd::mul_vec6_avx_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "fma",
+            target_feature = "sse2"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_fma128_f64(self, rhs);
         }
 
         #[cfg(all(
@@ -440,32 +433,6 @@ impl<const M: usize> Matrix<f32, M, 6> {
 
         #[cfg(all(
             feature = "simd",
-            feature = "fma",
-            feature = "std",
-            any(target_arch = "x86", target_arch = "x86_64")
-        ))]
-        {
-            if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse") {
-                unsafe {
-                    return matrix_simd::mul_vec6_fma128_f32(self, rhs);
-                }
-            }
-        }
-
-        #[cfg(all(
-            feature = "simd",
-            feature = "fma",
-            not(feature = "std"),
-            any(target_arch = "x86", target_arch = "x86_64"),
-            target_feature = "fma",
-            target_feature = "sse"
-        ))]
-        unsafe {
-            return matrix_simd::mul_vec6_fma128_f32(self, rhs);
-        }
-
-        #[cfg(all(
-            feature = "simd",
             feature = "std",
             any(target_arch = "x86", target_arch = "x86_64")
         ))]
@@ -482,6 +449,12 @@ impl<const M: usize> Matrix<f32, M, 6> {
                 }
             }
 
+            if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse") {
+                unsafe {
+                    return matrix_simd::mul_vec6_fma128_f32(self, rhs);
+                }
+            }
+
             if std::is_x86_feature_detected!("sse") {
                 unsafe {
                     return matrix_simd::mul_vec6_sse_f32(self, rhs);
@@ -491,6 +464,7 @@ impl<const M: usize> Matrix<f32, M, 6> {
 
         #[cfg(all(
             feature = "simd",
+            feature = "fma",
             not(feature = "std"),
             any(target_arch = "x86", target_arch = "x86_64"),
             target_feature = "avx",
@@ -508,6 +482,18 @@ impl<const M: usize> Matrix<f32, M, 6> {
         ))]
         unsafe {
             return matrix_simd::mul_vec6_avx_f32(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "fma",
+            target_feature = "sse"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_fma128_f32(self, rhs);
         }
 
         #[cfg(all(
