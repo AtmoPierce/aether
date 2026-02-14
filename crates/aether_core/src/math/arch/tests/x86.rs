@@ -39,6 +39,40 @@ fn mul_vec4_scalar_f64<const M: usize>(
     out
 }
 
+fn mul_mat_scalar_f32<const M: usize, const N: usize, const P: usize>(
+    matrix_a: &Matrix<f32, M, N>,
+    matrix_b: &Matrix<f32, N, P>,
+) -> Matrix<f32, M, P> {
+    let mut out = Matrix { data: [[0.0; P]; M] };
+    for i in 0..M {
+        for j in 0..P {
+            let mut acc = 0.0_f32;
+            for k in 0..N {
+                acc += matrix_a.data[i][k] * matrix_b.data[k][j];
+            }
+            out.data[i][j] = acc;
+        }
+    }
+    out
+}
+
+fn mul_mat_scalar_f64<const M: usize, const N: usize, const P: usize>(
+    matrix_a: &Matrix<f64, M, N>,
+    matrix_b: &Matrix<f64, N, P>,
+) -> Matrix<f64, M, P> {
+    let mut out = Matrix { data: [[0.0; P]; M] };
+    for i in 0..M {
+        for j in 0..P {
+            let mut acc = 0.0_f64;
+            for k in 0..N {
+                acc += matrix_a.data[i][k] * matrix_b.data[k][j];
+            }
+            out.data[i][j] = acc;
+        }
+    }
+    out
+}
+
 #[test]
 fn dot4_sse_f32_matches_scalar() {
     if !std::is_x86_feature_detected!("sse") {
@@ -165,5 +199,153 @@ fn mul_vec4_avx_fma_f64_matches_scalar() {
 
     for i in 0..3 {
         assert!((got.data[i] - expected.data[i]).abs() < 1.0e-12);
+    }
+}
+
+#[test]
+fn mul_matrix_avx_f32_matches_scalar() {
+    if !std::is_x86_feature_detected!("avx") {
+        return;
+    }
+
+    let a = Matrix {
+        data: [
+            [1.0_f32, 2.0, 3.0, 4.0, 5.0],
+            [2.0, 3.0, 4.0, 5.0, 6.0],
+            [3.0, 4.0, 5.0, 6.0, 7.0],
+            [4.0, 5.0, 6.0, 7.0, 8.0],
+            [5.0, 6.0, 7.0, 8.0, 9.0],
+            [6.0, 7.0, 8.0, 9.0, 10.0],
+            [7.0, 8.0, 9.0, 10.0, 11.0],
+        ],
+    };
+    let b = Matrix {
+        data: [
+            [1.0_f32, 0.0, 2.0, 1.0, -1.0, 3.0],
+            [0.0, 1.0, 1.0, 2.0, 3.0, -2.0],
+            [2.0, 1.0, 0.0, -1.0, 2.0, 1.0],
+            [1.0, 2.0, 3.0, 0.0, -2.0, 2.0],
+            [3.0, -1.0, 2.0, 1.0, 0.0, 1.0],
+        ],
+    };
+
+    let expected = mul_mat_scalar_f32(&a, &b);
+    let got = unsafe { matrix_simd::mul_matrix_avx_f32::<7, 5, 6>(&a, &b) };
+
+    for i in 0..7 {
+        for j in 0..6 {
+            assert!((got.data[i][j] - expected.data[i][j]).abs() < 1.0e-4);
+        }
+    }
+}
+
+#[test]
+fn mul_matrix_avx_f64_matches_scalar() {
+    if !std::is_x86_feature_detected!("avx") {
+        return;
+    }
+
+    let a = Matrix {
+        data: [
+            [1.0_f64, 2.0, 3.0, 4.0, 5.0],
+            [2.0, 3.0, 4.0, 5.0, 6.0],
+            [3.0, 4.0, 5.0, 6.0, 7.0],
+            [4.0, 5.0, 6.0, 7.0, 8.0],
+            [5.0, 6.0, 7.0, 8.0, 9.0],
+            [6.0, 7.0, 8.0, 9.0, 10.0],
+            [7.0, 8.0, 9.0, 10.0, 11.0],
+        ],
+    };
+    let b = Matrix {
+        data: [
+            [1.0_f64, 0.0, 2.0, 1.0, -1.0, 3.0],
+            [0.0, 1.0, 1.0, 2.0, 3.0, -2.0],
+            [2.0, 1.0, 0.0, -1.0, 2.0, 1.0],
+            [1.0, 2.0, 3.0, 0.0, -2.0, 2.0],
+            [3.0, -1.0, 2.0, 1.0, 0.0, 1.0],
+        ],
+    };
+
+    let expected = mul_mat_scalar_f64(&a, &b);
+    let got = unsafe { matrix_simd::mul_matrix_avx_f64::<7, 5, 6>(&a, &b) };
+
+    for i in 0..7 {
+        for j in 0..6 {
+            assert!((got.data[i][j] - expected.data[i][j]).abs() < 1.0e-12);
+        }
+    }
+}
+
+#[test]
+fn mul_matrix_avx_fma_f32_matches_scalar() {
+    if !std::is_x86_feature_detected!("avx") || !std::is_x86_feature_detected!("fma") {
+        return;
+    }
+
+    let a = Matrix {
+        data: [
+            [1.0_f32, 2.0, 3.0, 4.0, 5.0],
+            [2.0, 3.0, 4.0, 5.0, 6.0],
+            [3.0, 4.0, 5.0, 6.0, 7.0],
+            [4.0, 5.0, 6.0, 7.0, 8.0],
+            [5.0, 6.0, 7.0, 8.0, 9.0],
+            [6.0, 7.0, 8.0, 9.0, 10.0],
+            [7.0, 8.0, 9.0, 10.0, 11.0],
+        ],
+    };
+    let b = Matrix {
+        data: [
+            [1.0_f32, 0.0, 2.0, 1.0, -1.0, 3.0],
+            [0.0, 1.0, 1.0, 2.0, 3.0, -2.0],
+            [2.0, 1.0, 0.0, -1.0, 2.0, 1.0],
+            [1.0, 2.0, 3.0, 0.0, -2.0, 2.0],
+            [3.0, -1.0, 2.0, 1.0, 0.0, 1.0],
+        ],
+    };
+
+    let expected = mul_mat_scalar_f32(&a, &b);
+    let got = unsafe { matrix_simd::mul_matrix_avx_fma_f32::<7, 5, 6>(&a, &b) };
+
+    for i in 0..7 {
+        for j in 0..6 {
+            assert!((got.data[i][j] - expected.data[i][j]).abs() < 1.0e-4);
+        }
+    }
+}
+
+#[test]
+fn mul_matrix_avx_fma_f64_matches_scalar() {
+    if !std::is_x86_feature_detected!("avx") || !std::is_x86_feature_detected!("fma") {
+        return;
+    }
+
+    let a = Matrix {
+        data: [
+            [1.0_f64, 2.0, 3.0, 4.0, 5.0],
+            [2.0, 3.0, 4.0, 5.0, 6.0],
+            [3.0, 4.0, 5.0, 6.0, 7.0],
+            [4.0, 5.0, 6.0, 7.0, 8.0],
+            [5.0, 6.0, 7.0, 8.0, 9.0],
+            [6.0, 7.0, 8.0, 9.0, 10.0],
+            [7.0, 8.0, 9.0, 10.0, 11.0],
+        ],
+    };
+    let b = Matrix {
+        data: [
+            [1.0_f64, 0.0, 2.0, 1.0, -1.0, 3.0],
+            [0.0, 1.0, 1.0, 2.0, 3.0, -2.0],
+            [2.0, 1.0, 0.0, -1.0, 2.0, 1.0],
+            [1.0, 2.0, 3.0, 0.0, -2.0, 2.0],
+            [3.0, -1.0, 2.0, 1.0, 0.0, 1.0],
+        ],
+    };
+
+    let expected = mul_mat_scalar_f64(&a, &b);
+    let got = unsafe { matrix_simd::mul_matrix_avx_fma_f64::<7, 5, 6>(&a, &b) };
+
+    for i in 0..7 {
+        for j in 0..6 {
+            assert!((got.data[i][j] - expected.data[i][j]).abs() < 1.0e-12);
+        }
     }
 }
