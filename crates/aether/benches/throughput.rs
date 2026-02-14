@@ -9,6 +9,8 @@ use nalgebra::{DMatrix, DVector, SMatrix, SVector};
 use std::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
+#[cfg(target_arch = "aarch64")]
+use std::arch::aarch64::*;
 
 fn aether_matmul<const N: usize>(a: &Matrix<f64, N, N>, b: &Matrix<f64, N, N>) -> Matrix<f64, N, N> {
     a * b
@@ -163,6 +165,50 @@ fn matmul_naive_rowmajor(a: &[f64], b: &[f64], c: &mut [f64], n: usize) {
     }
 }
 
+fn matmul_ikj_rowmajor(a: &[f64], b: &[f64], c: &mut [f64], n: usize) {
+    c.fill(0.0_f64);
+    for i in 0..n {
+        let a_row = &a[i * n..(i + 1) * n];
+        let c_row = &mut c[i * n..(i + 1) * n];
+        for k in 0..n {
+            let aik = a_row[k];
+            let b_row = &b[k * n..(k + 1) * n];
+            for j in 0..n {
+                c_row[j] += aik * b_row[j];
+            }
+        }
+    }
+}
+
+#[cfg(target_arch = "aarch64")]
+#[target_feature(enable = "neon")]
+unsafe fn matmul_simd_neon_rowmajor(a: &[f64], b: &[f64], c: &mut [f64], n: usize) {
+    c.fill(0.0_f64);
+    for i in 0..n {
+        let a_row = &a[i * n..(i + 1) * n];
+        let c_row = &mut c[i * n..(i + 1) * n];
+        for k in 0..n {
+            let aik = a_row[k];
+            let aik_vec = vdupq_n_f64(aik);
+            let b_row = &b[k * n..(k + 1) * n];
+
+            let mut j = 0;
+            while j + 2 <= n {
+                let c_vec = vld1q_f64(c_row.as_ptr().add(j));
+                let b_vec = vld1q_f64(b_row.as_ptr().add(j));
+                let out = vmlaq_f64(c_vec, b_vec, aik_vec);
+                vst1q_f64(c_row.as_mut_ptr().add(j), out);
+                j += 2;
+            }
+
+            while j < n {
+                c_row[j] += aik * b_row[j];
+                j += 1;
+            }
+        }
+    }
+}
+
 fn matmul_naive_rowmajor_f32(a: &[f32], b: &[f32], c: &mut [f32], n: usize) {
     for i in 0..n {
         for j in 0..n {
@@ -171,6 +217,50 @@ fn matmul_naive_rowmajor_f32(a: &[f32], b: &[f32], c: &mut [f32], n: usize) {
                 sum += a[i * n + k] * b[k * n + j];
             }
             c[i * n + j] = sum;
+        }
+    }
+}
+
+fn matmul_ikj_rowmajor_f32(a: &[f32], b: &[f32], c: &mut [f32], n: usize) {
+    c.fill(0.0_f32);
+    for i in 0..n {
+        let a_row = &a[i * n..(i + 1) * n];
+        let c_row = &mut c[i * n..(i + 1) * n];
+        for k in 0..n {
+            let aik = a_row[k];
+            let b_row = &b[k * n..(k + 1) * n];
+            for j in 0..n {
+                c_row[j] += aik * b_row[j];
+            }
+        }
+    }
+}
+
+#[cfg(target_arch = "aarch64")]
+#[target_feature(enable = "neon")]
+unsafe fn matmul_simd_neon_rowmajor_f32(a: &[f32], b: &[f32], c: &mut [f32], n: usize) {
+    c.fill(0.0_f32);
+    for i in 0..n {
+        let a_row = &a[i * n..(i + 1) * n];
+        let c_row = &mut c[i * n..(i + 1) * n];
+        for k in 0..n {
+            let aik = a_row[k];
+            let aik_vec = vdupq_n_f32(aik);
+            let b_row = &b[k * n..(k + 1) * n];
+
+            let mut j = 0;
+            while j + 4 <= n {
+                let c_vec = vld1q_f32(c_row.as_ptr().add(j));
+                let b_vec = vld1q_f32(b_row.as_ptr().add(j));
+                let out = vmlaq_f32(c_vec, b_vec, aik_vec);
+                vst1q_f32(c_row.as_mut_ptr().add(j), out);
+                j += 4;
+            }
+
+            while j < n {
+                c_row[j] += aik * b_row[j];
+                j += 1;
+            }
         }
     }
 }
@@ -194,6 +284,32 @@ unsafe fn matvec_simd_avx_rowmajor(a: &[f64], x: &[f64], y: &mut [f64], n: usize
         let mut lanes = [0.0_f64; 4];
         unsafe { _mm256_storeu_pd(lanes.as_mut_ptr(), acc) };
         let mut sum = lanes[0] + lanes[1] + lanes[2] + lanes[3];
+
+        while j < n {
+            sum += row[j] * x[j];
+            j += 1;
+        }
+
+        y[i] = sum;
+    }
+}
+
+#[cfg(target_arch = "aarch64")]
+#[target_feature(enable = "neon")]
+unsafe fn matvec_simd_neon_rowmajor(a: &[f64], x: &[f64], y: &mut [f64], n: usize) {
+    for i in 0..n {
+        let row = &a[i * n..(i + 1) * n];
+        let mut acc = vdupq_n_f64(0.0_f64);
+
+        let mut j = 0;
+        while j + 2 <= n {
+            let r = vld1q_f64(row.as_ptr().add(j));
+            let v = vld1q_f64(x.as_ptr().add(j));
+            acc = vaddq_f64(acc, vmulq_f64(r, v));
+            j += 2;
+        }
+
+        let mut sum = vgetq_lane_f64(acc, 0) + vgetq_lane_f64(acc, 1);
 
         while j < n {
             sum += row[j] * x[j];
@@ -261,6 +377,34 @@ unsafe fn matvec_simd_avx_rowmajor_f32(a: &[f32], x: &[f32], y: &mut [f32], n: u
     }
 }
 
+#[cfg(target_arch = "aarch64")]
+#[target_feature(enable = "neon")]
+unsafe fn matvec_simd_neon_rowmajor_f32(a: &[f32], x: &[f32], y: &mut [f32], n: usize) {
+    for i in 0..n {
+        let row = &a[i * n..(i + 1) * n];
+        let mut acc = vdupq_n_f32(0.0_f32);
+
+        let mut j = 0;
+        while j + 4 <= n {
+            let r = vld1q_f32(row.as_ptr().add(j));
+            let v = vld1q_f32(x.as_ptr().add(j));
+            acc = vaddq_f32(acc, vmulq_f32(r, v));
+            j += 4;
+        }
+
+        let mut lanes = [0.0_f32; 4];
+        vst1q_f32(lanes.as_mut_ptr(), acc);
+        let mut sum = lanes[0] + lanes[1] + lanes[2] + lanes[3];
+
+        while j < n {
+            sum += row[j] * x[j];
+            j += 1;
+        }
+
+        y[i] = sum;
+    }
+}
+
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[target_feature(enable = "avx,fma")]
 unsafe fn matvec_fma_avx_rowmajor_f32(a: &[f32], x: &[f32], y: &mut [f32], n: usize) {
@@ -301,6 +445,22 @@ fn avx_available() -> bool {
     }
 }
 
+fn neon_available() -> bool {
+    #[cfg(target_arch = "aarch64")]
+    {
+        std::arch::is_aarch64_feature_detected!("neon")
+    }
+
+    #[cfg(not(target_arch = "aarch64"))]
+    {
+        false
+    }
+}
+
+fn simd_available() -> bool {
+    avx_available() || neon_available()
+}
+
 fn avx_fma_available() -> bool {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     {
@@ -322,59 +482,10 @@ fn bench_matvec_large(c: &mut Criterion, n: usize) {
     }
 
     let x = vec![0.999_f64; n];
-    let mut y_native = vec![0.0_f64; n];
-    let mut y_naive = vec![0.0_f64; n];
-    let mut y_fma = vec![0.0_f64; n];
-    let mut y_simd = vec![0.0_f64; n];
 
     let na_a = DMatrix::<f64>::from_row_slice(n, n, &a);
     let na_x = DVector::<f64>::from_row_slice(&x);
     let mut na_y = DVector::<f64>::zeros(n);
-
-    c.bench_function(&format!("matvec_{}_native", n), |b| {
-        b.iter(|| {
-            matvec_naive_rowmajor(black_box(&a), black_box(&x), black_box(&mut y_native), n);
-            black_box(y_native[0])
-        })
-    });
-
-    c.bench_function(&format!("matvec_{}_naive", n), |b| {
-        b.iter(|| {
-            matvec_naive_rowmajor(black_box(&a), black_box(&x), black_box(&mut y_naive), n);
-            black_box(y_naive[0])
-        })
-    });
-
-    if avx_fma_available() {
-        c.bench_function(&format!("matvec_{}_fma", n), |b| {
-            b.iter(|| {
-                #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-                unsafe {
-                    matvec_fma_avx_rowmajor(black_box(&a), black_box(&x), black_box(&mut y_fma), n);
-                }
-                black_box(y_fma[0])
-            })
-        });
-    }
-
-    if avx_available() {
-        c.bench_function(&format!("matvec_{}_simd", n), |b| {
-            b.iter(|| {
-                #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-                unsafe {
-                    matvec_simd_avx_rowmajor(black_box(&a), black_box(&x), black_box(&mut y_simd), n);
-                }
-                black_box(y_simd[0])
-            })
-        });
-    } else {
-        c.bench_function(&format!("matvec_{}_simd", n), |b| {
-            b.iter(|| {
-                matvec_naive_rowmajor(black_box(&a), black_box(&x), black_box(&mut y_simd), n);
-                black_box(y_simd[0])
-            })
-        });
-    }
 
     c.bench_function(&format!("matvec_{}_nalgebra", n), |b| {
         b.iter(|| {
@@ -393,59 +504,10 @@ fn bench_matvec_large_f32(c: &mut Criterion, n: usize) {
     }
 
     let x = vec![0.999_f32; n];
-    let mut y_native = vec![0.0_f32; n];
-    let mut y_naive = vec![0.0_f32; n];
-    let mut y_fma = vec![0.0_f32; n];
-    let mut y_simd = vec![0.0_f32; n];
 
     let na_a = DMatrix::<f32>::from_row_slice(n, n, &a);
     let na_x = DVector::<f32>::from_row_slice(&x);
     let mut na_y = DVector::<f32>::zeros(n);
-
-    c.bench_function(&format!("matvec_{}_native_f32", n), |b| {
-        b.iter(|| {
-            matvec_naive_rowmajor_f32(black_box(&a), black_box(&x), black_box(&mut y_native), n);
-            black_box(y_native[0])
-        })
-    });
-
-    c.bench_function(&format!("matvec_{}_naive_f32", n), |b| {
-        b.iter(|| {
-            matvec_naive_rowmajor_f32(black_box(&a), black_box(&x), black_box(&mut y_naive), n);
-            black_box(y_naive[0])
-        })
-    });
-
-    if avx_fma_available() {
-        c.bench_function(&format!("matvec_{}_fma_f32", n), |b| {
-            b.iter(|| {
-                #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-                unsafe {
-                    matvec_fma_avx_rowmajor_f32(black_box(&a), black_box(&x), black_box(&mut y_fma), n);
-                }
-                black_box(y_fma[0])
-            })
-        });
-    }
-
-    if avx_available() {
-        c.bench_function(&format!("matvec_{}_simd_f32", n), |b| {
-            b.iter(|| {
-                #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-                unsafe {
-                    matvec_simd_avx_rowmajor_f32(black_box(&a), black_box(&x), black_box(&mut y_simd), n);
-                }
-                black_box(y_simd[0])
-            })
-        });
-    } else {
-        c.bench_function(&format!("matvec_{}_simd_f32", n), |b| {
-            b.iter(|| {
-                matvec_naive_rowmajor_f32(black_box(&a), black_box(&x), black_box(&mut y_simd), n);
-                black_box(y_simd[0])
-            })
-        });
-    }
 
     c.bench_function(&format!("matvec_{}_nalgebra_f32", n), |b| {
         b.iter(|| {
@@ -465,16 +527,20 @@ fn bench_matmul_large(c: &mut Criterion, n: usize) {
         }
     }
 
-    let mut c_native = vec![0.0_f64; n * n];
+    #[cfg(target_arch = "aarch64")]
+    let mut c_simd = vec![0.0_f64; n * n];
 
     let na_a = DMatrix::<f64>::from_row_slice(n, n, &a);
     let na_b = DMatrix::<f64>::from_row_slice(n, n, &b);
     let mut na_c = DMatrix::<f64>::zeros(n, n);
 
-    c.bench_function(&format!("matmul_{}_native", n), |bch| {
+    #[cfg(target_arch = "aarch64")]
+    c.bench_function(&format!("matmul_{}_simd", n), |bch| {
         bch.iter(|| {
-            matmul_naive_rowmajor(black_box(&a), black_box(&b), black_box(&mut c_native), n);
-            black_box(c_native[0])
+            unsafe {
+                matmul_simd_neon_rowmajor(black_box(&a), black_box(&b), black_box(&mut c_simd), n);
+            }
+            black_box(c_simd[0])
         })
     });
 
@@ -496,16 +562,20 @@ fn bench_matmul_large_f32(c: &mut Criterion, n: usize) {
         }
     }
 
-    let mut c_native = vec![0.0_f32; n * n];
+    #[cfg(target_arch = "aarch64")]
+    let mut c_simd = vec![0.0_f32; n * n];
 
     let na_a = DMatrix::<f32>::from_row_slice(n, n, &a);
     let na_b = DMatrix::<f32>::from_row_slice(n, n, &b);
     let mut na_c = DMatrix::<f32>::zeros(n, n);
 
-    c.bench_function(&format!("matmul_{}_native_f32", n), |bch| {
+    #[cfg(target_arch = "aarch64")]
+    c.bench_function(&format!("matmul_{}_simd_f32", n), |bch| {
         bch.iter(|| {
-            matmul_naive_rowmajor_f32(black_box(&a), black_box(&b), black_box(&mut c_native), n);
-            black_box(c_native[0])
+            unsafe {
+                matmul_simd_neon_rowmajor_f32(black_box(&a), black_box(&b), black_box(&mut c_simd), n);
+            }
+            black_box(c_simd[0])
         })
     });
 
