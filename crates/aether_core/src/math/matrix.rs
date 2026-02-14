@@ -751,6 +751,55 @@ impl<const M: usize, const N: usize> Matrix<f32, M, N> {
             return arm_neon::mul_matrix_neon_f32(self, rhs);
         }
 
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("avx") && std::is_x86_feature_detected!("fma") {
+                unsafe {
+                    return matrix_simd::mul_matrix_avx_fma_f32(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("avx") {
+                unsafe {
+                    return matrix_simd::mul_matrix_avx_f32(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx",
+            target_feature = "fma"
+        ))]
+        unsafe {
+            return matrix_simd::mul_matrix_avx_fma_f32(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx"
+        ))]
+        unsafe {
+            return matrix_simd::mul_matrix_avx_f32(self, rhs);
+        }
+
         #[allow(unreachable_code)]
         {
             self.mul_matrix_strided(rhs)
@@ -764,6 +813,55 @@ impl<const M: usize, const N: usize> Matrix<f64, M, N> {
         #[cfg(all(feature = "simd", target_arch = "aarch64"))]
         unsafe {
             return arm_neon::mul_matrix_neon_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("avx") && std::is_x86_feature_detected!("fma") {
+                unsafe {
+                    return matrix_simd::mul_matrix_avx_fma_f64(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("avx") {
+                unsafe {
+                    return matrix_simd::mul_matrix_avx_f64(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx",
+            target_feature = "fma"
+        ))]
+        unsafe {
+            return matrix_simd::mul_matrix_avx_fma_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx"
+        ))]
+        unsafe {
+            return matrix_simd::mul_matrix_avx_f64(self, rhs);
         }
 
         #[allow(unreachable_code)]

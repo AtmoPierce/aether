@@ -128,35 +128,6 @@ def collect_rows(means: dict[tuple[str, int, str], float]) -> list[dict[str, obj
                     }
                 )
 
-            aether_candidates: list[tuple[str, float]] = []
-            for impl in impls:
-                lower = impl.lower()
-                if "nalgebra" in lower:
-                    continue
-                if "naive" in lower:
-                    continue
-                if "fma" in lower:
-                    continue
-                aether_candidates.append((impl, means[(op, n, impl)]))
-
-            if aether_candidates:
-                best_impl, best_time = min(aether_candidates, key=lambda item: item[1])
-                ratio = best_time / nalgebra
-                rows.append(
-                    {
-                        "op": op,
-                        "n": n,
-                        "dtype": dtype,
-                        "impl": "aether_baseline",
-                        "impl_time": best_time,
-                        "nalgebra_time": nalgebra,
-                        "ratio": ratio,
-                        "delta_pct": (ratio - 1.0) * 100.0,
-                        "speedup": nalgebra / best_time,
-                        "source_impl": best_impl,
-                    }
-                )
-
     return rows
 
 
@@ -183,6 +154,101 @@ def collect_abstraction_rows(named_means: dict[str, float]) -> list[dict[str, ob
         )
 
     return rows
+
+
+def collect_winner_rows(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    grouped: dict[tuple[str, int, str], list[dict[str, object]]] = defaultdict(list)
+    for row in rows:
+        key = (str(row["op"]), int(row["n"]), str(row["dtype"]))
+        grouped[key].append(row)
+
+    winners: list[dict[str, object]] = []
+    for (op, n, dtype), candidates in sorted(grouped.items()):
+        best = min(candidates, key=lambda item: float(item["impl_time"]))
+        ratio = float(best["ratio"])
+
+        if abs(ratio - 1.0) <= 0.005:
+            winner = "Tie"
+        elif ratio < 1.0:
+            winner = "Aether"
+        else:
+            winner = "Nalgebra"
+
+        winners.append(
+            {
+                "op": op,
+                "n": n,
+                "benchmark": f"{op}_{n}",
+                "dtype": dtype,
+                "best_impl": str(best["impl"]),
+                "best_time": float(best["impl_time"]),
+                "nalgebra_time": float(best["nalgebra_time"]),
+                "ratio": ratio,
+                "delta_pct": float(best["delta_pct"]),
+                "winner": winner,
+            }
+        )
+
+    return winners
+
+
+def collect_operation_rows(winner_rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    grouped: dict[tuple[str, str], list[dict[str, object]]] = defaultdict(list)
+    for row in winner_rows:
+        key = (str(row["op"]), str(row["dtype"]))
+        grouped[key].append(row)
+
+    out: list[dict[str, object]] = []
+    for (op, dtype), items in sorted(grouped.items()):
+        impl_counts: dict[str, int] = defaultdict(int)
+        impl_ratio_sums: dict[str, float] = defaultdict(float)
+
+        wins = 0
+        ties = 0
+        losses = 0
+        best_case = min(items, key=lambda item: float(item["ratio"]))
+        worst_case = max(items, key=lambda item: float(item["ratio"]))
+
+        for item in items:
+            impl = str(item["best_impl"])
+            ratio = float(item["ratio"])
+            impl_counts[impl] += 1
+            impl_ratio_sums[impl] += ratio
+
+            if abs(ratio - 1.0) <= 0.005:
+                ties += 1
+            elif ratio < 1.0:
+                wins += 1
+            else:
+                losses += 1
+
+        best_impl = min(
+            impl_counts.keys(),
+            key=lambda impl: (
+                -impl_counts[impl],
+                impl_ratio_sums[impl] / impl_counts[impl],
+                impl,
+            ),
+        )
+
+        avg_ratio = sum(float(item["ratio"]) for item in items) / len(items)
+        out.append(
+            {
+                "op": op,
+                "dtype": dtype,
+                "best_impl": best_impl,
+                "avg_ratio": avg_ratio,
+                "wins": wins,
+                "ties": ties,
+                "losses": losses,
+                "best_case_ratio": float(best_case["ratio"]),
+                "best_case_n": int(best_case["n"]),
+                "worst_case_ratio": float(worst_case["ratio"]),
+                "worst_case_n": int(worst_case["n"]),
+            }
+        )
+
+    return out
 
 
 def generate_plots(rows: list[dict[str, object]], plot_dir: Path) -> tuple[int, str | None]:
@@ -225,10 +291,13 @@ def generate_plots(rows: list[dict[str, object]], plot_dir: Path) -> tuple[int, 
         all_impls = set(impl_to_n_to_time.keys())
 
         suffix = impl_suffix(dtype)
-        native_impl = pick_present([f"native{suffix}", f"scalar{suffix}", f"aether{suffix}"], all_impls)
-        simd_candidates = [f"simd{suffix}"]
+        native_impl = pick_present(
+            [f"native{suffix}", f"scalar{suffix}", f"aether{suffix}", f"aether_fallback{suffix}"],
+            all_impls,
+        )
+        simd_candidates = [f"aether_simd{suffix}", f"simd{suffix}"]
         if op == "dot":
-            simd_candidates = [f"simd{suffix}", f"aether{suffix}"]
+            simd_candidates = [f"aether_simd{suffix}", f"simd{suffix}", f"aether{suffix}"]
         simd_impl = pick_present(simd_candidates, all_impls)
 
         selected_impls: list[tuple[str, str]] = []
@@ -373,18 +442,34 @@ def main() -> int:
         return 1
 
     rows = collect_rows(means)
+    winner_rows = collect_winner_rows(rows)
+    operation_rows = collect_operation_rows(winner_rows)
     abstraction_rows = collect_abstraction_rows(named_means)
 
-    print("Implementations vs Nalgebra (mean time)")
-    print("-" * 96)
-    print(f"{'Benchmark':<20} {'Type':<6} {'Impl':<12} {'Impl Time':>14} {'Nalgebra':>14} {'Ratio':>10} {'Delta':>12}")
-    print("-" * 96)
+    if winner_rows:
+        print("Aether best vs Nalgebra (mean time)")
+        print("-" * 96)
+        print(f"{'Benchmark':<20} {'Type':<6} {'Best Impl':<16} {'Best Time':>14} {'Nalgebra':>14} {'Ratio':>10} {'Winner':>10}")
+        print("-" * 96)
+        for row in winner_rows:
+            print(
+                f"{row['benchmark']:<20} {row['dtype']:<6} {row['best_impl']:<16} {format_ns(float(row['best_time'])):>14} {format_ns(float(row['nalgebra_time'])):>14} {float(row['ratio']):>10.3f}x {str(row['winner']):>10}"
+            )
 
-    for row in rows:
-        label = f"{row['op']}_{row['n']}"
+    if operation_rows:
+        print("\nOperation setup summary")
+        print("-" * 120)
         print(
-            f"{label:<20} {row['dtype']:<6} {row['impl']:<12} {format_ns(float(row['impl_time'])):>14} {format_ns(float(row['nalgebra_time'])):>14} {float(row['ratio']):>10.3f}x {float(row['delta_pct']):>+11.2f}%"
+            f"{'Operation':<10} {'Type':<6} {'Best Aether Impl':<18} {'Avg Ratio':>10} {'W/T/L':>9} {'Best Case':>16} {'Worst Case':>16}"
         )
+        print("-" * 120)
+        for row in operation_rows:
+            best_case = f"{float(row['best_case_ratio']):.3f}x @N={int(row['best_case_n'])}"
+            worst_case = f"{float(row['worst_case_ratio']):.3f}x @N={int(row['worst_case_n'])}"
+            wtl = f"{int(row['wins'])}/{int(row['ties'])}/{int(row['losses'])}"
+            print(
+                f"{str(row['op']):<10} {str(row['dtype']):<6} {str(row['best_impl']):<18} {float(row['avg_ratio']):>10.3f}x {wtl:>9} {best_case:>16} {worst_case:>16}"
+            )
 
     if abstraction_rows:
         print("\nAbstraction overhead vs native baseline")

@@ -303,3 +303,137 @@ pub unsafe fn mul_vec4_sse_f32<const M: usize>(
     }
     result
 }
+
+    #[target_feature(enable = "avx")]
+    pub unsafe fn mul_matrix_avx_f64<const M: usize, const N: usize, const P: usize>(
+        lhs: &Matrix<f64, M, N>,
+        rhs: &Matrix<f64, N, P>,
+    ) -> Matrix<f64, M, P> {
+        let mut out = Matrix { data: [[0.0; P]; M] };
+
+        for i in 0..M {
+            let c_row = out.data[i].as_mut_ptr();
+            for k in 0..N {
+                let a = lhs.data[i][k];
+                let a_vec = _mm256_set1_pd(a);
+                let b_row = rhs.data[k].as_ptr();
+
+                let mut j = 0;
+                while j + 4 <= P {
+                    let c = _mm256_loadu_pd(c_row.add(j));
+                    let b = _mm256_loadu_pd(b_row.add(j));
+                    let p = _mm256_mul_pd(a_vec, b);
+                    let out_v = _mm256_add_pd(c, p);
+                    _mm256_storeu_pd(c_row.add(j), out_v);
+                    j += 4;
+                }
+
+                while j < P {
+                    out.data[i][j] += a * rhs.data[k][j];
+                    j += 1;
+                }
+            }
+        }
+
+        out
+    }
+
+    #[target_feature(enable = "avx,fma")]
+    pub unsafe fn mul_matrix_avx_fma_f64<const M: usize, const N: usize, const P: usize>(
+        lhs: &Matrix<f64, M, N>,
+        rhs: &Matrix<f64, N, P>,
+    ) -> Matrix<f64, M, P> {
+        let mut out = Matrix { data: [[0.0; P]; M] };
+
+        for i in 0..M {
+            let c_row = out.data[i].as_mut_ptr();
+            for k in 0..N {
+                let a = lhs.data[i][k];
+                let a_vec = _mm256_set1_pd(a);
+                let b_row = rhs.data[k].as_ptr();
+
+                let mut j = 0;
+                while j + 4 <= P {
+                    let c = _mm256_loadu_pd(c_row.add(j));
+                    let b = _mm256_loadu_pd(b_row.add(j));
+                    let out_v = _mm256_fmadd_pd(a_vec, b, c);
+                    _mm256_storeu_pd(c_row.add(j), out_v);
+                    j += 4;
+                }
+
+                while j < P {
+                    out.data[i][j] += a * rhs.data[k][j];
+                    j += 1;
+                }
+            }
+        }
+
+        out
+    }
+
+    #[target_feature(enable = "avx")]
+    pub unsafe fn mul_matrix_avx_f32<const M: usize, const N: usize, const P: usize>(
+        lhs: &Matrix<f32, M, N>,
+        rhs: &Matrix<f32, N, P>,
+    ) -> Matrix<f32, M, P> {
+        let mut out = Matrix { data: [[0.0; P]; M] };
+
+        for i in 0..M {
+            let c_row = out.data[i].as_mut_ptr();
+            for k in 0..N {
+                let a = lhs.data[i][k];
+                let a_vec = _mm256_set1_ps(a);
+                let b_row = rhs.data[k].as_ptr();
+
+                let mut j = 0;
+                while j + 8 <= P {
+                    let c = _mm256_loadu_ps(c_row.add(j));
+                    let b = _mm256_loadu_ps(b_row.add(j));
+                    let p = _mm256_mul_ps(a_vec, b);
+                    let out_v = _mm256_add_ps(c, p);
+                    _mm256_storeu_ps(c_row.add(j), out_v);
+                    j += 8;
+                }
+
+                while j < P {
+                    out.data[i][j] += a * rhs.data[k][j];
+                    j += 1;
+                }
+            }
+        }
+
+        out
+    }
+
+    #[target_feature(enable = "avx,fma")]
+    pub unsafe fn mul_matrix_avx_fma_f32<const M: usize, const N: usize, const P: usize>(
+        lhs: &Matrix<f32, M, N>,
+        rhs: &Matrix<f32, N, P>,
+    ) -> Matrix<f32, M, P> {
+        let mut out = Matrix { data: [[0.0; P]; M] };
+
+        for i in 0..M {
+            let c_row = out.data[i].as_mut_ptr();
+            for k in 0..N {
+                let a = lhs.data[i][k];
+                let a_vec = _mm256_set1_ps(a);
+                let b_row = rhs.data[k].as_ptr();
+
+                let mut j = 0;
+                while j + 8 <= P {
+                    let c = _mm256_loadu_ps(c_row.add(j));
+                    let b = _mm256_loadu_ps(b_row.add(j));
+                    let out_v = _mm256_fmadd_ps(a_vec, b, c);
+                    _mm256_storeu_ps(c_row.add(j), out_v);
+                    j += 8;
+                }
+
+                while j < P {
+                    out.data[i][j] += a * rhs.data[k][j];
+                    j += 1;
+                }
+            }
+        }
+
+        out
+    }
