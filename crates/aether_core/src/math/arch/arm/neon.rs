@@ -67,12 +67,12 @@ pub unsafe fn mul_vec6_neon_f32<const M: usize>(
 ) -> Vector<f32, M> {
     let mut out = Vector { data: [0.0; M] };
     let v0123 = unsafe { vld1q_f32(rhs.data.as_ptr()) };
-    let v4 = rhs.data[4];
-    let v5 = rhs.data[5];
+    let v45 = unsafe { vld1_f32(rhs.data.as_ptr().add(4)) };
 
     for i in 0..M {
         let r0123 = unsafe { vld1q_f32(matrix.data[i].as_ptr()) };
-        out.data[i] = vaddvq_f32(vmulq_f32(r0123, v0123)) + matrix.data[i][4] * v4 + matrix.data[i][5] * v5;
+        let r45 = unsafe { vld1_f32(matrix.data[i].as_ptr().add(4)) };
+        out.data[i] = vaddvq_f32(vmulq_f32(r0123, v0123)) + vaddv_f32(vmul_f32(r45, v45));
     }
 
     out
@@ -94,9 +94,10 @@ pub unsafe fn mul_vec6_neon_f64<const M: usize>(
         let r23 = unsafe { vld1q_f64(matrix.data[i].as_ptr().add(2)) };
         let r45 = unsafe { vld1q_f64(matrix.data[i].as_ptr().add(4)) };
 
-        out.data[i] = vaddvq_f64(vmulq_f64(r01, v01))
-            + vaddvq_f64(vmulq_f64(r23, v23))
-            + vaddvq_f64(vmulq_f64(r45, v45));
+        let p01 = vmulq_f64(r01, v01);
+        let p23 = vmulq_f64(r23, v23);
+        let p45 = vmulq_f64(r45, v45);
+        out.data[i] = vaddvq_f64(vaddq_f64(vaddq_f64(p01, p23), p45));
     }
 
     out
@@ -108,6 +109,51 @@ pub unsafe fn mul_matrix_neon_f32<const M: usize, const N: usize, const P: usize
     rhs: &Matrix<f32, N, P>,
 ) -> Matrix<f32, M, P> {
     let mut out = Matrix { data: [[0.0; P]; M] };
+
+    if P == 4 {
+        for i in 0..M {
+            let c_row = out.data[i].as_mut_ptr();
+            for k in 0..N {
+                let a = lhs.data[i][k];
+                let c = unsafe { vld1q_f32(c_row) };
+                let b = unsafe { vld1q_f32(rhs.data[k].as_ptr()) };
+                let out_v = vfmaq_n_f32(c, b, a);
+                unsafe { vst1q_f32(c_row, out_v) };
+            }
+        }
+        return out;
+    }
+
+    if P == 6 {
+        for i in 0..M {
+            let c_row = out.data[i].as_mut_ptr();
+            for k in 0..N {
+                let a = lhs.data[i][k];
+                let b_row = rhs.data[k].as_ptr();
+
+                let c0123 = unsafe { vld1q_f32(c_row) };
+                let b0123 = unsafe { vld1q_f32(b_row) };
+                let out0123 = vfmaq_n_f32(c0123, b0123, a);
+                unsafe { vst1q_f32(c_row, out0123) };
+
+                out.data[i][4] += a * rhs.data[k][4];
+                out.data[i][5] += a * rhs.data[k][5];
+            }
+        }
+        return out;
+    }
+
+    if P == 3 {
+        for i in 0..M {
+            for k in 0..N {
+                let a = lhs.data[i][k];
+                out.data[i][0] += a * rhs.data[k][0];
+                out.data[i][1] += a * rhs.data[k][1];
+                out.data[i][2] += a * rhs.data[k][2];
+            }
+        }
+        return out;
+    }
 
     for i in 0..M {
         let c_row = out.data[i].as_mut_ptr();
