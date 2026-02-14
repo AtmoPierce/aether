@@ -9,6 +9,15 @@ ROOT = Path(__file__).resolve().parents[1]
 CRITERION_DIR = ROOT / "target" / "criterion"
 PATTERN = re.compile(r"^(matmul|matvec|dot)_(\d+)_([a-z0-9_]+)$")
 
+ABSTRACTION_PAIRS: list[tuple[str, str, str]] = [
+    ("cartesian_dot", "cartesian_dot_abstraction", "cartesian_dot_native_vector"),
+    ("cartesian_cross", "cartesian_cross_abstraction", "cartesian_cross_native_vector"),
+    ("dcm_rotate_cartesian", "dcm_rotate_cartesian_abstraction", "dcm_rotate_native_matrix_vector"),
+    ("dcm_compose", "dcm_compose_abstraction", "dcm_compose_native_matrix"),
+    ("quaternion_rotate_cartesian", "quaternion_rotate_cartesian_abstraction", "quaternion_rotate_native_matrix_vector"),
+    ("quaternion_compose", "quaternion_compose_abstraction", "quaternion_compose_native_matrix"),
+]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -46,6 +55,21 @@ def load_means() -> dict[tuple[str, int, str], float]:
 
         mean_ns = float(estimates["mean"]["point_estimate"])
         means[(op, int(n_str), impl)] = mean_ns
+
+    return means
+
+
+def load_named_means() -> dict[str, float]:
+    means: dict[str, float] = {}
+
+    if not CRITERION_DIR.exists():
+        return means
+
+    for estimates_file in CRITERION_DIR.glob("*/new/estimates.json"):
+        bench_name = estimates_file.parent.parent.name
+        with estimates_file.open("r", encoding="utf-8") as handle:
+            estimates = json.load(handle)
+        means[bench_name] = float(estimates["mean"]["point_estimate"])
 
     return means
 
@@ -132,6 +156,31 @@ def collect_rows(means: dict[tuple[str, int, str], float]) -> list[dict[str, obj
                         "source_impl": best_impl,
                     }
                 )
+
+    return rows
+
+
+def collect_abstraction_rows(named_means: dict[str, float]) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for label, abstraction_bench, native_bench in ABSTRACTION_PAIRS:
+        abstraction_time = named_means.get(abstraction_bench)
+        native_time = named_means.get(native_bench)
+        if abstraction_time is None or native_time is None:
+            continue
+
+        ratio = abstraction_time / native_time
+        rows.append(
+            {
+                "label": label,
+                "abstraction_bench": abstraction_bench,
+                "native_bench": native_bench,
+                "abstraction_time": abstraction_time,
+                "native_time": native_time,
+                "ratio": ratio,
+                "delta_pct": (ratio - 1.0) * 100.0,
+                "speedup": native_time / abstraction_time,
+            }
+        )
 
     return rows
 
@@ -269,15 +318,62 @@ def generate_plots(rows: list[dict[str, object]], plot_dir: Path) -> tuple[int, 
     return created, None
 
 
+def generate_abstraction_plot(rows: list[dict[str, object]], plot_dir: Path) -> tuple[int, str | None]:
+    try:
+        import matplotlib.pyplot as plt
+    except Exception:
+        return 0, "matplotlib is not installed (pip install matplotlib)"
+
+    if not rows:
+        return 0, None
+
+    plot_dir.mkdir(parents=True, exist_ok=True)
+
+    labels = [str(row["label"]) for row in rows]
+    ratios = [float(row["ratio"]) for row in rows]
+
+    fig, ax = plt.subplots(figsize=(max(10, len(labels) * 1.35), 5))
+    x = list(range(len(labels)))
+    bars = ax.bar(x, ratios)
+
+    ax.axhline(1.0, color="#808080", linestyle="--", linewidth=1.0)
+    ax.set_title("Abstraction overhead vs native baseline (f64) — lower is better")
+    ax.set_xlabel("Benchmark pair")
+    ax.set_ylabel("Abstraction / Native ratio")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=20, ha="right")
+    ax.grid(True, axis="y", alpha=0.25)
+
+    for idx, bar in enumerate(bars):
+        val = ratios[idx]
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height(),
+            f"{val:.3f}x",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+        )
+
+    out_file = plot_dir / "abstraction_overhead_f64.png"
+    fig.tight_layout()
+    fig.savefig(out_file, dpi=150)
+    plt.close(fig)
+
+    return 1, None
+
+
 def main() -> int:
     args = parse_args()
     means = load_means()
-    if not means:
+    named_means = load_named_means()
+    if not means and not named_means:
         print("No matching Criterion results found in target/criterion.")
         print("Run: cargo bench -p aether --bench throughput")
         return 1
 
     rows = collect_rows(means)
+    abstraction_rows = collect_abstraction_rows(named_means)
 
     print("Implementations vs Nalgebra (mean time)")
     print("-" * 96)
@@ -290,17 +386,42 @@ def main() -> int:
             f"{label:<20} {row['dtype']:<6} {row['impl']:<12} {format_ns(float(row['impl_time'])):>14} {format_ns(float(row['nalgebra_time'])):>14} {float(row['ratio']):>10.3f}x {float(row['delta_pct']):>+11.2f}%"
         )
 
-    if not rows:
+    if abstraction_rows:
+        print("\nAbstraction overhead vs native baseline")
+        print("-" * 96)
+        print(f"{'Benchmark':<30} {'Abstraction':>14} {'Native':>14} {'Ratio':>10} {'Delta':>12}")
+        print("-" * 96)
+        for row in abstraction_rows:
+            print(
+                f"{str(row['label']):<30} {format_ns(float(row['abstraction_time'])):>14} {format_ns(float(row['native_time'])):>14} {float(row['ratio']):>10.3f}x {float(row['delta_pct']):>+11.2f}%"
+            )
+
+    if not rows and not abstraction_rows:
         print("No paired implementation/Nalgebra benchmarks were found.")
         print("Expected names like: matvec_1000_basic + matvec_1000_nalgebra (or *_f32 variants)")
+        print("Or named abstraction pairs like: cartesian_dot_abstraction + cartesian_dot_native_vector")
         return 1
 
     if not args.no_plots:
+        created_total = 0
+        plot_warnings: list[str] = []
+
         created, warning = generate_plots(rows, args.plot_dir)
+        created_total += created
         if warning is not None:
-            print(f"\nPlot generation skipped: {warning}")
-        else:
-            print(f"\nWrote {created} histogram plot(s) to: {args.plot_dir}")
+            plot_warnings.append(warning)
+
+        created, warning = generate_abstraction_plot(abstraction_rows, args.plot_dir)
+        created_total += created
+        if warning is not None:
+            plot_warnings.append(warning)
+
+        if plot_warnings:
+            print("\nPlot generation warnings:")
+            for warning in plot_warnings:
+                print(f"- {warning}")
+
+        print(f"\nWrote {created_total} plot(s) to: {args.plot_dir}")
 
     return 0
 
