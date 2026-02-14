@@ -192,6 +192,45 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<Cartesian<T, From>>
     }
 }
 
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<Cartesian<T, From>>
+    for &DirectionCosineMatrix<T, From, To>
+{
+    type Output = Cartesian<T, To>;
+
+    fn mul(self, rhs: Cartesian<T, From>) -> Self::Output {
+        Cartesian {
+            data: self.data * rhs.data,
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<&Cartesian<T, From>>
+    for DirectionCosineMatrix<T, From, To>
+{
+    type Output = Cartesian<T, To>;
+
+    fn mul(self, rhs: &Cartesian<T, From>) -> Self::Output {
+        Cartesian {
+            data: self.data * rhs.data,
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<&Cartesian<T, From>>
+    for &DirectionCosineMatrix<T, From, To>
+{
+    type Output = Cartesian<T, To>;
+
+    fn mul(self, rhs: &Cartesian<T, From>) -> Self::Output {
+        Cartesian {
+            data: self.data * rhs.data,
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
 // Behavior
 impl<T: Real + Copy, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMatrix<T, From, To> {
     pub fn m11(&self) -> T {

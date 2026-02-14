@@ -1,4 +1,7 @@
+use aether_core::attitude::{DirectionCosineMatrix, Euler, Quaternion};
+use aether_core::coordinate::Cartesian;
 use aether_core::math::{Matrix, Vector};
+use aether_core::reference_frame::Unknown;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use nalgebra::{DMatrix, DVector, SMatrix, SVector};
 
@@ -81,6 +84,49 @@ fn nalgebra_dot4(a: &SVector<f64, 4>, b: &SVector<f64, 4>) -> f64 {
 
 fn nalgebra_dot4_f32(a: &SVector<f32, 4>, b: &SVector<f32, 4>) -> f32 {
     a.dot(b)
+}
+
+fn native_vec3_dot(a: &Vector<f64, 3>, b: &Vector<f64, 3>) -> f64 {
+    a.dot(b)
+}
+
+fn native_vec3_cross(a: &Vector<f64, 3>, b: &Vector<f64, 3>) -> Vector<f64, 3> {
+    a.cross(b)
+}
+
+fn native_mat3_vec3(m: &Matrix<f64, 3, 3>, v: &Vector<f64, 3>) -> Vector<f64, 3> {
+    m * v
+}
+
+fn native_mat3_mul(a: &Matrix<f64, 3, 3>, b: &Matrix<f64, 3, 3>) -> Matrix<f64, 3, 3> {
+    a * b
+}
+
+fn native_mat3_mul_owned(a: Matrix<f64, 3, 3>, b: Matrix<f64, 3, 3>) -> Matrix<f64, 3, 3> {
+    a * b
+}
+
+fn native_quat_rotate_vector_equivalent(
+    q: &Quaternion<f64, Unknown, Unknown>,
+    v_from: &Vector<f64, 3>,
+) -> Vector<f64, 3> {
+    let qn = q.normalized();
+    let qc = qn.conjugate();
+
+    let px = v_from[0];
+    let py = v_from[1];
+    let pz = v_from[2];
+
+    let aw = -(qc.i() * px + qc.j() * py + qc.k() * pz);
+    let ax = qc.w() * px + qc.j() * pz - qc.k() * py;
+    let ay = qc.w() * py + qc.k() * px - qc.i() * pz;
+    let az = qc.w() * pz + qc.i() * py - qc.j() * px;
+
+    Vector::new([
+        aw * qn.i() + ax * qn.w() + ay * qn.k() - az * qn.j(),
+        aw * qn.j() - ax * qn.k() + ay * qn.w() + az * qn.i(),
+        aw * qn.k() + ax * qn.j() - ay * qn.i() + az * qn.w(),
+    ])
 }
 
 fn matvec_naive_rowmajor(a: &[f64], x: &[f64], y: &mut [f64], n: usize) {
@@ -614,6 +660,109 @@ fn bench_dot_4_f32(c: &mut Criterion) {
     });
 }
 
+fn bench_attitude_coordinate_abstractions(c: &mut Criterion) {
+    type RF = Unknown;
+
+    let cart_a = Cartesian::<f64, RF>::new(1.1, -2.2, 3.3);
+    let cart_b = Cartesian::<f64, RF>::new(-0.9, 4.2, 0.7);
+    let vec_a = cart_a.data;
+    let vec_b = cart_b.data;
+
+    let eul_a = Euler::<f64, RF, RF>::new(0.11, -0.22, 0.33);
+    let eul_b = Euler::<f64, RF, RF>::new(-0.27, 0.19, -0.41);
+
+    let dcm_a: DirectionCosineMatrix<f64, RF, RF> = DirectionCosineMatrix::from(eul_a);
+    let dcm_b: DirectionCosineMatrix<f64, RF, RF> = DirectionCosineMatrix::from(eul_b);
+
+    let mat_a = *dcm_a.as_matrix();
+    let mat_b = *dcm_b.as_matrix();
+
+    let quat_a: Quaternion<f64, RF, RF> = Quaternion::from(&eul_a);
+    let quat_b: Quaternion<f64, RF, RF> = Quaternion::from(&eul_b);
+    let quat_a_dcm: DirectionCosineMatrix<f64, RF, RF> = quat_a.to_dcm();
+    let quat_b_dcm: DirectionCosineMatrix<f64, RF, RF> = quat_b.to_dcm();
+    let quat_a_mat = *quat_a_dcm.as_matrix();
+    let quat_b_mat = *quat_b_dcm.as_matrix();
+
+    c.bench_function("cartesian_dot_abstraction", |bch| {
+        bch.iter(|| black_box(black_box(&cart_a).dot(black_box(&cart_b))))
+    });
+
+    c.bench_function("cartesian_dot_native_vector", |bch| {
+        bch.iter(|| black_box(native_vec3_dot(black_box(&vec_a), black_box(&vec_b))))
+    });
+
+    c.bench_function("cartesian_cross_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(&cart_a).cross(black_box(&cart_b));
+            black_box(out.x())
+        })
+    });
+
+    c.bench_function("cartesian_cross_native_vector", |bch| {
+        bch.iter(|| {
+            let out = native_vec3_cross(black_box(&vec_a), black_box(&vec_b));
+            black_box(out.data[0])
+        })
+    });
+
+    c.bench_function("dcm_rotate_cartesian_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(&dcm_a) * black_box(cart_a);
+            black_box(out.x())
+        })
+    });
+
+    c.bench_function("dcm_rotate_native_matrix_vector", |bch| {
+        bch.iter(|| {
+            let out = native_mat3_vec3(black_box(&mat_a), black_box(&vec_a));
+            black_box(out.data[0])
+        })
+    });
+
+    c.bench_function("dcm_compose_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(dcm_a) * black_box(dcm_b);
+            black_box(out.m11())
+        })
+    });
+
+    c.bench_function("dcm_compose_native_matrix", |bch| {
+        bch.iter(|| {
+            let out = native_mat3_mul_owned(black_box(mat_a), black_box(mat_b));
+            black_box(out[(0, 0)])
+        })
+    });
+
+    c.bench_function("quaternion_rotate_cartesian_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(&quat_a) * black_box(cart_a);
+            black_box(out.x())
+        })
+    });
+
+    c.bench_function("quaternion_rotate_native_matrix_vector", |bch| {
+        bch.iter(|| {
+            let out = native_quat_rotate_vector_equivalent(black_box(&quat_a), black_box(&vec_a));
+            black_box(out.data[0])
+        })
+    });
+
+    c.bench_function("quaternion_compose_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(&quat_a) * black_box(&quat_b);
+            black_box(out.w())
+        })
+    });
+
+    c.bench_function("quaternion_compose_native_matrix", |bch| {
+        bch.iter(|| {
+            let out = native_mat3_mul(black_box(&quat_a_mat), black_box(&quat_b_mat));
+            black_box(out[(0, 0)])
+        })
+    });
+}
+
 fn bench_matvec_6_f32(c: &mut Criterion) {
     let aether_a = Matrix::new([[1.001_f32; 6]; 6]);
     let na_a = SMatrix::<f32, 6, 6>::from_element(1.001_f32);
@@ -645,6 +794,7 @@ fn throughput_benches(c: &mut Criterion) {
     bench_matvec_6_f32(c);
     bench_dot_4(c);
     bench_dot_4_f32(c);
+    bench_attitude_coordinate_abstractions(c);
 
     for n in [32, 64, 128, 256, 512, 1024] {
         bench_matvec_large(c, n);

@@ -272,6 +272,26 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
     }
 }
 
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
+    Mul<Cartesian<T, From>> for &Quaternion<T, From, To>
+{
+    type Output = Cartesian<T, To>;
+
+    fn mul(self, rhs: Cartesian<T, From>) -> Self::Output {
+        self * (&rhs)
+    }
+}
+
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
+    Mul<&Cartesian<T, From>> for Quaternion<T, From, To>
+{
+    type Output = Cartesian<T, To>;
+
+    fn mul(self, rhs: &Cartesian<T, From>) -> Self::Output {
+        (&self) * rhs
+    }
+}
+
 /// Scalar multiply
 impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<T>
     for Quaternion<T, From, To>
