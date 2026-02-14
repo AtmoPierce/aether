@@ -67,14 +67,12 @@ pub unsafe fn mul_vec6_neon_f32<const M: usize>(
 ) -> Vector<f32, M> {
     let mut out = Vector { data: [0.0; M] };
     let v0123 = unsafe { vld1q_f32(rhs.data.as_ptr()) };
-    let v45xx = [rhs.data[4], rhs.data[5], 0.0_f32, 0.0_f32];
-    let v45xx_vec = unsafe { vld1q_f32(v45xx.as_ptr()) };
+    let v4 = rhs.data[4];
+    let v5 = rhs.data[5];
 
     for i in 0..M {
         let r0123 = unsafe { vld1q_f32(matrix.data[i].as_ptr()) };
-        let r45xx = [matrix.data[i][4], matrix.data[i][5], 0.0_f32, 0.0_f32];
-        let r45xx_vec = unsafe { vld1q_f32(r45xx.as_ptr()) };
-        out.data[i] = vaddvq_f32(vmulq_f32(r0123, v0123)) + vaddvq_f32(vmulq_f32(r45xx_vec, v45xx_vec));
+        out.data[i] = vaddvq_f32(vmulq_f32(r0123, v0123)) + matrix.data[i][4] * v4 + matrix.data[i][5] * v5;
     }
 
     out
@@ -112,29 +110,24 @@ pub unsafe fn mul_matrix_neon_f32<const M: usize, const N: usize, const P: usize
     let mut out = Matrix { data: [[0.0; P]; M] };
 
     for i in 0..M {
-        for j in 0..P {
-            let mut acc = 0.0_f32;
-            let mut k = 0;
+        let c_row = out.data[i].as_mut_ptr();
+        for k in 0..N {
+            let a = lhs.data[i][k];
+            let b_row = rhs.data[k].as_ptr();
 
-            while k + NEON_LANES_F32 <= N {
-                let l = unsafe { vld1q_f32(lhs.data[i].as_ptr().add(k)) };
-                let r_col = [
-                    rhs.data[k][j],
-                    rhs.data[k + 1][j],
-                    rhs.data[k + 2][j],
-                    rhs.data[k + 3][j],
-                ];
-                let r = unsafe { vld1q_f32(r_col.as_ptr()) };
-                acc += vaddvq_f32(vmulq_f32(l, r));
-                k += NEON_LANES_F32;
+            let mut j = 0;
+            while j + NEON_LANES_F32 <= P {
+                let c = unsafe { vld1q_f32(c_row.add(j)) };
+                let b = unsafe { vld1q_f32(b_row.add(j)) };
+                let out_v = vfmaq_n_f32(c, b, a);
+                unsafe { vst1q_f32(c_row.add(j), out_v) };
+                j += NEON_LANES_F32;
             }
 
-            while k < N {
-                acc += lhs.data[i][k] * rhs.data[k][j];
-                k += 1;
+            while j < P {
+                out.data[i][j] += a * rhs.data[k][j];
+                j += 1;
             }
-
-            out.data[i][j] = acc;
         }
     }
 
@@ -149,24 +142,24 @@ pub unsafe fn mul_matrix_neon_f64<const M: usize, const N: usize, const P: usize
     let mut out = Matrix { data: [[0.0; P]; M] };
 
     for i in 0..M {
-        for j in 0..P {
-            let mut acc = 0.0_f64;
-            let mut k = 0;
+        let c_row = out.data[i].as_mut_ptr();
+        for k in 0..N {
+            let a = lhs.data[i][k];
+            let b_row = rhs.data[k].as_ptr();
 
-            while k + NEON_LANES_F64 <= N {
-                let l = unsafe { vld1q_f64(lhs.data[i].as_ptr().add(k)) };
-                let r_col = [rhs.data[k][j], rhs.data[k + 1][j]];
-                let r = unsafe { vld1q_f64(r_col.as_ptr()) };
-                acc += vaddvq_f64(vmulq_f64(l, r));
-                k += NEON_LANES_F64;
+            let mut j = 0;
+            while j + NEON_LANES_F64 <= P {
+                let c = unsafe { vld1q_f64(c_row.add(j)) };
+                let b = unsafe { vld1q_f64(b_row.add(j)) };
+                let out_v = vfmaq_n_f64(c, b, a);
+                unsafe { vst1q_f64(c_row.add(j), out_v) };
+                j += NEON_LANES_F64;
             }
 
-            while k < N {
-                acc += lhs.data[i][k] * rhs.data[k][j];
-                k += 1;
+            while j < P {
+                out.data[i][j] += a * rhs.data[k][j];
+                j += 1;
             }
-
-            out.data[i][j] = acc;
         }
     }
 

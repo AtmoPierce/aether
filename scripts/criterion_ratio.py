@@ -241,6 +241,7 @@ def collect_operation_rows(winner_rows: list[dict[str, object]]) -> list[dict[st
                 "wins": wins,
                 "ties": ties,
                 "losses": losses,
+                "winner": "Aether" if wins > losses else ("Nalgebra" if losses > wins else "Tie"),
                 "best_case_ratio": float(best_case["ratio"]),
                 "best_case_n": int(best_case["n"]),
                 "worst_case_ratio": float(worst_case["ratio"]),
@@ -460,7 +461,7 @@ def main() -> int:
         print("\nOperation setup summary")
         print("-" * 120)
         print(
-            f"{'Operation':<10} {'Type':<6} {'Best Aether Impl':<18} {'Avg Ratio':>10} {'W/T/L':>9} {'Best Case':>16} {'Worst Case':>16}"
+            f"{'Operation':<10} {'Type':<6} {'Best Aether Impl':<18} {'Avg Ratio':>10} {'W/T/L':>9} {'Winner':>10} {'Best Case':>16} {'Worst Case':>16}"
         )
         print("-" * 120)
         for row in operation_rows:
@@ -468,7 +469,7 @@ def main() -> int:
             worst_case = f"{float(row['worst_case_ratio']):.3f}x @N={int(row['worst_case_n'])}"
             wtl = f"{int(row['wins'])}/{int(row['ties'])}/{int(row['losses'])}"
             print(
-                f"{str(row['op']):<10} {str(row['dtype']):<6} {str(row['best_impl']):<18} {float(row['avg_ratio']):>10.3f}x {wtl:>9} {best_case:>16} {worst_case:>16}"
+                f"{str(row['op']):<10} {str(row['dtype']):<6} {str(row['best_impl']):<18} {float(row['avg_ratio']):>10.3f}x {wtl:>9} {str(row['winner']):>10} {best_case:>16} {worst_case:>16}"
             )
 
     if abstraction_rows:
