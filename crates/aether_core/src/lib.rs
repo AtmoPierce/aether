@@ -10,3 +10,6 @@ pub mod numerical_methods;
 pub mod real;
 pub mod reference_frame;
 pub mod utils;
+
+#[cfg(target_arch = "aarch64")]
+pub use math::arch::arm::neon as arch_neon;
