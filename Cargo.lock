@@ -42,6 +42,7 @@ dependencies = [
  "approx",
  "bincode",
  "libm",
+ "nalgebra",
  "regex",
  "rustyline",
  "serde",
