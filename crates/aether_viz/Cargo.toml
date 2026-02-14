@@ -7,7 +7,7 @@ license-file.workspace = true
 description = "Plotting helpers for Aether (errors, vectors, heatmaps)."
 
 [dependencies]
-plotters = { version = "0.3.7", default-features = true, features = [] }
+plotters = { workspace = true, default-features = true, features = [] }
 
 [features]
 svg = ["plotters/svg_backend"]

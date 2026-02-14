@@ -1,3 +1,10 @@
+use super::algorithms::MatrixAlgorithms;
+#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
+use super::arch::x86::matrix_simd;
+#[cfg(all(feature = "simd", target_arch = "aarch64"))]
+use super::arch::arm::neon as arm_neon;
+#[cfg(all(feature = "simd", target_arch = "arm"))]
+use super::arch::arm::m33_dsp;
 use super::vector::Vector;
 use crate::real::{Real};
 use core::ops::{Add, Sub, Mul, Div, Neg, AddAssign};
@@ -113,21 +120,37 @@ impl<T: Real, const M: usize, const N: usize, const P: usize> Mul<Matrix<T, N, P
     type Output = Matrix<T, M, P>;
 
     fn mul(self, rhs: Matrix<T, N, P>) -> Matrix<T, M, P> {
-        let mut result = Matrix {
-            data: [[T::ZERO; P]; M],
-        };
+        self.mul_matrix_strided(&rhs)
+    }
+}
 
-        for i in 0..M {
-            for j in 0..P {
-                let mut sum = T::ZERO;
-                for k in 0..N {
-                    sum = sum + self.data[i][k] * rhs.data[k][j];
-                }
-                result.data[i][j] = sum;
-            }
-        }
+impl<T: Real, const M: usize, const N: usize, const P: usize> Mul<&Matrix<T, N, P>>
+    for &Matrix<T, M, N>
+{
+    type Output = Matrix<T, M, P>;
 
-        result
+    fn mul(self, rhs: &Matrix<T, N, P>) -> Matrix<T, M, P> {
+        self.mul_matrix_strided(rhs)
+    }
+}
+
+impl<T: Real, const M: usize, const N: usize, const P: usize> Mul<&Matrix<T, N, P>>
+    for Matrix<T, M, N>
+{
+    type Output = Matrix<T, M, P>;
+
+    fn mul(self, rhs: &Matrix<T, N, P>) -> Matrix<T, M, P> {
+        (&self) * rhs
+    }
+}
+
+impl<T: Real, const M: usize, const N: usize, const P: usize> Mul<Matrix<T, N, P>>
+    for &Matrix<T, M, N>
+{
+    type Output = Matrix<T, M, P>;
+
+    fn mul(self, rhs: Matrix<T, N, P>) -> Matrix<T, M, P> {
+        self * (&rhs)
     }
 }
 
@@ -136,19 +159,31 @@ impl<T: Real, const M: usize, const N: usize> Mul<Vector<T, N>> for Matrix<T, M,
     type Output = Vector<T, M>;
 
     fn mul(self, rhs: Vector<T, N>) -> Vector<T, M> {
-        let mut result = Vector {
-            data: [T::ZERO; M],
-        };
+        self.mul_vector_unrolled(&rhs)
+    }
+}
 
-        for i in 0..M {
-            let mut sum = T::ZERO;
-            for j in 0..N {
-                sum = sum + self.data[i][j] * rhs.data[j];
-            }
-            result.data[i] = sum;
-        }
+impl<T: Real, const M: usize, const N: usize> Mul<&Vector<T, N>> for &Matrix<T, M, N> {
+    type Output = Vector<T, M>;
 
-        result
+    fn mul(self, rhs: &Vector<T, N>) -> Vector<T, M> {
+        self.mul_vector_unrolled(rhs)
+    }
+}
+
+impl<T: Real, const M: usize, const N: usize> Mul<&Vector<T, N>> for Matrix<T, M, N> {
+    type Output = Vector<T, M>;
+
+    fn mul(self, rhs: &Vector<T, N>) -> Vector<T, M> {
+        (&self) * rhs
+    }
+}
+
+impl<T: Real, const M: usize, const N: usize> Mul<Vector<T, N>> for &Matrix<T, M, N> {
+    type Output = Vector<T, M>;
+
+    fn mul(self, rhs: Vector<T, N>) -> Vector<T, M> {
+        self * (&rhs)
     }
 }
 
@@ -198,6 +233,384 @@ impl<T: Real, const N: usize> Matrix<T, N, N> {
             data[i][i] = diag[i];
         }
         Self { data }
+    }
+}
+
+impl<const M: usize> Matrix<f64, M, 6> {
+    #[inline(always)]
+    pub fn mul_vec6_simd(&self, rhs: &Vector<f64, 6>) -> Vector<f64, M> {
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse2") {
+                unsafe {
+                    return matrix_simd::mul_vec6_fma128_f64(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "fma",
+            target_feature = "sse2"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_fma128_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("avx") && std::is_x86_feature_detected!("fma") {
+                unsafe {
+                    return matrix_simd::mul_vec6_avx_fma_f64(self, rhs);
+                }
+            }
+
+            if std::is_x86_feature_detected!("avx") {
+                unsafe {
+                    return matrix_simd::mul_vec6_avx_f64(self, rhs);
+                }
+            }
+
+            if std::is_x86_feature_detected!("sse2") {
+                unsafe {
+                    return matrix_simd::mul_vec6_sse2_f64(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx",
+            target_feature = "fma"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_avx_fma_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_avx_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "sse2"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_sse2_f64(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_vec6_scalar(rhs)
+        }
+    }
+
+    #[inline(always)]
+    fn mul_vec6_scalar(&self, rhs: &Vector<f64, 6>) -> Vector<f64, M> {
+        let mut result = Vector { data: [0.0; M] };
+        for i in 0..M {
+            let row = &self.data[i];
+            result.data[i] = row[0] * rhs.data[0]
+                + row[1] * rhs.data[1]
+                + row[2] * rhs.data[2]
+                + row[3] * rhs.data[3]
+                + row[4] * rhs.data[4]
+                + row[5] * rhs.data[5];
+        }
+        result
+    }
+}
+
+impl<const M: usize> Matrix<f64, M, 4> {
+    #[inline(always)]
+    pub fn mul_vec4_simd(&self, rhs: &Vector<f64, 4>) -> Vector<f64, M> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_vec4_neon_f64(self, rhs);
+        }
+
+        #[cfg(all(feature = "simd", target_arch = "arm", target_feature = "dsp"))]
+        {
+            return m33_dsp::mul_vec4_m33_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("avx") && std::is_x86_feature_detected!("fma") {
+                unsafe {
+                    return matrix_simd::mul_vec4_avx_fma_f64(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("avx") {
+                unsafe {
+                    return matrix_simd::mul_vec4_avx_f64(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx",
+            target_feature = "fma",
+            feature = "fma"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec4_avx_fma_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec4_avx_f64(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_vec4_scalar(rhs)
+        }
+    }
+
+    #[inline(always)]
+    fn mul_vec4_scalar(&self, rhs: &Vector<f64, 4>) -> Vector<f64, M> {
+        let mut result = Vector { data: [0.0; M] };
+        for i in 0..M {
+            let row = &self.data[i];
+            result.data[i] = row[0] * rhs.data[0]
+                + row[1] * rhs.data[1]
+                + row[2] * rhs.data[2]
+                + row[3] * rhs.data[3];
+        }
+        result
+    }
+}
+
+impl<const M: usize> Matrix<f32, M, 6> {
+    #[inline(always)]
+    pub fn mul_vec6_simd(&self, rhs: &Vector<f32, 6>) -> Vector<f32, M> {
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse") {
+                unsafe {
+                    return matrix_simd::mul_vec6_fma128_f32(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "fma",
+            target_feature = "sse"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_fma128_f32(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("avx") && std::is_x86_feature_detected!("fma") {
+                unsafe {
+                    return matrix_simd::mul_vec6_avx_fma_f32(self, rhs);
+                }
+            }
+
+            if std::is_x86_feature_detected!("avx") {
+                unsafe {
+                    return matrix_simd::mul_vec6_avx_f32(self, rhs);
+                }
+            }
+
+            if std::is_x86_feature_detected!("sse") {
+                unsafe {
+                    return matrix_simd::mul_vec6_sse_f32(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx",
+            target_feature = "fma"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_avx_fma_f32(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_avx_f32(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "sse"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec6_sse_f32(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_vec6_scalar(rhs)
+        }
+    }
+
+    #[inline(always)]
+    fn mul_vec6_scalar(&self, rhs: &Vector<f32, 6>) -> Vector<f32, M> {
+        let mut result = Vector { data: [0.0; M] };
+        for i in 0..M {
+            let row = &self.data[i];
+            result.data[i] = row[0] * rhs.data[0]
+                + row[1] * rhs.data[1]
+                + row[2] * rhs.data[2]
+                + row[3] * rhs.data[3]
+                + row[4] * rhs.data[4]
+                + row[5] * rhs.data[5];
+        }
+        result
+    }
+}
+
+impl<const M: usize> Matrix<f32, M, 4> {
+    #[inline(always)]
+    pub fn mul_vec4_simd(&self, rhs: &Vector<f32, 4>) -> Vector<f32, M> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_vec4_neon_f32(self, rhs);
+        }
+
+        #[cfg(all(feature = "simd", target_arch = "arm", target_feature = "dsp"))]
+        {
+            return m33_dsp::mul_vec4_m33_f32(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse") {
+                unsafe {
+                    return matrix_simd::mul_vec4_sse_fma_f32(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            if std::is_x86_feature_detected!("sse") {
+                unsafe {
+                    return matrix_simd::mul_vec4_sse_f32(self, rhs);
+                }
+            }
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "sse",
+            target_feature = "fma"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec4_sse_fma_f32(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "sse"
+        ))]
+        unsafe {
+            return matrix_simd::mul_vec4_sse_f32(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_vec4_scalar(rhs)
+        }
+    }
+
+    #[inline(always)]
+    fn mul_vec4_scalar(&self, rhs: &Vector<f32, 4>) -> Vector<f32, M> {
+        let mut result = Vector { data: [0.0; M] };
+        for i in 0..M {
+            let row = &self.data[i];
+            result.data[i] = row[0] * rhs.data[0]
+                + row[1] * rhs.data[1]
+                + row[2] * rhs.data[2]
+                + row[3] * rhs.data[3];
+        }
+        result
     }
 }
 
@@ -327,6 +740,126 @@ impl<T: Real> Matrix<T, 4, 4> {
             }
         }
         flat
+    }
+}
+
+impl<const M: usize, const N: usize> Matrix<f32, M, N> {
+    #[inline(always)]
+    pub fn mul_matrix_simd<const P: usize>(&self, rhs: &Matrix<f32, N, P>) -> Matrix<f32, M, P> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_matrix_neon_f32(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_matrix_strided(rhs)
+        }
+    }
+}
+
+impl<const M: usize, const N: usize> Matrix<f64, M, N> {
+    #[inline(always)]
+    pub fn mul_matrix_simd<const P: usize>(&self, rhs: &Matrix<f64, N, P>) -> Matrix<f64, M, P> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_matrix_neon_f64(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_matrix_strided(rhs)
+        }
+    }
+}
+
+impl Matrix<f32, 3, 3> {
+    #[inline(always)]
+    pub fn mul_mat3_simd(&self, rhs: &Matrix<f32, 3, 3>) -> Matrix<f32, 3, 3> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_mat3_neon_f32(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_matrix_strided(rhs)
+        }
+    }
+}
+
+impl Matrix<f64, 3, 3> {
+    #[inline(always)]
+    pub fn mul_mat3_simd(&self, rhs: &Matrix<f64, 3, 3>) -> Matrix<f64, 3, 3> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_mat3_neon_f64(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_matrix_strided(rhs)
+        }
+    }
+}
+
+impl Matrix<f32, 4, 4> {
+    #[inline(always)]
+    pub fn mul_mat4_simd(&self, rhs: &Matrix<f32, 4, 4>) -> Matrix<f32, 4, 4> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_mat4_neon_f32(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_matrix_strided(rhs)
+        }
+    }
+}
+
+impl Matrix<f64, 4, 4> {
+    #[inline(always)]
+    pub fn mul_mat4_simd(&self, rhs: &Matrix<f64, 4, 4>) -> Matrix<f64, 4, 4> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_mat4_neon_f64(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_matrix_strided(rhs)
+        }
+    }
+}
+
+impl Matrix<f32, 6, 6> {
+    #[inline(always)]
+    pub fn mul_mat6_simd(&self, rhs: &Matrix<f32, 6, 6>) -> Matrix<f32, 6, 6> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_mat6_neon_f32(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_matrix_strided(rhs)
+        }
+    }
+}
+
+impl Matrix<f64, 6, 6> {
+    #[inline(always)]
+    pub fn mul_mat6_simd(&self, rhs: &Matrix<f64, 6, 6>) -> Matrix<f64, 6, 6> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_mat6_neon_f64(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.mul_matrix_strided(rhs)
+        }
     }
 }
 

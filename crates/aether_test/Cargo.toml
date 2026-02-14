@@ -18,12 +18,12 @@ bincode = ["dep:bincode"]
 # aether_core = { path = "../aether_core", version = "0.1.1" }
 aether_core = { path = "../aether_core", features = ["bincode"]}
 aether_viz = { path = "../aether_viz", optional = true, default-features = false }
-bincode = { version = "2.0.1", optional=true }
+bincode = { workspace = true, optional=true }
 thiserror = "*"
 
 # Numerical and comparison helpers
-num-traits = "0.2"
-approx = "0.5" # For Real comparison (assert_abs_diff_eq, etc.)
+num-traits = { workspace = true }
+approx = { workspace = true } # For Real comparison (assert_abs_diff_eq, etc.)
 
 [dev-dependencies]
 
