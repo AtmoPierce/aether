@@ -39,6 +39,38 @@ fn mul_vec4_scalar_f64<const M: usize>(
     out
 }
 
+fn mul_vec6_scalar_f32<const M: usize>(
+    matrix: &Matrix<f32, M, 6>,
+    rhs: &Vector<f32, 6>,
+) -> Vector<f32, M> {
+    let mut out = Vector { data: [0.0; M] };
+    for i in 0..M {
+        out.data[i] = matrix.data[i][0] * rhs.data[0]
+            + matrix.data[i][1] * rhs.data[1]
+            + matrix.data[i][2] * rhs.data[2]
+            + matrix.data[i][3] * rhs.data[3]
+            + matrix.data[i][4] * rhs.data[4]
+            + matrix.data[i][5] * rhs.data[5];
+    }
+    out
+}
+
+fn mul_vec6_scalar_f64<const M: usize>(
+    matrix: &Matrix<f64, M, 6>,
+    rhs: &Vector<f64, 6>,
+) -> Vector<f64, M> {
+    let mut out = Vector { data: [0.0; M] };
+    for i in 0..M {
+        out.data[i] = matrix.data[i][0] * rhs.data[0]
+            + matrix.data[i][1] * rhs.data[1]
+            + matrix.data[i][2] * rhs.data[2]
+            + matrix.data[i][3] * rhs.data[3]
+            + matrix.data[i][4] * rhs.data[4]
+            + matrix.data[i][5] * rhs.data[5];
+    }
+    out
+}
+
 fn mul_mat_scalar_f32<const M: usize, const N: usize, const P: usize>(
     matrix_a: &Matrix<f32, M, N>,
     matrix_b: &Matrix<f32, N, P>,
@@ -139,6 +171,48 @@ fn mul_vec4_neon_f64_matches_scalar() {
 
     let expected = mul_vec4_scalar_f64(&matrix, &rhs);
     let got = unsafe { neon::mul_vec4_neon_f64(&matrix, &rhs) };
+
+    for i in 0..3 {
+        assert!((got.data[i] - expected.data[i]).abs() < 1.0e-12);
+    }
+}
+
+#[test]
+fn mul_vec6_neon_f32_matches_scalar() {
+    let matrix = Matrix {
+        data: [
+            [1.0_f32, 2.0, 3.0, 4.0, 5.0, 6.0],
+            [-1.5, 0.25, 10.0, -2.0, 3.0, -1.0],
+            [0.0, 0.5, -0.5, 2.0, -3.0, 1.0],
+        ],
+    };
+    let rhs = Vector {
+        data: [2.0_f32, -1.0, 0.5, 4.0, -0.5, 1.5],
+    };
+
+    let expected = mul_vec6_scalar_f32(&matrix, &rhs);
+    let got = unsafe { neon::mul_vec6_neon_f32(&matrix, &rhs) };
+
+    for i in 0..3 {
+        assert!((got.data[i] - expected.data[i]).abs() < 1.0e-5);
+    }
+}
+
+#[test]
+fn mul_vec6_neon_f64_matches_scalar() {
+    let matrix = Matrix {
+        data: [
+            [1.0_f64, 2.0, 3.0, 4.0, 5.0, 6.0],
+            [-1.5, 0.25, 10.0, -2.0, 3.0, -1.0],
+            [0.0, 0.5, -0.5, 2.0, -3.0, 1.0],
+        ],
+    };
+    let rhs = Vector {
+        data: [2.0_f64, -1.0, 0.5, 4.0, -0.5, 1.5],
+    };
+
+    let expected = mul_vec6_scalar_f64(&matrix, &rhs);
+    let got = unsafe { neon::mul_vec6_neon_f64(&matrix, &rhs) };
 
     for i in 0..3 {
         assert!((got.data[i] - expected.data[i]).abs() < 1.0e-12);

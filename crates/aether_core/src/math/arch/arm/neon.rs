@@ -61,6 +61,50 @@ pub unsafe fn mul_vec4_neon_f64<const M: usize>(
 }
 
 #[target_feature(enable = "neon")]
+pub unsafe fn mul_vec6_neon_f32<const M: usize>(
+    matrix: &Matrix<f32, M, 6>,
+    rhs: &Vector<f32, 6>,
+) -> Vector<f32, M> {
+    let mut out = Vector { data: [0.0; M] };
+    let v0123 = unsafe { vld1q_f32(rhs.data.as_ptr()) };
+    let v45xx = [rhs.data[4], rhs.data[5], 0.0_f32, 0.0_f32];
+    let v45xx_vec = unsafe { vld1q_f32(v45xx.as_ptr()) };
+
+    for i in 0..M {
+        let r0123 = unsafe { vld1q_f32(matrix.data[i].as_ptr()) };
+        let r45xx = [matrix.data[i][4], matrix.data[i][5], 0.0_f32, 0.0_f32];
+        let r45xx_vec = unsafe { vld1q_f32(r45xx.as_ptr()) };
+        out.data[i] = vaddvq_f32(vmulq_f32(r0123, v0123)) + vaddvq_f32(vmulq_f32(r45xx_vec, v45xx_vec));
+    }
+
+    out
+}
+
+#[target_feature(enable = "neon")]
+pub unsafe fn mul_vec6_neon_f64<const M: usize>(
+    matrix: &Matrix<f64, M, 6>,
+    rhs: &Vector<f64, 6>,
+) -> Vector<f64, M> {
+    let mut out = Vector { data: [0.0; M] };
+
+    let v01 = unsafe { vld1q_f64(rhs.data.as_ptr()) };
+    let v23 = unsafe { vld1q_f64(rhs.data.as_ptr().add(2)) };
+    let v45 = unsafe { vld1q_f64(rhs.data.as_ptr().add(4)) };
+
+    for i in 0..M {
+        let r01 = unsafe { vld1q_f64(matrix.data[i].as_ptr()) };
+        let r23 = unsafe { vld1q_f64(matrix.data[i].as_ptr().add(2)) };
+        let r45 = unsafe { vld1q_f64(matrix.data[i].as_ptr().add(4)) };
+
+        out.data[i] = vaddvq_f64(vmulq_f64(r01, v01))
+            + vaddvq_f64(vmulq_f64(r23, v23))
+            + vaddvq_f64(vmulq_f64(r45, v45));
+    }
+
+    out
+}
+
+#[target_feature(enable = "neon")]
 pub unsafe fn mul_matrix_neon_f32<const M: usize, const N: usize, const P: usize>(
     lhs: &Matrix<f32, M, N>,
     rhs: &Matrix<f32, N, P>,

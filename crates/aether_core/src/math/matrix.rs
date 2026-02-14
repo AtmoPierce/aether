@@ -239,6 +239,11 @@ impl<T: Real, const N: usize> Matrix<T, N, N> {
 impl<const M: usize> Matrix<f64, M, 6> {
     #[inline(always)]
     pub fn mul_vec6_simd(&self, rhs: &Vector<f64, 6>) -> Vector<f64, M> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_vec6_neon_f64(self, rhs);
+        }
+
         #[cfg(all(
             feature = "simd",
             feature = "fma",
@@ -428,6 +433,11 @@ impl<const M: usize> Matrix<f64, M, 4> {
 impl<const M: usize> Matrix<f32, M, 6> {
     #[inline(always)]
     pub fn mul_vec6_simd(&self, rhs: &Vector<f32, 6>) -> Vector<f32, M> {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::mul_vec6_neon_f32(self, rhs);
+        }
+
         #[cfg(all(
             feature = "simd",
             feature = "fma",
