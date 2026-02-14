@@ -10,6 +10,23 @@ pub trait MatrixAlgorithms<T: Real, const M: usize, const N: usize> {
 impl<T: Real, const M: usize, const N: usize> MatrixAlgorithms<T, M, N> for Matrix<T, M, N> {
     #[inline(always)]
     fn mul_matrix_strided<const P: usize>(&self, rhs: &Matrix<T, N, P>) -> Matrix<T, M, P> {
+        if M <= 8 && N <= 8 && P <= 8 {
+            let mut result = Matrix {
+                data: [[T::ZERO; P]; M],
+            };
+
+            for i in 0..M {
+                for k in 0..N {
+                    let a = self.data[i][k];
+                    for j in 0..P {
+                        result.data[i][j] = result.data[i][j] + a * rhs.data[k][j];
+                    }
+                }
+            }
+
+            return result;
+        }
+
         const BLOCK: usize = 16;
 
         let mut result = Matrix {
