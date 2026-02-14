@@ -1,4 +1,6 @@
 pub mod macros;
+pub mod algorithms;
+pub mod arch;
 pub mod matrix;
 pub mod vector;
 pub mod tensor;

@@ -333,7 +333,7 @@ impl<T: Real, RF> IntoIterator for Cartesian<T, RF> {
     type Item = T;
     type IntoIter = <Vector<T, 3> as IntoIterator>::IntoIter;
     #[inline]
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self) -> <Vector<T, 3> as IntoIterator>::IntoIter {
         self.data.into_iter()
     }
 }
@@ -343,7 +343,7 @@ impl<'a, T: Real, RF> IntoIterator for &'a Cartesian<T, RF> {
     type Item = &'a T;
     type IntoIter = <&'a Vector<T, 3> as IntoIterator>::IntoIter;
     #[inline]
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self) -> <&'a Vector<T, 3> as IntoIterator>::IntoIter {
         (&self.data).into_iter()
     }
 }
@@ -353,7 +353,7 @@ impl<'a, T: Real, RF> IntoIterator for &'a mut Cartesian<T, RF> {
     type Item = &'a mut T;
     type IntoIter = <&'a mut Vector<T, 3> as IntoIterator>::IntoIter;
     #[inline]
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self) -> <&'a mut Vector<T, 3> as IntoIterator>::IntoIter {
         (&mut self.data).into_iter()
     }
 }

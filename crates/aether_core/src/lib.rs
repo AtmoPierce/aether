@@ -1,5 +1,6 @@
 #![cfg_attr(feature = "f16", feature(f16))]
 #![cfg_attr(feature = "f128", feature(f128))]
+#![cfg_attr(all(feature = "no_std", not(feature = "std")), no_std)]
 
 pub mod attitude;
 pub mod coordinate;

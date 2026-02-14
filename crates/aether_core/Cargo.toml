@@ -11,40 +11,27 @@ bincode = ["dep:bincode"]
 serde = ["dep:serde", "dep:serde-json-core"]
 serde-json-core = ["dep:serde-json-core"]
 std = []
-no_std = []
+no_std = ["dep:libm"]
 f16 = []
 f128 = []
+simd = []
+fma = []
 
 [lib]
-crate-type=["rlib", "staticlib", "cdylib"]
+crate-type=["rlib"]
 
-[profile.dev]
-opt-level = 1
-overflow-checks = true
-
-[profile.release]
-opt-level = "s"
-debug = false
-strip = "none"
-debug-assertions = false
-overflow-checks = false
-lto = false
-panic = 'unwind'
-incremental = false
-codegen-units = 16
-rpath = false
-
-[profile.release.build-override]
-opt-level = "s"
-codegen-units = 256
+[[bin]]
+name = "aether_core"
+path = "src/main.rs"
+required-features = ["std"]
 
 [dependencies]
-num-traits = "0.2"
-rustyline = { version = "13", optional=true}
-regex = { version = "1", optional=true}
-serde = { version = "1.0", default-features=false, features = ["derive"], optional=true}
-bincode = { version = "2.0.1", optional=true }
-serde-json-core = {version = "0.6.0", optional=true}
+rustyline = { workspace = true, optional=true}
+regex = { workspace = true, optional=true}
+serde = { workspace = true, optional=true}
+bincode = { workspace = true, optional=true }
+serde-json-core = { workspace = true, optional=true}
+libm = { workspace = true, optional = true }
 
 [dev-dependencies]
-approx = "0.5"
+approx = { workspace = true }
