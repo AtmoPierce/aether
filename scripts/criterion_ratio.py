@@ -1,0 +1,516 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import re
+from collections import defaultdict
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+CRITERION_DIR = ROOT / "target" / "criterion"
+PATTERN = re.compile(r"^(matmul|matvec|dot)_(\d+)_([a-z0-9_]+)$")
+
+ABSTRACTION_PAIRS: list[tuple[str, str, str]] = [
+    ("cartesian_dot", "cartesian_dot_abstraction", "cartesian_dot_native_vector"),
+    ("cartesian_cross", "cartesian_cross_abstraction", "cartesian_cross_native_vector"),
+    ("dcm_rotate_cartesian", "dcm_rotate_cartesian_abstraction", "dcm_rotate_native_matrix_vector"),
+    ("dcm_compose", "dcm_compose_abstraction", "dcm_compose_native_matrix"),
+    ("quaternion_rotate_cartesian", "quaternion_rotate_cartesian_abstraction", "quaternion_rotate_native_matrix_vector"),
+    ("quaternion_compose", "quaternion_compose_abstraction", "quaternion_compose_native_matrix"),
+]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Compare Criterion benchmark means against nalgebra and optionally generate speedup plots."
+    )
+    parser.add_argument(
+        "--no-plots",
+        action="store_true",
+        help="Disable PNG plot generation.",
+    )
+    parser.add_argument(
+        "--plot-dir",
+        type=Path,
+        default=CRITERION_DIR / "plots",
+        help="Directory where plot PNG files are written.",
+    )
+    return parser.parse_args()
+
+
+def load_means() -> dict[tuple[str, int, str], float]:
+    means: dict[tuple[str, int, str], float] = {}
+
+    if not CRITERION_DIR.exists():
+        return means
+
+    for estimates_file in CRITERION_DIR.glob("*/new/estimates.json"):
+        bench_name = estimates_file.parent.parent.name
+        match = PATTERN.match(bench_name)
+        if not match:
+            continue
+
+        op, n_str, impl = match.groups()
+        with estimates_file.open("r", encoding="utf-8") as handle:
+            estimates = json.load(handle)
+
+        mean_ns = float(estimates["mean"]["point_estimate"])
+        means[(op, int(n_str), impl)] = mean_ns
+
+    return means
+
+
+def load_named_means() -> dict[str, float]:
+    means: dict[str, float] = {}
+
+    if not CRITERION_DIR.exists():
+        return means
+
+    for estimates_file in CRITERION_DIR.glob("*/new/estimates.json"):
+        bench_name = estimates_file.parent.parent.name
+        with estimates_file.open("r", encoding="utf-8") as handle:
+            estimates = json.load(handle)
+        means[bench_name] = float(estimates["mean"]["point_estimate"])
+
+    return means
+
+
+def format_ns(value: float) -> str:
+    if value >= 1_000_000_000.0:
+        return f"{value / 1_000_000_000.0:.3f} s"
+    if value >= 1_000_000.0:
+        return f"{value / 1_000_000.0:.3f} ms"
+    if value >= 1_000.0:
+        return f"{value / 1_000.0:.3f} µs"
+    return f"{value:.3f} ns"
+
+
+def collect_rows(means: dict[tuple[str, int, str], float]) -> list[dict[str, object]]:
+    keys = sorted({(op, n) for (op, n, _impl) in means})
+    rows: list[dict[str, object]] = []
+
+    for op, n in keys:
+        baselines = {
+            "f64": means.get((op, n, "nalgebra")),
+            "f32": means.get((op, n, "nalgebra_f32")),
+        }
+
+        for dtype, nalgebra in baselines.items():
+            if nalgebra is None:
+                continue
+
+            if dtype == "f64":
+                impls = sorted(
+                    impl
+                    for (op_k, n_k, impl) in means
+                    if op_k == op and n_k == n and impl != "nalgebra" and not impl.endswith("_f32")
+                )
+            else:
+                impls = sorted(
+                    impl
+                    for (op_k, n_k, impl) in means
+                    if op_k == op and n_k == n and impl != "nalgebra_f32" and impl.endswith("_f32")
+                )
+
+            for impl in impls:
+                impl_time = means[(op, n, impl)]
+                ratio = impl_time / nalgebra
+                rows.append(
+                    {
+                        "op": op,
+                        "n": n,
+                        "dtype": dtype,
+                        "impl": impl,
+                        "impl_time": impl_time,
+                        "nalgebra_time": nalgebra,
+                        "ratio": ratio,
+                        "delta_pct": (ratio - 1.0) * 100.0,
+                        "speedup": nalgebra / impl_time,
+                    }
+                )
+
+    return rows
+
+
+def collect_abstraction_rows(named_means: dict[str, float]) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for label, abstraction_bench, native_bench in ABSTRACTION_PAIRS:
+        abstraction_time = named_means.get(abstraction_bench)
+        native_time = named_means.get(native_bench)
+        if abstraction_time is None or native_time is None:
+            continue
+
+        ratio = abstraction_time / native_time
+        rows.append(
+            {
+                "label": label,
+                "abstraction_bench": abstraction_bench,
+                "native_bench": native_bench,
+                "abstraction_time": abstraction_time,
+                "native_time": native_time,
+                "ratio": ratio,
+                "delta_pct": (ratio - 1.0) * 100.0,
+                "speedup": native_time / abstraction_time,
+            }
+        )
+
+    return rows
+
+
+def collect_winner_rows(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    grouped: dict[tuple[str, int, str], list[dict[str, object]]] = defaultdict(list)
+    for row in rows:
+        key = (str(row["op"]), int(row["n"]), str(row["dtype"]))
+        grouped[key].append(row)
+
+    winners: list[dict[str, object]] = []
+    for (op, n, dtype), candidates in sorted(grouped.items()):
+        best = min(candidates, key=lambda item: float(item["impl_time"]))
+        ratio = float(best["ratio"])
+
+        if abs(ratio - 1.0) <= 0.005:
+            winner = "Tie"
+        elif ratio < 1.0:
+            winner = "Aether"
+        else:
+            winner = "Nalgebra"
+
+        winners.append(
+            {
+                "op": op,
+                "n": n,
+                "benchmark": f"{op}_{n}",
+                "dtype": dtype,
+                "best_impl": str(best["impl"]),
+                "best_time": float(best["impl_time"]),
+                "nalgebra_time": float(best["nalgebra_time"]),
+                "ratio": ratio,
+                "delta_pct": float(best["delta_pct"]),
+                "winner": winner,
+            }
+        )
+
+    return winners
+
+
+def collect_operation_rows(winner_rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    grouped: dict[tuple[str, str], list[dict[str, object]]] = defaultdict(list)
+    for row in winner_rows:
+        key = (str(row["op"]), str(row["dtype"]))
+        grouped[key].append(row)
+
+    out: list[dict[str, object]] = []
+    for (op, dtype), items in sorted(grouped.items()):
+        impl_counts: dict[str, int] = defaultdict(int)
+        impl_ratio_sums: dict[str, float] = defaultdict(float)
+
+        wins = 0
+        ties = 0
+        losses = 0
+        best_case = min(items, key=lambda item: float(item["ratio"]))
+        worst_case = max(items, key=lambda item: float(item["ratio"]))
+
+        for item in items:
+            impl = str(item["best_impl"])
+            ratio = float(item["ratio"])
+            impl_counts[impl] += 1
+            impl_ratio_sums[impl] += ratio
+
+            if abs(ratio - 1.0) <= 0.005:
+                ties += 1
+            elif ratio < 1.0:
+                wins += 1
+            else:
+                losses += 1
+
+        best_impl = min(
+            impl_counts.keys(),
+            key=lambda impl: (
+                -impl_counts[impl],
+                impl_ratio_sums[impl] / impl_counts[impl],
+                impl,
+            ),
+        )
+
+        avg_ratio = sum(float(item["ratio"]) for item in items) / len(items)
+        out.append(
+            {
+                "op": op,
+                "dtype": dtype,
+                "best_impl": best_impl,
+                "avg_ratio": avg_ratio,
+                "wins": wins,
+                "ties": ties,
+                "losses": losses,
+                "winner": "Aether" if wins > losses else ("Nalgebra" if losses > wins else "Tie"),
+                "best_case_ratio": float(best_case["ratio"]),
+                "best_case_n": int(best_case["n"]),
+                "worst_case_ratio": float(worst_case["ratio"]),
+                "worst_case_n": int(worst_case["n"]),
+            }
+        )
+
+    return out
+
+
+def generate_plots(rows: list[dict[str, object]], plot_dir: Path) -> tuple[int, str | None]:
+    try:
+        import matplotlib.pyplot as plt
+    except Exception:
+        return 0, "matplotlib is not installed (pip install matplotlib)"
+
+    grouped: dict[tuple[str, str], list[dict[str, object]]] = defaultdict(list)
+    for row in rows:
+        grouped[(str(row["op"]), str(row["dtype"]))].append(row)
+
+    def impl_suffix(dtype: str) -> str:
+        return "_f32" if dtype == "f32" else ""
+
+    def pick_present(candidates: list[str], available: set[str]) -> str | None:
+        for name in candidates:
+            if name in available:
+                return name
+        return None
+
+    plot_dir.mkdir(parents=True, exist_ok=True)
+    created = 0
+
+    for (op, dtype), items in grouped.items():
+        impl_to_n_to_time: dict[str, dict[int, float]] = defaultdict(dict)
+        nalgebra_to_n: dict[int, float] = {}
+        nalgebra_name = "nalgebra" if dtype == "f64" else "nalgebra_f32"
+
+        for item in items:
+            n = int(item["n"])
+            impl = str(item["impl"])
+            impl_to_n_to_time[impl][n] = float(item["impl_time"])
+            nalgebra_to_n[n] = float(item["nalgebra_time"])
+
+        if not nalgebra_to_n:
+            continue
+
+        ns = sorted(nalgebra_to_n.keys())
+        all_impls = set(impl_to_n_to_time.keys())
+
+        suffix = impl_suffix(dtype)
+        native_impl = pick_present(
+            [f"native{suffix}", f"scalar{suffix}", f"aether{suffix}", f"aether_fallback{suffix}"],
+            all_impls,
+        )
+        simd_candidates = [f"aether_simd{suffix}", f"simd{suffix}"]
+        if op == "dot":
+            simd_candidates = [f"aether_simd{suffix}", f"simd{suffix}", f"aether{suffix}"]
+        simd_impl = pick_present(simd_candidates, all_impls)
+
+        selected_impls: list[tuple[str, str]] = []
+        if native_impl is not None:
+            selected_impls.append((native_impl, "aether_native"))
+        if simd_impl is not None and simd_impl != native_impl:
+            selected_impls.append((simd_impl, "aether_simd"))
+
+        if not selected_impls:
+            continue
+
+        fig, ax = plt.subplots(figsize=(max(10, len(ns) * 1.4), 5))
+
+        group_width = 0.82
+        bar_labels = [nalgebra_name] + [alias for _, alias in selected_impls]
+        bar_width = group_width / max(1, len(bar_labels))
+        x_positions = list(range(len(ns)))
+
+        for idx, label in enumerate(bar_labels):
+            offset = (idx - (len(bar_labels) - 1) / 2.0) * bar_width
+            xs = [x + offset for x in x_positions]
+
+            if label == nalgebra_name:
+                ys = [nalgebra_to_n[n] for n in ns]
+                color = "#808080"
+            else:
+                source_impl = next(src for src, alias in selected_impls if alias == label)
+                ys = [impl_to_n_to_time[source_impl].get(n, float("nan")) for n in ns]
+                color = None
+
+            ax.bar(xs, ys, width=bar_width * 0.95, label=label, color=color)
+
+        ax.set_title(f"{op} runtime histogram ({dtype}) — lower is better")
+        ax.set_xlabel("Problem size (N)")
+        ax.set_ylabel("Mean time (ns)")
+        ax.set_xticks(x_positions)
+        ax.set_xticklabels([str(n) for n in ns])
+        ax.grid(True, axis="y", alpha=0.25)
+        ax.legend(loc="best")
+
+        out_file = plot_dir / f"{op}_{dtype}_time_hist.png"
+        fig.tight_layout()
+        fig.savefig(out_file, dpi=150)
+        plt.close(fig)
+        created += 1
+
+        # Add an explicit summary view: best Aether implementation vs Nalgebra.
+        best_aether_to_n: dict[int, float] = {}
+        if "aether_baseline" in impl_to_n_to_time:
+            best_aether_to_n = dict(impl_to_n_to_time["aether_baseline"])
+        else:
+            for n in ns:
+                candidates = [
+                    impl_to_n_to_time[impl][n]
+                    for impl, _alias in selected_impls
+                    if n in impl_to_n_to_time[impl]
+                ]
+                if candidates:
+                    best_aether_to_n[n] = min(candidates)
+
+        if best_aether_to_n:
+            ns_best = [n for n in ns if n in best_aether_to_n]
+            fig2, ax2 = plt.subplots(figsize=(max(10, len(ns_best) * 1.25), 5))
+
+            x2 = list(range(len(ns_best)))
+            width2 = 0.36
+            nalgebra_vals = [nalgebra_to_n[n] for n in ns_best]
+            aether_vals = [best_aether_to_n[n] for n in ns_best]
+
+            ax2.bar([x - width2 / 2 for x in x2], nalgebra_vals, width=width2, label=nalgebra_name, color="#808080")
+            ax2.bar([x + width2 / 2 for x in x2], aether_vals, width=width2, label="aether_best")
+
+            ax2.set_title(f"{op} runtime ({dtype}) — aether best vs nalgebra (lower is better)")
+            ax2.set_xlabel("Problem size (N)")
+            ax2.set_ylabel("Mean time (ns)")
+            ax2.set_xticks(x2)
+            ax2.set_xticklabels([str(n) for n in ns_best])
+            ax2.grid(True, axis="y", alpha=0.25)
+            ax2.legend(loc="best")
+
+            out_file2 = plot_dir / f"{op}_{dtype}_aether_vs_nalgebra_time.png"
+            fig2.tight_layout()
+            fig2.savefig(out_file2, dpi=150)
+            plt.close(fig2)
+            created += 1
+
+    return created, None
+
+
+def generate_abstraction_plot(rows: list[dict[str, object]], plot_dir: Path) -> tuple[int, str | None]:
+    try:
+        import matplotlib.pyplot as plt
+    except Exception:
+        return 0, "matplotlib is not installed (pip install matplotlib)"
+
+    if not rows:
+        return 0, None
+
+    plot_dir.mkdir(parents=True, exist_ok=True)
+
+    labels = [str(row["label"]) for row in rows]
+    ratios = [float(row["ratio"]) for row in rows]
+
+    fig, ax = plt.subplots(figsize=(max(10, len(labels) * 1.35), 5))
+    x = list(range(len(labels)))
+    bars = ax.bar(x, ratios)
+
+    ax.axhline(1.0, color="#808080", linestyle="--", linewidth=1.0)
+    ax.set_title("Abstraction overhead vs native baseline (f64) — lower is better")
+    ax.set_xlabel("Benchmark pair")
+    ax.set_ylabel("Abstraction / Native ratio")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=20, ha="right")
+    ax.grid(True, axis="y", alpha=0.25)
+
+    for idx, bar in enumerate(bars):
+        val = ratios[idx]
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height(),
+            f"{val:.3f}x",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+        )
+
+    out_file = plot_dir / "abstraction_overhead_f64.png"
+    fig.tight_layout()
+    fig.savefig(out_file, dpi=150)
+    plt.close(fig)
+
+    return 1, None
+
+
+def main() -> int:
+    args = parse_args()
+    means = load_means()
+    named_means = load_named_means()
+    if not means and not named_means:
+        print("No matching Criterion results found in target/criterion.")
+        print("Run: cargo bench -p aether --bench throughput")
+        return 1
+
+    rows = collect_rows(means)
+    winner_rows = collect_winner_rows(rows)
+    operation_rows = collect_operation_rows(winner_rows)
+    abstraction_rows = collect_abstraction_rows(named_means)
+
+    if winner_rows:
+        print("Aether best vs Nalgebra (mean time)")
+        print("-" * 96)
+        print(f"{'Benchmark':<20} {'Type':<6} {'Best Impl':<16} {'Best Time':>14} {'Nalgebra':>14} {'Ratio':>10} {'Winner':>10}")
+        print("-" * 96)
+        for row in winner_rows:
+            print(
+                f"{row['benchmark']:<20} {row['dtype']:<6} {row['best_impl']:<16} {format_ns(float(row['best_time'])):>14} {format_ns(float(row['nalgebra_time'])):>14} {float(row['ratio']):>10.3f}x {str(row['winner']):>10}"
+            )
+
+    if operation_rows:
+        print("\nOperation setup summary")
+        print("-" * 120)
+        print(
+            f"{'Operation':<10} {'Type':<6} {'Best Aether Impl':<18} {'Avg Ratio':>10} {'W/T/L':>9} {'Winner':>10} {'Best Case':>16} {'Worst Case':>16}"
+        )
+        print("-" * 120)
+        for row in operation_rows:
+            best_case = f"{float(row['best_case_ratio']):.3f}x @N={int(row['best_case_n'])}"
+            worst_case = f"{float(row['worst_case_ratio']):.3f}x @N={int(row['worst_case_n'])}"
+            wtl = f"{int(row['wins'])}/{int(row['ties'])}/{int(row['losses'])}"
+            print(
+                f"{str(row['op']):<10} {str(row['dtype']):<6} {str(row['best_impl']):<18} {float(row['avg_ratio']):>10.3f}x {wtl:>9} {str(row['winner']):>10} {best_case:>16} {worst_case:>16}"
+            )
+
+    if abstraction_rows:
+        print("\nAbstraction overhead vs native baseline")
+        print("-" * 96)
+        print(f"{'Benchmark':<30} {'Abstraction':>14} {'Native':>14} {'Ratio':>10} {'Delta':>12}")
+        print("-" * 96)
+        for row in abstraction_rows:
+            print(
+                f"{str(row['label']):<30} {format_ns(float(row['abstraction_time'])):>14} {format_ns(float(row['native_time'])):>14} {float(row['ratio']):>10.3f}x {float(row['delta_pct']):>+11.2f}%"
+            )
+
+    if not rows and not abstraction_rows:
+        print("No paired implementation/Nalgebra benchmarks were found.")
+        print("Expected names like: matvec_1000_basic + matvec_1000_nalgebra (or *_f32 variants)")
+        print("Or named abstraction pairs like: cartesian_dot_abstraction + cartesian_dot_native_vector")
+        return 1
+
+    if not args.no_plots:
+        created_total = 0
+        plot_warnings: list[str] = []
+
+        created, warning = generate_plots(rows, args.plot_dir)
+        created_total += created
+        if warning is not None:
+            plot_warnings.append(warning)
+
+        created, warning = generate_abstraction_plot(abstraction_rows, args.plot_dir)
+        created_total += created
+        if warning is not None:
+            plot_warnings.append(warning)
+
+        if plot_warnings:
+            print("\nPlot generation warnings:")
+            for warning in plot_warnings:
+                print(f"- {warning}")
+
+        print(f"\nWrote {created_total} plot(s) to: {args.plot_dir}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

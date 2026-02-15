@@ -53,3 +53,17 @@ no_std = [
 regex = ["aether_core/regex"]
 rustyline = ["aether_core/rustyline"]
 serde-json-core = ["aether_core/serde-json-core"]
+simd = ["aether_core/simd"]
+fma = ["aether_core/fma"]
+
+[dev-dependencies]
+criterion = { workspace = true }
+nalgebra = { workspace = true }
+
+[[bench]]
+name = "throughput"
+harness = false
+
+[[bench]]
+name = "precision"
+harness = false

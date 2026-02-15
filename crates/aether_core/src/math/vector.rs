@@ -1,6 +1,13 @@
 use crate::utils::{ToDegrees, ToRadians};
 use crate::math::Matrix;
 use crate::real::Real;
+use super::algorithms::VectorAlgorithms;
+#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
+use super::arch::x86::vector_simd;
+#[cfg(all(feature = "simd", target_arch = "aarch64"))]
+use super::arch::arm::neon as arm_neon;
+#[cfg(all(feature = "simd", target_arch = "arm"))]
+use super::arch::arm::m33_dsp;
 
 use core::array::IntoIter as ArrayIntoIter;
 use core::iter::FromIterator;
@@ -83,6 +90,15 @@ impl<T: AddAssign + Copy, const N: usize> AddAssign for Vector<T, N> {
     }
 }
 
+// AddAssign: Vector += &Vector
+impl<T: AddAssign + Copy, const N: usize> AddAssign<&Vector<T, N>> for Vector<T, N> {
+    fn add_assign(&mut self, rhs: &Vector<T, N>) {
+        for i in 0..N {
+            self.data[i] += rhs.data[i];
+        }
+    }
+}
+
 /* -------------------- Sub -------------------- */
 
 // Vector - Vector
@@ -128,6 +144,15 @@ impl<'a, T: Sub<Output = T> + Copy, const N: usize> Sub<Vector<T, N>> for &'a Ve
 // SubAssign: Vector -= Vector
 impl<T: SubAssign + Copy, const N: usize> SubAssign for Vector<T, N> {
     fn sub_assign(&mut self, rhs: Self) {
+        for i in 0..N {
+            self.data[i] -= rhs.data[i];
+        }
+    }
+}
+
+// SubAssign: Vector -= &Vector
+impl<T: SubAssign + Copy, const N: usize> SubAssign<&Vector<T, N>> for Vector<T, N> {
+    fn sub_assign(&mut self, rhs: &Vector<T, N>) {
         for i in 0..N {
             self.data[i] -= rhs.data[i];
         }
@@ -208,6 +233,40 @@ impl<'a, T: Real, const N: usize> Div<T> for &'a Vector<T, N> {
     }
 }
 
+/* -------------------- Dot as operator -------------------- */
+
+impl<T: Real, const N: usize> Mul<&Vector<T, N>> for &Vector<T, N> {
+    type Output = T;
+
+    fn mul(self, rhs: &Vector<T, N>) -> Self::Output {
+        self.dot(rhs)
+    }
+}
+
+impl<T: Real, const N: usize> Mul<&Vector<T, N>> for Vector<T, N> {
+    type Output = T;
+
+    fn mul(self, rhs: &Vector<T, N>) -> Self::Output {
+        (&self) * rhs
+    }
+}
+
+impl<T: Real, const N: usize> Mul<Vector<T, N>> for &Vector<T, N> {
+    type Output = T;
+
+    fn mul(self, rhs: Vector<T, N>) -> Self::Output {
+        self * (&rhs)
+    }
+}
+
+impl<T: Real, const N: usize> Mul<Vector<T, N>> for Vector<T, N> {
+    type Output = T;
+
+    fn mul(self, rhs: Vector<T, N>) -> Self::Output {
+        (&self) * (&rhs)
+    }
+}
+
 /* -------------------- Norms, dot, angles -------------------- */
 
 impl<T, const N: usize> Vector<T, N>
@@ -215,19 +274,11 @@ where
     T: Real,
 {
     pub fn dot(&self, rhs: &Self) -> T {
-        let mut acc = T::ZERO;
-        for i in 0..N {
-            acc = acc + self.data[i] * rhs.data[i];
-        }
-        acc
+        <Self as VectorAlgorithms<T, N>>::dot_generic(self, rhs)
     }
 
     pub fn norm(&self) -> T {
-        let mut acc = T::ZERO;
-        for &x in &self.data {
-            acc = acc + x * x;
-        }
-        acc.sqrt()
+        <Self as VectorAlgorithms<T, N>>::norm_generic(self)
     }
 
     pub fn normalize(&self) -> Self {
@@ -268,6 +319,178 @@ where
             }
             cos_theta.acos()
         }
+    }
+}
+
+impl Vector<f64, 4> {
+    #[inline(always)]
+    pub fn dot4_simd(&self, rhs: &Self) -> f64 {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::dot4_neon_f64(self, rhs);
+        }
+
+        #[cfg(all(feature = "simd", target_arch = "arm", target_feature = "dsp"))]
+        {
+            return m33_dsp::dot4_m33_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            type Kernel = fn(&Vector<f64, 4>, &Vector<f64, 4>) -> f64;
+            static KERNEL: std::sync::OnceLock<Kernel> = std::sync::OnceLock::new();
+
+            let kernel = KERNEL.get_or_init(|| {
+                #[cfg(feature = "fma")]
+                {
+                    if std::is_x86_feature_detected!("avx") && std::is_x86_feature_detected!("fma") {
+                        return Self::dot4_avx_fma_kernel;
+                    }
+                }
+
+                if std::is_x86_feature_detected!("avx") {
+                    return Self::dot4_avx_kernel;
+                }
+
+                Self::dot4_scalar_kernel
+            });
+
+            return kernel(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx",
+            target_feature = "fma"
+        ))]
+        unsafe {
+            return vector_simd::dot4_avx_fma_f64(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "avx"
+        ))]
+        unsafe {
+            return vector_simd::dot4_avx_f64(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.dot(rhs)
+        }
+    }
+
+    #[inline(always)]
+    fn dot4_scalar_kernel(a: &Vector<f64, 4>, b: &Vector<f64, 4>) -> f64 {
+        a.dot(b)
+    }
+
+    #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
+    #[inline(always)]
+    fn dot4_avx_kernel(a: &Vector<f64, 4>, b: &Vector<f64, 4>) -> f64 {
+        unsafe { vector_simd::dot4_avx_f64(a, b) }
+    }
+
+    #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64"), feature = "fma"))]
+    #[inline(always)]
+    fn dot4_avx_fma_kernel(a: &Vector<f64, 4>, b: &Vector<f64, 4>) -> f64 {
+        unsafe { vector_simd::dot4_avx_fma_f64(a, b) }
+    }
+}
+
+impl Vector<f32, 4> {
+    #[inline(always)]
+    pub fn dot4_simd(&self, rhs: &Self) -> f32 {
+        #[cfg(all(feature = "simd", target_arch = "aarch64"))]
+        unsafe {
+            return arm_neon::dot4_neon_f32(self, rhs);
+        }
+
+        #[cfg(all(feature = "simd", target_arch = "arm", target_feature = "dsp"))]
+        {
+            return m33_dsp::dot4_m33_f32(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "std",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            type Kernel = fn(&Vector<f32, 4>, &Vector<f32, 4>) -> f32;
+            static KERNEL: std::sync::OnceLock<Kernel> = std::sync::OnceLock::new();
+
+            let kernel = KERNEL.get_or_init(|| {
+                #[cfg(feature = "fma")]
+                {
+                    if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse") {
+                        return Self::dot4_sse_fma_kernel;
+                    }
+                }
+
+                if std::is_x86_feature_detected!("sse") {
+                    return Self::dot4_sse_kernel;
+                }
+
+                Self::dot4_scalar_kernel
+            });
+
+            return kernel(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            feature = "fma",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "sse",
+            target_feature = "fma"
+        ))]
+        unsafe {
+            return vector_simd::dot4_sse_fma_f32(self, rhs);
+        }
+
+        #[cfg(all(
+            feature = "simd",
+            not(feature = "std"),
+            any(target_arch = "x86", target_arch = "x86_64"),
+            target_feature = "sse"
+        ))]
+        unsafe {
+            return vector_simd::dot4_sse_f32(self, rhs);
+        }
+
+        #[allow(unreachable_code)]
+        {
+            self.dot(rhs)
+        }
+    }
+
+    #[inline(always)]
+    fn dot4_scalar_kernel(a: &Vector<f32, 4>, b: &Vector<f32, 4>) -> f32 {
+        a.dot(b)
+    }
+
+    #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
+    #[inline(always)]
+    fn dot4_sse_kernel(a: &Vector<f32, 4>, b: &Vector<f32, 4>) -> f32 {
+        unsafe { vector_simd::dot4_sse_f32(a, b) }
+    }
+
+    #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64"), feature = "fma"))]
+    #[inline(always)]
+    fn dot4_sse_fma_kernel(a: &Vector<f32, 4>, b: &Vector<f32, 4>) -> f32 {
+        unsafe { vector_simd::dot4_sse_fma_f32(a, b) }
     }
 }
 
@@ -397,7 +620,7 @@ impl<T, const N: usize> IntoIterator for Vector<T, N> {
     type Item = T;
     type IntoIter = ArrayIntoIter<T, N>;
     #[inline]
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self) -> ArrayIntoIter<T, N> {
         self.data.into_iter()
     }
 }
@@ -407,7 +630,7 @@ impl<'a, T, const N: usize> IntoIterator for &'a Vector<T, N> {
     type Item = &'a T;
     type IntoIter = Iter<'a, T>;
     #[inline]
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self) -> Iter<'a, T> {
         self.data.iter()
     }
 }
@@ -417,7 +640,7 @@ impl<'a, T, const N: usize> IntoIterator for &'a mut Vector<T, N> {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
     #[inline]
-    fn into_iter(self) -> Self::IntoIter {
+    fn into_iter(self) -> IterMut<'a, T> {
         self.data.iter_mut()
     }
 }

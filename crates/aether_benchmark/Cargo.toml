@@ -14,5 +14,5 @@ std = []
 no_std = []
 
 [dependencies]
-minstant = "0.1.7"
-once_cell = "1"
+minstant = { workspace = true }
+once_cell = { workspace = true }

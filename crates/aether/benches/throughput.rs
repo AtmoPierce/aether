@@ -1,0 +1,425 @@
+use aether_core::attitude::{DirectionCosineMatrix, Euler, Quaternion};
+use aether_core::coordinate::Cartesian;
+use aether_core::math::{Matrix, Vector};
+use aether_core::reference_frame::Unknown;
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use nalgebra::{SMatrix, SVector};
+
+fn aether_matmul<const N: usize>(a: &Matrix<f64, N, N>, b: &Matrix<f64, N, N>) -> Matrix<f64, N, N> {
+    a * b
+}
+
+fn aether_matmul_simd<const N: usize>(a: &Matrix<f64, N, N>, b: &Matrix<f64, N, N>) -> Matrix<f64, N, N> {
+    a.mul_matrix_simd(b)
+}
+
+fn aether_matmul_f32<const N: usize>(a: &Matrix<f32, N, N>, b: &Matrix<f32, N, N>) -> Matrix<f32, N, N> {
+    a * b
+}
+
+fn aether_matmul_simd_f32<const N: usize>(a: &Matrix<f32, N, N>, b: &Matrix<f32, N, N>) -> Matrix<f32, N, N> {
+    a.mul_matrix_simd(b)
+}
+
+fn nalgebra_matmul<const N: usize>(a: &SMatrix<f64, N, N>, b: &SMatrix<f64, N, N>) -> SMatrix<f64, N, N> {
+    a * b
+}
+
+fn nalgebra_matmul_f32<const N: usize>(a: &SMatrix<f32, N, N>, b: &SMatrix<f32, N, N>) -> SMatrix<f32, N, N> {
+    a * b
+}
+
+fn aether_matvec<const N: usize>(a: &Matrix<f64, N, N>, v: &Vector<f64, N>) -> [f64; N] {
+    let out = a * v;
+    out.data
+}
+
+fn aether_matvec_f32<const N: usize>(a: &Matrix<f32, N, N>, v: &Vector<f32, N>) -> [f32; N] {
+    let out = a * v;
+    out.data
+}
+
+fn aether_matvec6_simd(a: &Matrix<f64, 6, 6>, v: &Vector<f64, 6>) -> [f64; 6] {
+    a.mul_vec6_simd(v).data
+}
+
+fn aether_matvec4_simd(a: &Matrix<f64, 4, 4>, v: &Vector<f64, 4>) -> [f64; 4] {
+    a.mul_vec4_simd(v).data
+}
+
+fn aether_matvec6_simd_f32(a: &Matrix<f32, 6, 6>, v: &Vector<f32, 6>) -> [f32; 6] {
+    a.mul_vec6_simd(v).data
+}
+
+fn aether_matvec4_simd_f32(a: &Matrix<f32, 4, 4>, v: &Vector<f32, 4>) -> [f32; 4] {
+    a.mul_vec4_simd(v).data
+}
+
+fn nalgebra_matvec<const N: usize>(a: &SMatrix<f64, N, N>, v: &SVector<f64, N>) -> [f64; N] {
+    let out = a * v;
+    out.as_slice().try_into().unwrap()
+}
+
+fn nalgebra_matvec_f32<const N: usize>(a: &SMatrix<f32, N, N>, v: &SVector<f32, N>) -> [f32; N] {
+    let out = a * v;
+    out.as_slice().try_into().unwrap()
+}
+
+fn aether_dot4_simd(a: &Vector<f64, 4>, b: &Vector<f64, 4>) -> f64 {
+    a.dot4_simd(b)
+}
+
+fn aether_dot4_scalar(a: &Vector<f64, 4>, b: &Vector<f64, 4>) -> f64 {
+    a.dot(b)
+}
+
+fn aether_dot4_simd_f32(a: &Vector<f32, 4>, b: &Vector<f32, 4>) -> f32 {
+    a.dot4_simd(b)
+}
+
+fn aether_dot4_scalar_f32(a: &Vector<f32, 4>, b: &Vector<f32, 4>) -> f32 {
+    a.dot(b)
+}
+
+fn nalgebra_dot4(a: &SVector<f64, 4>, b: &SVector<f64, 4>) -> f64 {
+    a.dot(b)
+}
+
+fn nalgebra_dot4_f32(a: &SVector<f32, 4>, b: &SVector<f32, 4>) -> f32 {
+    a.dot(b)
+}
+
+fn native_vec3_dot(a: &Vector<f64, 3>, b: &Vector<f64, 3>) -> f64 {
+    a.dot(b)
+}
+
+fn native_vec3_cross(a: &Vector<f64, 3>, b: &Vector<f64, 3>) -> Vector<f64, 3> {
+    a.cross(b)
+}
+
+fn native_mat3_vec3(m: &Matrix<f64, 3, 3>, v: &Vector<f64, 3>) -> Vector<f64, 3> {
+    m * v
+}
+
+fn native_mat3_mul(a: &Matrix<f64, 3, 3>, b: &Matrix<f64, 3, 3>) -> Matrix<f64, 3, 3> {
+    a * b
+}
+
+fn native_mat3_mul_owned(a: Matrix<f64, 3, 3>, b: Matrix<f64, 3, 3>) -> Matrix<f64, 3, 3> {
+    a * b
+}
+
+fn native_quat_rotate_vector_equivalent(
+    q: &Quaternion<f64, Unknown, Unknown>,
+    v_from: &Vector<f64, 3>,
+) -> Vector<f64, 3> {
+    let qn = q.normalized();
+    let qc = qn.conjugate();
+
+    let px = v_from[0];
+    let py = v_from[1];
+    let pz = v_from[2];
+
+    let aw = -(qc.i() * px + qc.j() * py + qc.k() * pz);
+    let ax = qc.w() * px + qc.j() * pz - qc.k() * py;
+    let ay = qc.w() * py + qc.k() * px - qc.i() * pz;
+    let az = qc.w() * pz + qc.i() * py - qc.j() * px;
+
+    Vector::new([
+        aw * qn.i() + ax * qn.w() + ay * qn.k() - az * qn.j(),
+        aw * qn.j() - ax * qn.k() + ay * qn.w() + az * qn.i(),
+        aw * qn.k() + ax * qn.j() - ay * qn.i() + az * qn.w(),
+    ])
+}
+
+
+fn bench_matmul<const N: usize>(c: &mut Criterion) {
+    let aether_a = Matrix::new([[1.001_f64; N]; N]);
+    let aether_b = Matrix::new([[0.999_f64; N]; N]);
+    let na_a = SMatrix::<f64, N, N>::from_element(1.001_f64);
+    let na_b = SMatrix::<f64, N, N>::from_element(0.999_f64);
+
+    c.bench_function(&format!("matmul_{}_aether", N), |b| {
+        b.iter(|| aether_matmul::<N>(black_box(&aether_a), black_box(&aether_b)))
+    });
+
+    c.bench_function(&format!("matmul_{}_aether_simd", N), |b| {
+        b.iter(|| aether_matmul_simd::<N>(black_box(&aether_a), black_box(&aether_b)))
+    });
+
+    c.bench_function(&format!("matmul_{}_nalgebra", N), |b| {
+        b.iter(|| nalgebra_matmul::<N>(black_box(&na_a), black_box(&na_b)))
+    });
+}
+
+fn bench_matmul_f32<const N: usize>(c: &mut Criterion) {
+    let aether_a = Matrix::new([[1.001_f32; N]; N]);
+    let aether_b = Matrix::new([[0.999_f32; N]; N]);
+    let na_a = SMatrix::<f32, N, N>::from_element(1.001_f32);
+    let na_b = SMatrix::<f32, N, N>::from_element(0.999_f32);
+
+    c.bench_function(&format!("matmul_{}_aether_f32", N), |b| {
+        b.iter(|| aether_matmul_f32::<N>(black_box(&aether_a), black_box(&aether_b)))
+    });
+
+    c.bench_function(&format!("matmul_{}_aether_simd_f32", N), |b| {
+        b.iter(|| aether_matmul_simd_f32::<N>(black_box(&aether_a), black_box(&aether_b)))
+    });
+
+    c.bench_function(&format!("matmul_{}_nalgebra_f32", N), |b| {
+        b.iter(|| nalgebra_matmul_f32::<N>(black_box(&na_a), black_box(&na_b)))
+    });
+}
+
+fn bench_matvec<const N: usize>(c: &mut Criterion) {
+    let aether_a = Matrix::new([[1.001_f64; N]; N]);
+    let na_a = SMatrix::<f64, N, N>::from_element(1.001_f64);
+    let aether_v = Vector::new([0.999_f64; N]);
+    let na_v = SVector::<f64, N>::from_element(0.999_f64);
+
+    c.bench_function(&format!("matvec_{}_aether", N), |b| {
+        b.iter(|| aether_matvec::<N>(black_box(&aether_a), black_box(&aether_v)))
+    });
+
+    c.bench_function(&format!("matvec_{}_nalgebra", N), |b| {
+        b.iter(|| nalgebra_matvec::<N>(black_box(&na_a), black_box(&na_v)))
+    });
+}
+
+fn bench_matvec_f32<const N: usize>(c: &mut Criterion) {
+    let aether_a = Matrix::new([[1.001_f32; N]; N]);
+    let na_a = SMatrix::<f32, N, N>::from_element(1.001_f32);
+    let aether_v = Vector::new([0.999_f32; N]);
+    let na_v = SVector::<f32, N>::from_element(0.999_f32);
+
+    c.bench_function(&format!("matvec_{}_aether_f32", N), |b| {
+        b.iter(|| aether_matvec_f32::<N>(black_box(&aether_a), black_box(&aether_v)))
+    });
+
+    c.bench_function(&format!("matvec_{}_nalgebra_f32", N), |b| {
+        b.iter(|| nalgebra_matvec_f32::<N>(black_box(&na_a), black_box(&na_v)))
+    });
+}
+
+fn bench_matvec_6(c: &mut Criterion) {
+    let aether_a = Matrix::new([[1.001_f64; 6]; 6]);
+    let na_a = SMatrix::<f64, 6, 6>::from_element(1.001_f64);
+    let aether_v = Vector::new([0.999_f64; 6]);
+    let na_v = SVector::<f64, 6>::from_element(0.999_f64);
+
+    c.bench_function("matvec_6_aether", |b| {
+        b.iter(|| aether_matvec6_simd(black_box(&aether_a), black_box(&aether_v)))
+    });
+
+    c.bench_function("matvec_6_nalgebra", |b| {
+        b.iter(|| nalgebra_matvec::<6>(black_box(&na_a), black_box(&na_v)))
+    });
+}
+
+fn bench_matvec_4(c: &mut Criterion) {
+    let aether_a = Matrix::new([[1.001_f64; 4]; 4]);
+    let na_a = SMatrix::<f64, 4, 4>::from_element(1.001_f64);
+    let aether_v = Vector::new([0.999_f64; 4]);
+    let na_v = SVector::<f64, 4>::from_element(0.999_f64);
+
+    c.bench_function("matvec_4_aether", |b| {
+        b.iter(|| aether_matvec4_simd(black_box(&aether_a), black_box(&aether_v)))
+    });
+
+    c.bench_function("matvec_4_nalgebra", |b| {
+        b.iter(|| nalgebra_matvec::<4>(black_box(&na_a), black_box(&na_v)))
+    });
+}
+
+fn bench_matvec_4_f32(c: &mut Criterion) {
+    let aether_a = Matrix::new([[1.001_f32; 4]; 4]);
+    let na_a = SMatrix::<f32, 4, 4>::from_element(1.001_f32);
+    let aether_v = Vector::new([0.999_f32; 4]);
+    let na_v = SVector::<f32, 4>::from_element(0.999_f32);
+
+    c.bench_function("matvec_4_aether_f32", |b| {
+        b.iter(|| aether_matvec4_simd_f32(black_box(&aether_a), black_box(&aether_v)))
+    });
+
+    c.bench_function("matvec_4_nalgebra_f32", |b| {
+        b.iter(|| nalgebra_matvec_f32::<4>(black_box(&na_a), black_box(&na_v)))
+    });
+}
+
+fn bench_dot_4(c: &mut Criterion) {
+    let aether_a = Vector::new([1.001_f64; 4]);
+    let aether_b = Vector::new([0.999_f64; 4]);
+    let na_a = SVector::<f64, 4>::from_element(1.001_f64);
+    let na_b = SVector::<f64, 4>::from_element(0.999_f64);
+
+    c.bench_function("dot_4_aether", |b| {
+        b.iter(|| aether_dot4_simd(black_box(&aether_a), black_box(&aether_b)))
+    });
+
+    c.bench_function("dot_4_scalar", |b| {
+        b.iter(|| aether_dot4_scalar(black_box(&aether_a), black_box(&aether_b)))
+    });
+
+    c.bench_function("dot_4_nalgebra", |b| {
+        b.iter(|| nalgebra_dot4(black_box(&na_a), black_box(&na_b)))
+    });
+}
+
+fn bench_dot_4_f32(c: &mut Criterion) {
+    let aether_a = Vector::new([1.001_f32; 4]);
+    let aether_b = Vector::new([0.999_f32; 4]);
+    let na_a = SVector::<f32, 4>::from_element(1.001_f32);
+    let na_b = SVector::<f32, 4>::from_element(0.999_f32);
+
+    c.bench_function("dot_4_aether_f32", |b| {
+        b.iter(|| aether_dot4_simd_f32(black_box(&aether_a), black_box(&aether_b)))
+    });
+
+    c.bench_function("dot_4_scalar_f32", |b| {
+        b.iter(|| aether_dot4_scalar_f32(black_box(&aether_a), black_box(&aether_b)))
+    });
+
+    c.bench_function("dot_4_nalgebra_f32", |b| {
+        b.iter(|| nalgebra_dot4_f32(black_box(&na_a), black_box(&na_b)))
+    });
+}
+
+fn bench_attitude_coordinate_abstractions(c: &mut Criterion) {
+    type RF = Unknown;
+
+    let cart_a = Cartesian::<f64, RF>::new(1.1, -2.2, 3.3);
+    let cart_b = Cartesian::<f64, RF>::new(-0.9, 4.2, 0.7);
+    let vec_a = cart_a.data;
+    let vec_b = cart_b.data;
+
+    let eul_a = Euler::<f64, RF, RF>::new(0.11, -0.22, 0.33);
+    let eul_b = Euler::<f64, RF, RF>::new(-0.27, 0.19, -0.41);
+
+    let dcm_a: DirectionCosineMatrix<f64, RF, RF> = DirectionCosineMatrix::from(eul_a);
+    let dcm_b: DirectionCosineMatrix<f64, RF, RF> = DirectionCosineMatrix::from(eul_b);
+
+    let mat_a = *dcm_a.as_matrix();
+    let mat_b = *dcm_b.as_matrix();
+
+    let quat_a: Quaternion<f64, RF, RF> = Quaternion::from(&eul_a);
+    let quat_b: Quaternion<f64, RF, RF> = Quaternion::from(&eul_b);
+    let quat_a_dcm: DirectionCosineMatrix<f64, RF, RF> = quat_a.to_dcm();
+    let quat_b_dcm: DirectionCosineMatrix<f64, RF, RF> = quat_b.to_dcm();
+    let quat_a_mat = *quat_a_dcm.as_matrix();
+    let quat_b_mat = *quat_b_dcm.as_matrix();
+
+    c.bench_function("cartesian_dot_abstraction", |bch| {
+        bch.iter(|| black_box(black_box(&cart_a).dot(black_box(&cart_b))))
+    });
+
+    c.bench_function("cartesian_dot_native_vector", |bch| {
+        bch.iter(|| black_box(native_vec3_dot(black_box(&vec_a), black_box(&vec_b))))
+    });
+
+    c.bench_function("cartesian_cross_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(&cart_a).cross(black_box(&cart_b));
+            black_box(out.x())
+        })
+    });
+
+    c.bench_function("cartesian_cross_native_vector", |bch| {
+        bch.iter(|| {
+            let out = native_vec3_cross(black_box(&vec_a), black_box(&vec_b));
+            black_box(out.data[0])
+        })
+    });
+
+    c.bench_function("dcm_rotate_cartesian_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(&dcm_a) * black_box(cart_a);
+            black_box(out.x())
+        })
+    });
+
+    c.bench_function("dcm_rotate_native_matrix_vector", |bch| {
+        bch.iter(|| {
+            let out = native_mat3_vec3(black_box(&mat_a), black_box(&vec_a));
+            black_box(out.data[0])
+        })
+    });
+
+    c.bench_function("dcm_compose_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(dcm_a) * black_box(dcm_b);
+            black_box(out.m11())
+        })
+    });
+
+    c.bench_function("dcm_compose_native_matrix", |bch| {
+        bch.iter(|| {
+            let out = native_mat3_mul_owned(black_box(mat_a), black_box(mat_b));
+            black_box(out[(0, 0)])
+        })
+    });
+
+    c.bench_function("quaternion_rotate_cartesian_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(&quat_a) * black_box(cart_a);
+            black_box(out.x())
+        })
+    });
+
+    c.bench_function("quaternion_rotate_native_matrix_vector", |bch| {
+        bch.iter(|| {
+            let out = native_quat_rotate_vector_equivalent(black_box(&quat_a), black_box(&vec_a));
+            black_box(out.data[0])
+        })
+    });
+
+    c.bench_function("quaternion_compose_abstraction", |bch| {
+        bch.iter(|| {
+            let out = black_box(&quat_a) * black_box(&quat_b);
+            black_box(out.w())
+        })
+    });
+
+    c.bench_function("quaternion_compose_native_matrix", |bch| {
+        bch.iter(|| {
+            let out = native_mat3_mul(black_box(&quat_a_mat), black_box(&quat_b_mat));
+            black_box(out[(0, 0)])
+        })
+    });
+}
+
+fn bench_matvec_6_f32(c: &mut Criterion) {
+    let aether_a = Matrix::new([[1.001_f32; 6]; 6]);
+    let na_a = SMatrix::<f32, 6, 6>::from_element(1.001_f32);
+    let aether_v = Vector::new([0.999_f32; 6]);
+    let na_v = SVector::<f32, 6>::from_element(0.999_f32);
+
+    c.bench_function("matvec_6_aether_f32", |b| {
+        b.iter(|| aether_matvec6_simd_f32(black_box(&aether_a), black_box(&aether_v)))
+    });
+
+    c.bench_function("matvec_6_nalgebra_f32", |b| {
+        b.iter(|| nalgebra_matvec_f32::<6>(black_box(&na_a), black_box(&na_v)))
+    });
+}
+
+fn throughput_benches(c: &mut Criterion) {
+    bench_matmul::<3>(c);
+    bench_matmul::<4>(c);
+    bench_matmul::<6>(c);
+    bench_matmul_f32::<3>(c);
+    bench_matmul_f32::<4>(c);
+    bench_matmul_f32::<6>(c);
+
+    bench_matvec::<3>(c);
+    bench_matvec_4(c);
+    bench_matvec_6(c);
+    bench_matvec_f32::<3>(c);
+    bench_matvec_4_f32(c);
+    bench_matvec_6_f32(c);
+    bench_dot_4(c);
+    bench_dot_4_f32(c);
+    bench_attitude_coordinate_abstractions(c);
+}
+
+criterion_group!(benches, throughput_benches);
+criterion_main!(benches);
