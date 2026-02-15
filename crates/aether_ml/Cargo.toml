@@ -13,10 +13,10 @@ no_std = []
 [dependencies]
 aether_opt = {path = "../aether_opt"}
 aether_core = { path = "../aether_core" }
-minstant = {version = "0.1.7"}
-once_cell = {version = "1.0"}
-num-traits = {version = "*"}
-csv = {version = "*"}
-serde = {version = "1.0", features = ["derive"]}
+minstant = { workspace = true }
+once_cell = { workspace = true }
+num-traits = { workspace = true }
+csv = { workspace = true }
+serde = { workspace = true }
 
 [target.'cfg(feature = "std")'.dependencies]
