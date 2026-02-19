@@ -31,6 +31,15 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
         Self::new(T::ONE, T::ZERO, T::ZERO, T::ZERO)
     }
 
+    #[inline]
+    pub fn from_axis_angle(axis: Vector<T, 3>, angle_rad: T) -> Self {
+        let half = angle_rad * (T::ONE / (T::ONE + T::ONE));
+        let s = half.sin();
+        let c = half.cos();
+        let a = axis.normalize();
+        Self::new(c, a[0] * s, a[1] * s, a[2] * s).normalized()
+    }
+
     #[inline] pub fn w(&self) -> T { self.data[0] }
     #[inline] pub fn i(&self) -> T { self.data[1] }
     #[inline] pub fn j(&self) -> T { self.data[2] }
@@ -116,6 +125,11 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
         ])
     }
 
+    #[inline]
+    pub fn rotate_vec(&self, v_from: &Vector<T, 3>) -> Vector<T, 3> {
+        self.rotate_vector(*v_from)
+    }
+
     /// Passive frame transform: Cartesian<From> -> Cartesian<To>
     #[inline]
     pub fn rotate_cartesian(
@@ -169,6 +183,15 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
             w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
             w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
         )
+    }
+
+    /// Hamilton product between quaternions that share the same frame mapping.
+    ///
+    /// This is useful for incremental update paths (e.g., camera controls) where
+    /// frame-typed composition via `Mul` cannot be expressed directly.
+    #[inline]
+    pub fn mul_hamilton_same(&self, rhs: &Self) -> Self {
+        self.mul_raw(rhs)
     }
 
     /// Integrate quaternion using angular velocity/acceleration (Taylor expansion).
