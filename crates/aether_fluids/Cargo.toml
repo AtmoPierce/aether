@@ -11,6 +11,7 @@ std = []
 no_std = []
 
 [dependencies]
+aether_shapes = { path = "../aether_shapes" }
 
 [lints]
 workspace = true
