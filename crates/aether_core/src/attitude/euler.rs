@@ -247,7 +247,7 @@ where
 
 // std
 #[cfg(feature = "std")]
-use std::fmt;
+use core::fmt;
 
 #[cfg(feature = "std")]
 impl<T, From, To> fmt::Display for Euler<T, From, To>

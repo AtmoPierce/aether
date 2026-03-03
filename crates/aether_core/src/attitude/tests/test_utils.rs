@@ -4,7 +4,7 @@ use crate::reference_frame::Body;
 use crate::{math::Matrix, matrix};
 use approx::assert_relative_eq;
 use crate::real::Real;
-pub fn matrices_approx_eq<T: Real + std::fmt::Debug>(
+pub fn matrices_approx_eq<T: Real + core::fmt::Debug>(
     a: &Matrix<T, 3, 3>,
     b: &Matrix<T, 3, 3>,
     epsilon: T,
@@ -27,7 +27,7 @@ pub fn matrices_approx_eq<T: Real + std::fmt::Debug>(
 
 pub fn test_round_trip<T>(dcm: DirectionCosineMatrix<T, Body<f64>, Body<f64>>, epsilon: T)
 where
-    T: Real + std::fmt::Debug,
+    T: Real + core::fmt::Debug,
 {
     let q: Quaternion<T, Body<f64>, Body<f64>> = (&dcm).try_into().unwrap();
     let q_n = q.normalized();
