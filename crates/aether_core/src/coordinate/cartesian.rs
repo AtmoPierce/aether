@@ -248,9 +248,49 @@ impl<T: Real + Copy, RF> Div<T> for Cartesian<T, RF> {
     }
 }
 
+// Component Wise Power
+impl<T: Real + Copy, RF> Cartesian<T, RF> {
+    #[inline]
+    pub fn powi(self, n: i32) -> Self {
+        Self {
+            data: self.data.map(|v| v.powi(n)),
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
+impl<'a, T: Real + Copy, RF> Cartesian<T, RF> {
+    #[inline]
+    pub fn powi_ref(&self, n: i32) -> Self {
+        Self {
+            data: self.data.map(|v| v.powi(n)),
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
+impl<T: Real + Copy, RF> Cartesian<T, RF> {
+    #[inline]
+    pub fn powf(self, n: T) -> Self {
+        Self {
+            data: self.data.map(|v| v.powf(n)),
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
+impl<'a, T: Real + Copy, RF> Cartesian<T, RF> {
+    #[inline]
+    pub fn powf_ref(&self, n: T) -> Self {
+        Self {
+            data: self.data.map(|v| v.powf(n)),
+            _reference_frame: PhantomData,
+        }
+    }
+}
+
 // Indexing
 use core::ops::{Index, IndexMut};
-
 impl<T: Real, ReferenceFrame> Index<usize> for Cartesian<T, ReferenceFrame> {
     type Output = T;
 
