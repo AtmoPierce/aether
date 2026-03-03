@@ -5,16 +5,27 @@ rust-version.workspace = true
 version.workspace = true
 license-file.workspace = true
 description = "Plotting helpers for Aether (errors, vectors, heatmaps)."
+autobins = false
 
 [dependencies]
-plotters = { workspace = true, default-features = true, features = [] }
+plotters = { workspace = true, default-features = false }
+eframe = { version = "0.28", default-features = true, optional = true }
+egui_plot = { version = "0.28", optional = true }
+glob = "0.3"
 
 [features]
 svg = ["plotters/svg_backend"]
 bitmap = ["plotters/bitmap_backend"]
 line_series = ["plotters/line_series"]
-default = ["svg", "line_series"]   # or make this empty if you want opt-in
+point_series = ["plotters/point_series"]
+gui_egui = ["dep:eframe", "dep:egui_plot"]
+default = ["svg", "line_series", "point_series"]
 
 [lib]
 name = "aether_viz"
 path = "src/lib.rs"
+
+[[bin]]
+name = "csv_tail_egui"
+path = "src/bin/csv_tail_egui.rs"
+required-features = ["gui_egui"]
