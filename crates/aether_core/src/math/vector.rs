@@ -737,8 +737,8 @@ impl<'de, T: Real + Deserialize<'de>, const N: usize> Deserialize<'de> for Vecto
 /* -------------------- Display (std) -------------------- */
 
 #[cfg(feature = "std")]
-impl<T: Real + std::fmt::Display, const N: usize> std::fmt::Display for Vector<T, N> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<T: Real + core::fmt::Display, const N: usize> core::fmt::Display for Vector<T, N> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "[")?;
         for (i, val) in self.data.iter().enumerate() {
             write!(f, "{}", val)?;

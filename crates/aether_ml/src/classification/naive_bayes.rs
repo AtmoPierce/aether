@@ -70,7 +70,7 @@ impl<const N: usize> GaussianNB<N> {
                 let var = self.class_var[c][i].max(1e-12);
                 let diff = x[i] - self.class_mean[c][i];
                 // log Gaussian (univariate)
-                score += -0.5 * ((2.0 * std::f64::consts::PI * var).ln() + (diff * diff) / var);
+                score += -0.5 * ((2.0 * core::f64::consts::PI * var).ln() + (diff * diff) / var);
             }
             if score > best_score {
                 best_score = score;
