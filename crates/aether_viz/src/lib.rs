@@ -7,6 +7,9 @@ pub enum PlotStyle {
     Points,
 }
 
+pub mod realtime;
+pub use realtime::{CsvRealtimeConfig, CsvRealtimePlotter};
+
 /// One (x,y) series to draw.
 #[derive(Debug, Clone, Copy)]
 pub struct XYSeries<'a> {
@@ -157,18 +160,64 @@ pub fn plot_series(
 ) -> Result<(), Box<dyn std::error::Error>> {
     assert!(!series.is_empty(), "plot_series: need at least one series");
 
+    struct PreparedSeries<'a> {
+        points: Vec<(f64, f64)>,
+        label: Option<&'a str>,
+        style: PlotStyle,
+    }
+
+    let prepared = series
+        .iter()
+        .map(|s| {
+            assert_eq!(s.xs.len(), s.ys.len(), "x/y length mismatch in a series");
+
+            let points = s
+                .xs
+                .iter()
+                .zip(s.ys.iter())
+                .filter_map(|(&x, &y)| {
+                    if x.is_finite() && y.is_finite() {
+                        Some((x, y))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            PreparedSeries {
+                points,
+                label: s.label,
+                style: s.style,
+            }
+        })
+        .filter(|s| !s.points.is_empty())
+        .collect::<Vec<_>>();
+
+    if prepared.is_empty() {
+        return Err("plot_series: no finite points to plot".into());
+    }
+
     // global bounds
     let mut x_min = f64::INFINITY;
     let mut x_max = f64::NEG_INFINITY;
     let mut y_min = f64::INFINITY;
     let mut y_max = f64::NEG_INFINITY;
-    for s in series {
-        assert_eq!(s.xs.len(), s.ys.len(), "x/y length mismatch in a series");
-        for &x in s.xs { x_min = x_min.min(x); x_max = x_max.max(x); }
-        for &y in s.ys { y_min = y_min.min(y); y_max = y_max.max(y); }
+    for s in &prepared {
+        for &(x, y) in &s.points {
+            x_min = x_min.min(x);
+            x_max = x_max.max(x);
+            y_min = y_min.min(y);
+            y_max = y_max.max(y);
+        }
     }
+
     if x_min == x_max { x_max = x_min + 1.0; }
     if y_min == y_max { y_max = y_min + 1.0; }
+
+    let x_pad = (x_max - x_min).abs() * 0.03;
+    let y_pad = (y_max - y_min).abs() * 0.03;
+    let x_range = (x_min - x_pad)..(x_max + x_pad);
+    let y_range = (y_min - y_pad)..(y_max + y_pad);
 
     let size = (1920, 1080);
 
@@ -182,7 +231,7 @@ pub fn plot_series(
                 .caption(title, ("monospace", 24))
                 .x_label_area_size(40)
                 .y_label_area_size(80)
-                .build_cartesian_2d(x_min..x_max, y_min..y_max)?;
+                .build_cartesian_2d(x_range.clone(), y_range.clone())?;
 
             let mut mesh = chart.configure_mesh();
             if let Some(lbl) = x_label { mesh.x_desc(lbl); }
@@ -191,17 +240,17 @@ pub fn plot_series(
                 .axis_desc_style(("monospace", 18))
                 .draw()?;
 
-            for (idx, s) in series.iter().enumerate() {
+            for (idx, s) in prepared.iter().enumerate() {
                 let color = Palette99::pick(idx).mix(1.0);
 
                 match s.style {
                     PlotStyle::Line => {
                         let mut ds = chart.draw_series(LineSeries::new(
-                            s.xs.iter().zip(s.ys).map(|(&x, &y)| (x, y)),
+                            s.points.iter().copied(),
                             &color,
                         ))?;
                         if let Some(lbl) = s.label {
-                            ds = ds
+                            let _ = ds
                                 .label(lbl)
                                 .legend(move |(x, y)| {
                                     PathElement::new(vec![(x, y), (x + 20, y)], color.stroke_width(2))
@@ -210,10 +259,10 @@ pub fn plot_series(
                     }
                     PlotStyle::Points => {
                         let mut ds = chart.draw_series(
-                            s.xs.iter().zip(s.ys).map(|(&x, &y)| Circle::new((x, y), 3, color.filled())),
+                            s.points.iter().map(|&(x, y)| Circle::new((x, y), 3, color.filled())),
                         )?;
                         if let Some(lbl) = s.label {
-                            ds = ds
+                            let _ = ds
                                 .label(lbl)
                                 .legend(move |(x, y)| {
                                     Circle::new((x + 10, y), 4, color.filled())
@@ -223,7 +272,7 @@ pub fn plot_series(
                 }
             }
 
-            if series.iter().any(|s| s.label.is_some()) {
+            if prepared.iter().any(|s| s.label.is_some()) {
                 chart.configure_series_labels()
                     .border_style(&BLACK)
                     .background_style(WHITE.mix(0.8))
@@ -246,7 +295,7 @@ pub fn plot_series(
                 .caption(title, ("monospace", 24))
                 .x_label_area_size(40)
                 .y_label_area_size(80)
-                .build_cartesian_2d(x_min..x_max, y_min..y_max)?;
+                .build_cartesian_2d(x_range.clone(), y_range.clone())?;
 
             let mut mesh = chart.configure_mesh();
             if let Some(lbl) = x_label { mesh.x_desc(lbl); }
@@ -255,17 +304,17 @@ pub fn plot_series(
                 .axis_desc_style(("monospace", 18))
                 .draw()?;
 
-            for (idx, s) in series.iter().enumerate() {
+            for (idx, s) in prepared.iter().enumerate() {
                 let color = Palette99::pick(idx).mix(1.0);
 
                 match s.style {
                     PlotStyle::Line => {
                         let mut ds = chart.draw_series(LineSeries::new(
-                            s.xs.iter().zip(s.ys).map(|(&x, &y)| (x, y)),
+                            s.points.iter().copied(),
                             &color,
                         ))?;
                         if let Some(lbl) = s.label {
-                            ds = ds
+                            let _ = ds
                                 .label(lbl)
                                 .legend(move |(x, y)| {
                                     PathElement::new(vec![(x, y), (x + 20, y)], color.stroke_width(2))
@@ -274,10 +323,10 @@ pub fn plot_series(
                     }
                     PlotStyle::Points => {
                         let mut ds = chart.draw_series(
-                            s.xs.iter().zip(s.ys).map(|(&x, &y)| Circle::new((x, y), 3, color.filled())),
+                            s.points.iter().map(|&(x, y)| Circle::new((x, y), 3, color.filled())),
                         )?;
                         if let Some(lbl) = s.label {
-                            ds = ds
+                            let _ = ds
                                 .label(lbl)
                                 .legend(move |(x, y)| {
                                     Circle::new((x + 10, y), 4, color.filled())
@@ -287,7 +336,7 @@ pub fn plot_series(
                 }
             }
 
-            if series.iter().any(|s| s.label.is_some()) {
+            if prepared.iter().any(|s| s.label.is_some()) {
                 chart.configure_series_labels()
                     .border_style(&BLACK)
                     .background_style(WHITE.mix(0.8))
