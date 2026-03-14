@@ -1,5 +1,5 @@
 use crate::reference_frame::Body;
-use std::f64::consts::{FRAC_PI_2, FRAC_PI_4, PI};
+use core::f64::consts::{FRAC_PI_2, FRAC_PI_4, PI};
 
 #[cfg(test)]
 mod tests {

@@ -1133,11 +1133,11 @@ impl<T: Real, const M: usize, const N: usize> Matrix<T, M, N> {
 /* -------------------- std-only Display -------------------- */
 
 #[cfg(feature = "std")]
-impl<T, const M: usize, const N: usize> std::fmt::Display for Matrix<T, M, N>
+impl<T, const M: usize, const N: usize> core::fmt::Display for Matrix<T, M, N>
 where
-    T: Real + std::fmt::Display,
+    T: Real + core::fmt::Display,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "[")?;
         for (i, row) in self.data.iter().enumerate() {
             for (j, val) in row.iter().enumerate() {
