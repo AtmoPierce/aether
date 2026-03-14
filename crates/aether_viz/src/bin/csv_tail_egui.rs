@@ -5,14 +5,14 @@ use std::time::{Duration, Instant};
 
 use aether_viz::{CsvRealtimeConfig, CsvRealtimePlotter};
 use eframe::egui;
-use egui_plot::{Legend, Line, Plot, PlotPoints};
+use egui_plot::{Legend, Line, Plot, PlotPoints, Points};
 use glob::glob;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 3 {
         eprintln!(
-            "Usage: {} <csv_file_or_pattern> <x_column> [y_columns_csv] [hz=5]",
+            "Usage: {} <csv_file_or_pattern> <x_column> [y_columns_csv] [hz=5] [style=line|points]",
             args.first().map(String::as_str).unwrap_or("csv_tail_egui")
         );
         eprintln!(
@@ -26,23 +26,34 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut y_columns = Vec::new();
     let mut hz = 5.0_f64;
-    if let Some(arg3) = args.get(3) {
-        if let Ok(parsed_hz) = arg3.parse::<f64>() {
+    let mut point_mode = false;
+
+    for token in args.iter().skip(3) {
+        if let Ok(parsed_hz) = token.parse::<f64>() {
             hz = parsed_hz;
-        } else {
-            y_columns = arg3
+            continue;
+        }
+
+        if token.eq_ignore_ascii_case("points") {
+            point_mode = true;
+            continue;
+        }
+        if token.eq_ignore_ascii_case("line") {
+            point_mode = false;
+            continue;
+        }
+
+        if y_columns.is_empty() {
+            y_columns = token
                 .split(',')
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty())
                 .collect::<Vec<_>>();
-            if let Some(arg4) = args.get(4) {
-                if let Ok(parsed_hz) = arg4.parse::<f64>() {
-                    hz = parsed_hz;
-                }
-            }
         }
     }
-    hz = hz.max(0.1);
+
+    let polling_enabled = hz > 0.0;
+    let clamped_hz = if polling_enabled { hz.max(0.1) } else { 5.0 };
 
     let has_pattern = csv_arg.contains('*') || csv_arg.contains('?') || csv_arg.contains('[');
     let csv_paths = resolve_csv_path_pattern_all(&csv_arg)?;
@@ -62,7 +73,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             y_label: Some("value".to_string()),
             style: aether_viz::PlotStyle::Line,
             has_header: true,
-            poll_hz: hz,
+            poll_hz: clamped_hz,
             max_points: None,
         };
 
@@ -70,7 +81,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         plotter.initialize()?;
 
         let name = derive_run_label(&path);
-        sources.push(PlotSource { path, name, plotter });
+        sources.push(PlotSource {
+            path,
+            name,
+            plotter,
+            enabled: true,
+        });
     }
 
     let app = CsvTailApp {
@@ -90,12 +106,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             .map(|c| (c, true))
             .collect(),
         initialized_selection: !y_columns.is_empty(),
-        poll_interval: Duration::from_secs_f64(1.0 / hz),
-        source_refresh_interval: Duration::from_secs_f64((1.0 / hz).max(1.0)),
+        poll_interval: Duration::from_secs_f64(1.0 / clamped_hz),
+        source_refresh_interval: Duration::from_secs_f64((1.0 / clamped_hz).max(1.0)),
         last_poll: Instant::now(),
         last_source_refresh: Instant::now(),
         last_error: None,
         source_pattern: if has_pattern { Some(csv_arg) } else { None },
+        polling_enabled,
+        point_mode,
     };
 
     let native_options = eframe::NativeOptions {
@@ -121,6 +139,7 @@ struct PlotSource {
     path: PathBuf,
     name: String,
     plotter: CsvRealtimePlotter,
+    enabled: bool,
 }
 
 struct CsvTailApp {
@@ -136,11 +155,13 @@ struct CsvTailApp {
     last_source_refresh: Instant,
     last_error: Option<String>,
     source_pattern: Option<String>,
+    polling_enabled: bool,
+    point_mode: bool,
 }
 
 impl eframe::App for CsvTailApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        if self.last_poll.elapsed() >= self.poll_interval {
+        if self.polling_enabled && self.last_poll.elapsed() >= self.poll_interval {
             if self.last_source_refresh.elapsed() >= self.source_refresh_interval {
                 self.refresh_sources_from_pattern();
                 self.last_source_refresh = Instant::now();
@@ -161,12 +182,22 @@ impl eframe::App for CsvTailApp {
             .min_height(140.0)
             .show(ctx, |ui| {
             ui.horizontal(|ui| {
-                ui.label(format!("Poll: {:.2} Hz", 1.0 / self.poll_interval.as_secs_f64()));
+                if self.polling_enabled {
+                    ui.label(format!("Poll: {:.2} Hz", 1.0 / self.poll_interval.as_secs_f64()));
+                } else {
+                    ui.label("Poll: off (static)");
+                }
                 ui.separator();
-                let points: usize = self.sources.iter().map(|s| s.plotter.x_values().len()).sum();
+                let points: usize = self
+                    .sources
+                    .iter()
+                    .filter(|s| s.enabled)
+                    .map(|s| s.plotter.x_values().len())
+                    .sum();
                 ui.label(format!("Points(total): {}", points));
                 ui.separator();
-                ui.label(format!("Sources: {}", self.sources.len()));
+                let enabled_sources = self.sources.iter().filter(|s| s.enabled).count();
+                ui.label(format!("Sources: {}/{}", enabled_sources, self.sources.len()));
                 if let Some(first) = self.sources.first() {
                     ui.separator();
                     ui.label(format!("x: {}", first.plotter.x_column()));
@@ -175,6 +206,29 @@ impl eframe::App for CsvTailApp {
                     ui.separator();
                     ui.colored_label(egui::Color32::RED, format!("Error: {}", err));
                 }
+            });
+
+            ui.separator();
+            ui.collapsing("Files", |ui| {
+                ui.horizontal(|ui| {
+                    if ui.button("All").clicked() {
+                        for source in &mut self.sources {
+                            source.enabled = true;
+                        }
+                    }
+                    if ui.button("None").clicked() {
+                        for source in &mut self.sources {
+                            source.enabled = false;
+                        }
+                    }
+                });
+
+                egui::ScrollArea::vertical().max_height(90.0).show(ui, |ui| {
+                    for source in &mut self.sources {
+                        let label = format!("{} ({})", source.name, source.path.display());
+                        ui.checkbox(&mut source.enabled, label);
+                    }
+                });
             });
 
             let columns = self
@@ -273,6 +327,9 @@ impl eframe::App for CsvTailApp {
                 .y_axis_label("value")
                 .show(ui, |plot_ui| {
                     for source in &self.sources {
+                        if !source.enabled {
+                            continue;
+                        }
                         let xs = source.plotter.x_values();
                         let ys_all = source.plotter.y_values();
                         if xs.is_empty() || ys_all.is_empty() {
@@ -316,7 +373,15 @@ impl eframe::App for CsvTailApp {
                             }
 
                             let label = format!("{}::{}", source.name, col_name);
-                            plot_ui.line(Line::new(PlotPoints::from(points)).name(label));
+                            if self.point_mode {
+                                plot_ui.points(
+                                    Points::new(PlotPoints::from(points))
+                                        .name(label)
+                                        .radius(2.0),
+                                );
+                            } else {
+                                plot_ui.line(Line::new(PlotPoints::from(points)).name(label));
+                            }
                         }
                     }
                 });
@@ -346,7 +411,11 @@ impl CsvTailApp {
         x_column: &str,
         y_columns: &[String],
     ) -> Result<PlotSource, Box<dyn Error>> {
-        let hz = (1.0 / self.poll_interval.as_secs_f64()).max(0.1);
+        let hz = if self.polling_enabled {
+            (1.0 / self.poll_interval.as_secs_f64()).max(0.1)
+        } else {
+            5.0
+        };
         let cfg = CsvRealtimeConfig {
             csv_path: path.clone(),
             output_path: "".into(),
@@ -368,6 +437,7 @@ impl CsvTailApp {
             path: path.clone(),
             name: derive_run_label(&path),
             plotter,
+            enabled: true,
         })
     }
 
