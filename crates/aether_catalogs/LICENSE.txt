@@ -1,0 +1,40 @@
+            Aether Commercial Proprietary License v1.1
+Copyright © 2025 Aether Aerospace / Michael Angeles. All rights reserved.
+
+1. Ownership
+The Aether software (“Software”) and all accompanying files, documentation, and source code are the intellectual property of Aether Aerospace and its contributors.
+No ownership rights are transferred by this license.
+
+2. License Grant
+Subject to compliance with this License, the Licensor grants you (“Licensee”) a limited, non-exclusive, non-transferable, revocable license to:
+    - Use the Software internally for research, evaluation, and product development.
+    - Modify the Software for internal use.
+
+Redistribute compiled binaries or derived works only under one of the following conditions:
+    - (a) Private Redistribution: to individuals or organizations expressly authorized in writing by the Licensor, or
+    - (b) Commercial Redistribution: under a valid, executed Commercial Distribution Agreement with the Licensor that specifies applicable fees, royalties, or revenue-sharing terms.
+
+3. Restrictions
+Unless explicitly authorized in writing by the Licensor, you may not:
+    - Distribute or make the Software’s source code publicly available;
+    - Sell or sublicense the Software except as permitted under a Commercial Distribution Agreement;
+    - Remove or obscure copyright, attribution, or license notices;
+    - Use the Software in connection with any unlawful, deceptive, or harmful activity.
+
+4. Derivative Works
+Derivative works based on the Software:
+    - Remain the property of the Licensor to the fullest extent permitted by law;
+    - Must retain this license text and all copyright notices;
+    - May not be publicly distributed or sublicensed except under the terms of a Commercial Distribution Agreement.
+
+5. Commercial Distribution
+Commercial redistribution (including integration into paid products, SaaS platforms, consulting deliverables, or hardware systems) requires a separate written agreement with Aether Aerospace specifying:
+    - Scope of distribution (territory, audience, or product line),
+    - Fees or royalties (fixed, per-seat, or revenue-share basis),
+    - Attribution and branding terms,
+    - Support and update provisions, if any.
+    - Absent such an agreement, all commercial distribution is prohibited.
+
+To inquire about a Commercial Distribution Agreement, contact:
+    - michael.angeles@nuntius.us
+    - license@nuntius.us

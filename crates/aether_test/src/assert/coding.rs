@@ -23,8 +23,8 @@ pub fn assert_vector_equivalence<const N: usize>(v: &Vector<f64, N>) {
 #[cfg(feature = "bincode")]
 pub fn assert_quaternion_equivalence<From, To>(q: &Quaternion<f64, From, To>) 
 where 
-    From: aether_core::reference_frame::ReferenceFrame + core::fmt::Debug + PartialEq + bincode::Encode + bincode::Decode<()>,
-    To: aether_core::reference_frame::ReferenceFrame + core::fmt::Debug + PartialEq + bincode::Encode + bincode::Decode<()>,
+    From: aether_core::reference_frame::ReferenceFrame + std::fmt::Debug + PartialEq + bincode::Encode + bincode::Decode<()>,
+    To: aether_core::reference_frame::ReferenceFrame + std::fmt::Debug + PartialEq + bincode::Encode + bincode::Decode<()>,
 {
     let mut buf = [0u8; 1024];
 
