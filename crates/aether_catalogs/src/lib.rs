@@ -57,8 +57,7 @@ pub struct GncCatalogReader {
 }
 
 impl GncCatalogReader {
-    pub const GNC_V1_1_MAR_2_2023_SHA256: &'static str =
-        "d317268726ff5fd28d87d6e3d0a3aa0f26abc0408a43e711f4b87579bb00b640";
+    pub const GNC_V1_1_MAR_2_2023_SHA256: &'static str = "d317268726ff5fd28d87d6e3d0a3aa0f26abc0408a43e711f4b87579bb00b640";
 
     pub fn default_catalog_path() -> std::path::PathBuf {
         std::path::PathBuf::from(concat!(
@@ -67,9 +66,31 @@ impl GncCatalogReader {
         ))
     }
 
+    /// Load the default catalog. Lookup order:
+    /// 1. `CARGO_MANIFEST_DIR`/catalog/... (compile-time layout)
+    /// 2. `$AETHER_CATALOGS_DIR/gnc_v1_1_mar_2_2023.csv` (runtime override)
+    /// If neither exists, return an error instructing the user to download the CSV.
     pub fn from_default_catalog() -> Result<Self, Box<dyn std::error::Error>> {
-        Self::from_csv_verified_v1_1(Self::default_catalog_path())
+        let local = Self::default_catalog_path();
+        if local.exists() {
+            return Self::from_csv_verified_v1_1(local);
+        }
+
+        if let Some(env_dir) = std::env::var_os("AETHER_CATALOGS_DIR") {
+            let p = std::path::PathBuf::from(env_dir).join("gnc_v1_1_mar_2_2023.csv");
+            if p.exists() {
+                return Self::from_csv_verified_v1_1(p);
+            }
+        }
+
+        Err(format!(
+            "Catalog not found at {}. Please download the CSV and place it in that path or set `AETHER_CATALOGS_DIR`.",
+            local.display()
+        )
+        .into())
     }
+
+    
 
     pub fn from_csv_verified_v1_1<P: AsRef<std::path::Path>>(
         path: P,
