@@ -8,8 +8,8 @@ mod tests {
 
     /// Wrap angle to (-pi, pi)
     fn wrap_angle(x: f64) -> f64 {
-        (x + std::f64::consts::PI) % (2.0 * std::f64::consts::PI)
-            - std::f64::consts::PI
+        (x + core::f64::consts::PI) % (2.0 * core::f64::consts::PI)
+            - core::f64::consts::PI
     }
 
     #[test]
