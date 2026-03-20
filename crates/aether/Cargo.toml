@@ -10,6 +10,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 aether_core = { path = "../aether_core" }
+aether_catalogs = { path = "../aether_catalogs" }
 aether_benchmark = { path = "../aether_benchmark" }
 aether_examples = { path = "../aether_examples" }
 aether_fluids = { path = "../aether_fluids" }
@@ -28,6 +29,7 @@ serde = ["aether_core/serde"]
 bincode = ["aether_core/bincode"]
 std = [
     "aether_core/std",
+    "aether_catalogs/std",
     "aether_benchmark/std",
     "aether_fluids/std",
     "aether_graphics/std",

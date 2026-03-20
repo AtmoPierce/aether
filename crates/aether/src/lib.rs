@@ -9,4 +9,5 @@ pub use aether_rand::*;
 pub use aether_shapes::*;
 
 #[cfg(feature = "std")]
+pub use aether_catalogs::*;
 pub use aether_stats::*;

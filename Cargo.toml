@@ -2,7 +2,8 @@
 resolver = "2"
 members = [
     "crates/aether",
-    "crates/aether_benchmark",
+    "crates/aether_benchmark", 
+    "crates/aether_catalogs",
     "crates/aether_core", 
     "crates/aether_examples", 
     "crates/aether_fluids",
