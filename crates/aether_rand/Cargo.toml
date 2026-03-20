@@ -7,10 +7,11 @@ license-file.workspace = true
 
 [features]
 default = ["no_std"]
-std = []
-no_std = []
+std = ["aether_core/std"]
+no_std = ["aether_core/no_std"]
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
+aether_core = { path = "../aether_core", default-features = false }

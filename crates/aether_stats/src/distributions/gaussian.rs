@@ -77,7 +77,7 @@ mod tests {
     fn gaussian_pdf_center() {
         let g = Gaussian::new(0.0, 1.0);
         let p = g.pdf(0.0);
-        assert!( (p - (1.0 / (2.0 * std::f64::consts::PI).sqrt())).abs() < 1e-12 );
+        assert!( (p - (1.0 / (2.0 * core::f64::consts::PI).sqrt())).abs() < 1e-12 );
     }
 
     #[test]

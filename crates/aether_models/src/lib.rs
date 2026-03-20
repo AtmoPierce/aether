@@ -2,3 +2,4 @@ pub use aether_core::{attitude, coordinate, math, numerical_methods, reference_f
 pub mod models;
 pub mod celestial;
 pub mod terrestrial;
+pub mod lunar;

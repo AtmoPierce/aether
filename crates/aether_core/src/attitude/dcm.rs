@@ -276,10 +276,10 @@ impl<T: Real + Copy, From: ReferenceFrame, To: ReferenceFrame> DirectionCosineMa
 }
 
 #[cfg(feature = "std")]
-impl<T: Real + std::fmt::Display, A: ReferenceFrame, B: ReferenceFrame> std::fmt::Display
+impl<T: Real + core::fmt::Display, A: ReferenceFrame, B: ReferenceFrame> core::fmt::Display
     for DirectionCosineMatrix<T, A, B>
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.data)
     }
 }
