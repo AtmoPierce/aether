@@ -8,6 +8,7 @@ members = [
     "crates/aether_examples", 
     "crates/aether_fluids",
     "crates/aether_graphics",
+    "crates/aether_interp",
     "crates/aether_ml",
     "crates/aether_models",
     "crates/aether_opt",

@@ -3,6 +3,7 @@ use crate::{
     attitude::DirectionCosineMatrix,
     coordinate::Cartesian,
     math::{Matrix, Vector},
+    real::Real,
     reference_frame::{ICRF, ITRF},
 };
 use core::marker::PhantomData;

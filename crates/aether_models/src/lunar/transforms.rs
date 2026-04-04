@@ -1,4 +1,5 @@
 use crate::attitude::DirectionCosineMatrix;
+use crate::real::Real;
 use crate::reference_frame::ICRF;
 
 use super::{

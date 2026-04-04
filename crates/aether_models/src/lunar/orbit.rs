@@ -1,5 +1,9 @@
 use super::constants;
 
+use core::default::Default;
+
+use crate::real::Real;
+
 #[derive(Clone, Copy, Debug)]
 pub struct MoonOrbitAroundEarth {
     pub semi_major_axis_m: f64,

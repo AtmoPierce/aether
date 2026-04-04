@@ -5,6 +5,7 @@ use crate::models::terrestrial::wgs84::{
 use crate::{
     coordinate::{coordinate::Coordinate, Cartesian},
     math::{Matrix, Vector},
+    real::Real,
     reference_frame::ITRF,
 };
 use core::marker::PhantomData;
