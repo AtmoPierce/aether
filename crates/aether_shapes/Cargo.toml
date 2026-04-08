@@ -12,7 +12,6 @@ no_std = []
 
 [dependencies]
 aether_core = {path = "../aether_core"}
-num-traits = { workspace = true }
 
 [lints]
 workspace = true

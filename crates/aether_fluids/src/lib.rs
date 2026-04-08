@@ -1,3 +1,5 @@
+#![cfg_attr(all(feature = "no_std", not(feature = "std")), no_std)]
+
 use aether_shapes::attributes::Solid;
 use aether_shapes::cylinder::Cylinder;
 use aether_shapes::sphere::Sphere;
@@ -77,7 +79,11 @@ impl PropellantTankSpec {
 }
 
 pub fn aggregate_tank_mass_kg(tanks: &[TankMassState]) -> f64 {
-    tanks.iter().map(|tank| tank.mass_kg.max(0.0)).sum()
+    let mut total_mass_kg = 0.0;
+    for tank in tanks {
+        total_mass_kg += tank.mass_kg.max(0.0);
+    }
+    total_mass_kg
 }
 
 pub fn aggregate_tank_inertia_principal_cm_kg_m2(tanks: &[TankMassState]) -> [f64; 3] {

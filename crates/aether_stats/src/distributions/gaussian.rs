@@ -1,5 +1,3 @@
-#![cfg(feature = "std")]
-use aether_core::math::Vector;
 use aether_rand::randomizers::XorShift64Star;
 use aether_core::real::Real;
 
@@ -17,7 +15,7 @@ where
     /// Create a new Gaussian with mean `mu` and standard deviation `sigma`.
     pub fn new(mu: F, sigma: F) -> Self { Self { mu, sigma } }
 
-    /// Draw one sample from this Gaussian using Box–Muller and the provided RNG.
+    /// Draw one sample from this Gaussian using Box-Muller and the provided RNG.
     /// The RNG yields f64 uniforms which are converted to `F`.
     pub fn sample(&self, rng: &mut XorShift64Star) -> F {
         // Box–Muller: two uniforms in (0,1]
@@ -90,6 +88,8 @@ mod tests {
 
 #[cfg(test)]
 mod wn_tests {
+    use std::vec::Vec;
+
     use super::*;
 
     #[test]

@@ -1,7 +1,9 @@
 /target
+.vscode/
 *.svg
 *.png
 *.bmp
 *.pdf
 *.log
+*.zip
 aether_analysis/

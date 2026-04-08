@@ -1,62 +1,62 @@
 use crate::attitude::DirectionCosineMatrix;
 use crate::coordinate::Cartesian;
-use crate::math::{Matrix, Vector};
+use crate::math::Matrix;
 use crate::matrix;
-use crate::reference_frame::{Body, ReferenceFrame, ICRF, ITRF, NED};
+use crate::reference_frame::{Body, ICRF, ITRF, NED};
 use crate::real::Real;
 
-pub fn angular_rate_dcm(roll: f64, pitch: f64, yaw: f64) -> Matrix<f64, 3, 3> {
+pub fn angular_rate_dcm<T: Real>(roll: T, pitch: T, yaw: T) -> Matrix<T, 3, 3> {
     let rotation_matrix = matrix![
-        0.0, -yaw, pitch;
-        yaw, 0.0, -roll;
-        -pitch, roll, 0.0;
+        T::ZERO, -yaw, pitch;
+        yaw, T::ZERO, -roll;
+        -pitch, roll, T::ZERO;
     ];
     return rotation_matrix;
 }
 
-pub fn aircraft_wind_to_body(angle_of_attack: f64, side_slip: f64) -> Matrix<f64, 3, 3> {
+pub fn aircraft_wind_to_body<T: Real>(angle_of_attack: T, side_slip: T) -> Matrix<T, 3, 3> {
     let t_bs = matrix![
-        angle_of_attack.cos(), 0.0, -angle_of_attack.sin();
-        0.0, 1.0, 0.0;
-        angle_of_attack.sin(), 0.0, angle_of_attack.cos();
+        angle_of_attack.cos(), T::ZERO, -angle_of_attack.sin();
+        T::ZERO, T::ONE, T::ZERO;
+        angle_of_attack.sin(), T::ZERO, angle_of_attack.cos();
     ];
 
     let t_ws = matrix![
-        side_slip.cos(), side_slip.sin(), 0.0;
-        -side_slip.sin(), side_slip.cos(), 0.0;
-        0.0, 0.0, 1.0;
+        side_slip.cos(), side_slip.sin(), T::ZERO;
+        -side_slip.sin(), side_slip.cos(), T::ZERO;
+        T::ZERO, T::ZERO, T::ONE;
     ];
 
     let t_wb = t_ws * t_bs.transpose();
     return t_wb;
 }
 
-pub fn aeroballistic_wind_to_body(
-    angle_of_attack: f64,
-    aerodynamic_roll_angle: f64,
-) -> Matrix<f64, 3, 3> {
+pub fn aeroballistic_wind_to_body<T: Real>(
+    angle_of_attack: T,
+    aerodynamic_roll_angle: T,
+) -> Matrix<T, 3, 3> {
     let t_ab = matrix![
         angle_of_attack.cos(),  angle_of_attack.sin()*aerodynamic_roll_angle.sin(), angle_of_attack.sin()*aerodynamic_roll_angle.cos();
-        0.0,                    aerodynamic_roll_angle.cos(),                       -aerodynamic_roll_angle.sin();
+        T::ZERO,                aerodynamic_roll_angle.cos(),                       -aerodynamic_roll_angle.sin();
         -angle_of_attack.sin(), angle_of_attack.cos()*aerodynamic_roll_angle.sin(), angle_of_attack.cos()*aerodynamic_roll_angle.cos();
     ];
     return t_ab;
 }
 
-pub fn flight_path_to_geographic(heading_angle: f64, flight_path_angle: f64) -> Matrix<f64, 3, 3> {
+pub fn flight_path_to_geographic<T: Real>(heading_angle: T, flight_path_angle: T) -> Matrix<T, 3, 3> {
     let rotation_matrix = matrix![
         flight_path_angle.cos()*heading_angle.cos(),    flight_path_angle.cos()*heading_angle.sin(),    -flight_path_angle.sin();
-        -heading_angle.sin(),                           heading_angle.cos(),                            0.0;
+        -heading_angle.sin(),                           heading_angle.cos(),                            T::ZERO;
         flight_path_angle.sin()*heading_angle.cos(),    flight_path_angle.sin()*heading_angle.sin(),    flight_path_angle.cos();
     ];
     return rotation_matrix;
 }
 
-pub fn body_to_ned(
-    roll: f64,
-    pitch: f64,
-    yaw: f64,
-) -> DirectionCosineMatrix<f64, Body<f64>, NED<f64>> {
+pub fn body_to_ned<T: Real>(
+    roll: T,
+    pitch: T,
+    yaw: T,
+) -> DirectionCosineMatrix<T, Body<T>, NED<T>> {
     let phi = roll;
     let tht = pitch;
     let psi = yaw;
@@ -65,60 +65,61 @@ pub fn body_to_ned(
         psi.cos()*tht.sin()*phi.sin()-psi.sin()*phi.cos(),    psi.sin()*tht.sin()*phi.sin()+psi.cos()*phi.cos(),  tht.cos()*phi.sin();
         psi.cos()*tht.sin()*phi.cos()+psi.sin()*phi.sin(),    psi.sin()*tht.sin()*phi.cos()-psi.cos()*phi.sin(),  tht.cos()*phi.cos();
     ];
-    let dcm: DirectionCosineMatrix<f64, Body<f64>, NED<f64>> =
+    let dcm: DirectionCosineMatrix<T, Body<T>, NED<T>> =
         DirectionCosineMatrix::from_matrix(rotation_matrix);
     return dcm;
 }
 
-pub fn itrf_to_ned(
-    latitude: f64,
-    longitude: f64,
-) -> DirectionCosineMatrix<f64, ITRF<f64>, NED<f64>> {
+pub fn itrf_to_ned<T: Real>(
+    latitude: T,
+    longitude: T,
+) -> DirectionCosineMatrix<T, ITRF<T>, NED<T>> {
     let rotation_matrix = matrix![
         -latitude.sin()*longitude.cos(),    -latitude.sin()*longitude.sin(),    latitude.cos();
-        -longitude.sin(),                   longitude.cos(),                    0.0;
+        -longitude.sin(),                   longitude.cos(),                    T::ZERO;
         -latitude.cos()*longitude.cos(),    -latitude.cos()*longitude.sin(),    -latitude.sin();
     ];
     let dcm = DirectionCosineMatrix::from_matrix(rotation_matrix);
     return dcm;
 }
 
-pub fn icrf_to_itrf(
-    time: f64,
-    rotational_velocity: Cartesian<f64, ITRF<f64>>,
-) -> DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>> {
+pub fn icrf_to_itrf<T: Real>(
+    time: T,
+    rotational_velocity: Cartesian<T, ITRF<T>>,
+) -> DirectionCosineMatrix<T, ICRF<T>, ITRF<T>> {
     return DirectionCosineMatrix::new(
         (rotational_velocity.z() * time).cos(),
         (rotational_velocity.z() * time).sin(),
-        0.0,
+        T::ZERO,
         (-rotational_velocity.z() * time).sin(),
         (rotational_velocity.z() * time).cos(),
-        0.0,
-        0.0,
-        0.0,
-        1.0,
+        T::ZERO,
+        T::ZERO,
+        T::ZERO,
+        T::ONE,
     );
 }
-pub fn itrf_to_icrf(
-    time: f64,
-    rotational_velocity: Cartesian<f64, ITRF<f64>>,
-) -> DirectionCosineMatrix<f64, ITRF<f64>, ICRF<f64>> {
+pub fn itrf_to_icrf<T: Real>(
+    time: T,
+    rotational_velocity: Cartesian<T, ITRF<T>>,
+) -> DirectionCosineMatrix<T, ITRF<T>, ICRF<T>> {
     return DirectionCosineMatrix::new(
         (rotational_velocity.z() * time).cos(),
         (-rotational_velocity.z() * time).sin(),
-        0.0,
+        T::ZERO,
         (rotational_velocity.z() * time).sin(),
         (rotational_velocity.z() * time).cos(),
-        0.0,
-        0.0,
-        0.0,
-        1.0,
+        T::ZERO,
+        T::ZERO,
+        T::ZERO,
+        T::ONE,
     );
 }
 
 #[cfg(test)]
 mod tests {
     use crate::coordinate::Spherical;
+    use crate::math::Vector;
 
     use super::*;
     use approx::relative_eq;

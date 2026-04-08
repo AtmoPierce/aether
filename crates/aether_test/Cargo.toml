@@ -22,7 +22,6 @@ bincode = { workspace = true, optional=true }
 thiserror = "*"
 
 # Numerical and comparison helpers
-num-traits = { workspace = true }
 approx = { workspace = true } # For Real comparison (assert_abs_diff_eq, etc.)
 
 [dev-dependencies]
