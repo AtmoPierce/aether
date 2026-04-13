@@ -16,4 +16,3 @@ crate-type = ["rlib"]
 [dependencies]
 aether_core = { path = "../aether_core" }
 aether_rand = { path = "../aether_rand" }
-num-traits = { workspace = true }

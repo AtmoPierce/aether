@@ -1,3 +1,5 @@
+use core::result::Result::{self, Err, Ok};
+
 pub struct Mesosphere {}
 impl Mesosphere {
     fn base_geopotential_altitude(level: i8) -> Result<f64, &'static str> {

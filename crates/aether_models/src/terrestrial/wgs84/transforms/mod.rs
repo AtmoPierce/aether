@@ -1,113 +1,115 @@
-use crate::models::terrestrial::wgs84::constants::{a, b, e2, g_e, k, w, E, GM};
+use crate::models::terrestrial::wgs84::constants::{a, b, e2};
 use crate::{
     attitude::DirectionCosineMatrix,
     coordinate::Cartesian,
-    math::{Matrix, Vector},
+    math::Vector,
+    real::Real,
     reference_frame::{ICRF, ITRF},
 };
-use core::marker::PhantomData;
 
-pub fn icrf_to_itrf(
-    time: f64,
-    rotational_velocity: Cartesian<f64, ITRF<f64>>,
-) -> DirectionCosineMatrix<f64, ICRF<f64>, ITRF<f64>> {
+pub fn icrf_to_itrf<T: Real>(
+    time: T,
+    rotational_velocity: Cartesian<T, ITRF<T>>,
+) -> DirectionCosineMatrix<T, ICRF<T>, ITRF<T>> {
     return DirectionCosineMatrix::new(
         (rotational_velocity.z() * time).cos(),
         (rotational_velocity.z() * time).sin(),
-        0.0,
+        T::ZERO,
         (-rotational_velocity.z() * time).sin(),
         (rotational_velocity.z() * time).cos(),
-        0.0,
-        0.0,
-        0.0,
-        1.0,
+        T::ZERO,
+        T::ZERO,
+        T::ZERO,
+        T::ONE,
     );
 }
-pub fn itrf_to_icrf(
-    time: f64,
-    rotational_velocity: Cartesian<f64, ITRF<f64>>,
-) -> DirectionCosineMatrix<f64, ITRF<f64>, ICRF<f64>> {
+pub fn itrf_to_icrf<T: Real>(
+    time: T,
+    rotational_velocity: Cartesian<T, ITRF<T>>,
+) -> DirectionCosineMatrix<T, ITRF<T>, ICRF<T>> {
     return DirectionCosineMatrix::new(
         (rotational_velocity.z() * time).cos(),
         (-rotational_velocity.z() * time).sin(),
-        0.0,
+        T::ZERO,
         (rotational_velocity.z() * time).sin(),
         (rotational_velocity.z() * time).cos(),
-        0.0,
-        0.0,
-        0.0,
-        1.0,
+        T::ZERO,
+        T::ZERO,
+        T::ZERO,
+        T::ONE,
     );
 }
 
-pub fn geocentric_to_ecef(
-    latitude: f64,
-    longitude: f64,
-    altitude: f64,
-) -> Cartesian<f64, ITRF<f64>> {
-    let n = a / (1.0 - e2 * latitude.sin() * latitude.sin()).sqrt();
+pub fn geocentric_to_ecef<T: Real>(
+    latitude: T,
+    longitude: T,
+    altitude: T,
+) -> Cartesian<T, ITRF<T>> {
+    let semi_major_axis = T::from_f64(a);
+    let eccentricity_squared = T::from_f64(e2);
+    let n = semi_major_axis / (T::ONE - eccentricity_squared * latitude.sin() * latitude.sin()).sqrt();
     let x = (n + altitude) * latitude.cos() * longitude.cos();
     let y = (n + altitude) * latitude.cos() * longitude.sin();
-    let z = (n * (1.0 - e2) + altitude) * latitude.sin();
-    return Cartesian {
-        data: Vector::new([x, y, z]),
-        _reference_frame: PhantomData::<ITRF<f64>>,
-    };
+    let z = (n * (T::ONE - eccentricity_squared) + altitude) * latitude.sin();
+    Cartesian::new(x, y, z)
 }
 
-pub fn ecef_to_geocentric_ferrari(x: f64, y: f64, z: f64) -> Vector<f64, 3> {
-    let a2 = a * a;
-    let b2 = b * b;
-    let f = (a - b) / a;
-    let e_2 = 2.0 * f - f * f;
-    let ep = (a2 / b2 - 1.0).sqrt();
+pub fn ecef_to_geocentric_ferrari<T: Real>(x: T, y: T, z: T) -> Vector<T, 3> {
+    let semi_major_axis = T::from_f64(a);
+    let semi_minor_axis = T::from_f64(b);
+    let a2 = semi_major_axis * semi_major_axis;
+    let b2 = semi_minor_axis * semi_minor_axis;
+    let f = (semi_major_axis - semi_minor_axis) / semi_major_axis;
+    let two = T::ONE + T::ONE;
+    let e_2 = two * f - f * f;
+    let ep = (a2 / b2 - T::ONE).sqrt();
     let z2 = z * z;
     let r = (x * x + y * y).sqrt();
     let r2 = r * r;
     let e2_2 = a2 - b2;
-    let ff = 54.0 * b2 * z2;
-    let g = r2 + (1.0 - e_2) * z2 - e_2 * e2_2;
-    let c = e_2.powf(2.0) * ff * r2 / g.powf(3.0);
-    let s = (1.0 + c + (c.powf(2.0) + 2.0 * c)).powf(1.0 / 3.0);
-    let pp = ff / (3.0 * (s + 1.0 / s + 1.0).powf(2.0) * g.powf(2.0));
-    let q = (1.0 + 2.0 * e_2.powf(2.0) * pp).sqrt();
+    let ff = T::from_f64(54.0) * b2 * z2;
+    let g = r2 + (T::ONE - e_2) * z2 - e_2 * e2_2;
+    let c = e_2.powf(two) * ff * r2 / g.powf(T::from_f64(3.0));
+    let s = (T::ONE + c + (c.powf(two) + two * c)).powf(T::ONE / T::from_f64(3.0));
+    let pp = ff / (T::from_f64(3.0) * (s + T::ONE / s + T::ONE).powf(two) * g.powf(two));
+    let q = (T::ONE + two * e_2.powf(two) * pp).sqrt();
 
     // NaNs are gross. -> This needs fixing. !TODO
-    let mut r0_op = 1.0 / 2.0 * a2 * (1.0 + 1.0 / q)
-        - (pp * (1.0 - e_2) * z2) / (q * (1.0 + q))
-        - 1.0 / 2.0 * pp * r2;
-    if (r0_op > 0.0) && (!r0_op.is_nan()) {
-        r0_op = r0_op;
-    } else {
-        r0_op = 0.0;
+    let mut r0_op = T::ONE / two * a2 * (T::ONE + T::ONE / q)
+        - (pp * (T::ONE - e_2) * z2) / (q * (T::ONE + q))
+        - T::ONE / two * pp * r2;
+    if !((r0_op > T::ZERO) && (r0_op == r0_op)) {
+        r0_op = T::ZERO;
     }
 
-    let r0 = -pp * e_2 * r / (1.0 + q) + (r0_op).sqrt();
-    let u = ((r - e_2 * r0).powf(2.0) + z2).sqrt();
-    let v = ((r - e_2 * r0).powf(2.0) + (1.0 - e_2) * z2).sqrt();
-    let z0 = b2 * z / (a * v);
+    let r0 = -pp * e_2 * r / (T::ONE + q) + r0_op.sqrt();
+    let u = ((r - e_2 * r0).powf(two) + z2).sqrt();
+    let v = ((r - e_2 * r0).powf(two) + (T::ONE - e_2) * z2).sqrt();
+    let z0 = b2 * z / (semi_major_axis * v);
 
-    let altitude = u * (1.0 - (b2 / (a * v)));
+    let altitude = u * (T::ONE - (b2 / (semi_major_axis * v)));
     let latitude = (z + ep * ep * z0).atan2(r);
     let longitude = y.atan2(x);
-    return Vector::new([latitude, longitude, altitude]);
+    Vector::new([latitude, longitude, altitude])
 }
 
-pub fn ecef_to_geocentric(x: f64, y: f64, z: f64) -> Vector<f64, 3> {
+pub fn ecef_to_geocentric<T: Real>(x: T, y: T, z: T) -> Vector<T, 3> {
     // Compute intermediate quantities
-    let eps = f64::EPSILON * 1.0e2;
+    let eps = T::EPSILON * T::from_f64(1.0e2);
+    let eccentricity_squared = T::from_f64(e2);
+    let semi_major_axis = T::from_f64(a);
     let rho2 = x * x + y * y;
-    let mut dz = e2 * z;
-    let mut N = 0.0;
+    let mut dz = eccentricity_squared * z;
+    let mut n = T::ZERO;
 
     // Iterative refine coordinate estimate
     let mut iter = 0;
     while iter < 101 {
         let zdz = z + dz;
-        let Nh = (rho2 + zdz * zdz).sqrt();
-        let sinphi = zdz / Nh;
-        N = a / (1.0 - e2 * sinphi * sinphi).sqrt();
-        let dz_new = N * e2 * sinphi;
+        let nh = (rho2 + zdz * zdz).sqrt();
+        let sinphi = zdz / nh;
+        n = semi_major_axis / (T::ONE - eccentricity_squared * sinphi * sinphi).sqrt();
+        let dz_new = n * eccentricity_squared * sinphi;
 
         // Check convergence requirement
         if (dz - dz_new).abs() < eps {
@@ -122,15 +124,15 @@ pub fn ecef_to_geocentric(x: f64, y: f64, z: f64) -> Vector<f64, 3> {
         let zdz = z + dz;
         let lon = y.atan2(x);
         let lat = zdz.atan2(rho2.sqrt());
-        let alt = (rho2 + zdz * zdz).sqrt() - N;
+        let alt = (rho2 + zdz * zdz).sqrt() - n;
 
-        return Vector::new([lat, lon, alt]);
+        Vector::new([lat, lon, alt])
     } else {
         let zdz = z + dz;
         let lon = y.atan2(x);
         let lat = zdz.atan2(rho2.sqrt());
-        let alt = (rho2 + zdz * zdz).sqrt() - N;
+        let alt = (rho2 + zdz * zdz).sqrt() - n;
 
-        return Vector::new([lat, lon, alt]);
+        Vector::new([lat, lon, alt])
     }
 }

@@ -1,4 +1,3 @@
-#![cfg(feature = "std")]
 use aether_core::math::{Vector, Matrix};
 use aether_core::real::Real;
 

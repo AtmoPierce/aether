@@ -1,7 +1,10 @@
+use core::default::Default;
+
 use crate::{
     attitude::DirectionCosineMatrix,
     coordinate::Cartesian,
     math::Matrix,
+    real::Real,
     reference_frame::{ICRF, ReferenceFrame},
 };
 

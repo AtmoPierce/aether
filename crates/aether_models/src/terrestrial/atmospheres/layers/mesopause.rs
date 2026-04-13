@@ -1,3 +1,5 @@
+use core::result::Result::{self, Ok};
+
 pub struct Mesopause {}
 impl Mesopause {
     fn base_geopotential_altitude() -> Result<f64, &'static str> {

@@ -1,6 +1,8 @@
 #![no_std]
 use core::result::Result::*;
 
+use crate::real::Real;
+
 #[derive(Debug)]
 pub enum Constraint {
     NoGradient,

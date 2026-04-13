@@ -2,6 +2,7 @@ use aether_core::{
     math::{Matrix, Vector},
     reference_frame::{Pose, ReferenceFrame},
 };
+use core::option::Option::{self, None, Some};
 use core::ops::{Add, Sub};
 use aether_core::real::Real;
 

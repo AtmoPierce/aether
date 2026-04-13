@@ -1,3 +1,5 @@
+use core::result::Result::{self, Err, Ok};
+
 pub struct Stratosphere {}
 impl Stratosphere {
     pub fn base_geopotential_altitude(&self, level: i8) -> Result<f64, &'static str> {

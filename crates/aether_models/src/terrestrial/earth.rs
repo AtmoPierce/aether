@@ -1,9 +1,11 @@
 use super::atmospheres::ussa;
 use super::wgs84;
+use core::{default::Default, result::Result};
 use crate::{
     attitude::{DirectionCosineMatrix, Euler},
     coordinate::Cartesian,
     math::{Matrix, Vector},
+    real::Real,
     reference_frame::{ICRF, ITRF},
 };
 

@@ -1,0 +1,12 @@
+[package]
+name = "aether_interp"
+edition.workspace = true
+license-file.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[dependencies]
+aether_core = { path = "../aether_core", features = ["std", "simd", "fma"] }
+
+[lints]
+workspace = true

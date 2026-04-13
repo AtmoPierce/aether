@@ -1,3 +1,7 @@
+use core::result::Result::{self, Err, Ok};
+
+use crate::real::Real;
+
 #[derive(Debug)]
 pub enum Constraint {
     NoGradient,
