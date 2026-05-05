@@ -13,6 +13,10 @@ eframe = { version = "0.28", default-features = true, optional = true }
 egui_plot = { version = "0.28", optional = true }
 glob = "0.3"
 
+[dev-dependencies]
+aether_core = { path = "../aether_core" }
+aether_ml = { path = "../aether_ml", default-features = false, features = ["std"] }
+
 [features]
 svg = ["plotters/svg_backend"]
 bitmap = ["plotters/bitmap_backend"]
@@ -29,3 +33,7 @@ path = "src/lib.rs"
 name = "csv_tail_egui"
 path = "src/bin/csv_tail_egui.rs"
 required-features = ["gui_egui"]
+
+[[example]]
+name = "correlation_linear_regression"
+path = "examples/correlation_linear_regression.rs"

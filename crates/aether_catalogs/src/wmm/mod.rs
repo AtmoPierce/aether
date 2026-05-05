@@ -509,9 +509,8 @@ mod tests {
 	#[test]
 	fn reproduces_official_wmm2025_test_values() {
 		let model = WorldMagneticModel::embedded();
-		let cases = parse_test_values(WMM2025_TEST_VALUES);
 
-		for case in &cases {
+		for case in parse_test_values(WMM2025_TEST_VALUES) {
 			let point = GeodeticPoint::from_degrees(
 				case.latitude_deg,
 				case.longitude_deg,
@@ -546,43 +545,43 @@ mod tests {
 		}
 	}
 
-	fn parse_test_values(contents: &str) -> std::vec::Vec<SampleCase> {
-		contents
-			.lines()
-			.filter_map(|line| {
-				let line = line.trim();
-				if line.is_empty() || line.starts_with('#') {
-					return None;
-				}
+	fn parse_test_values(contents: &str) -> impl Iterator<Item = SampleCase> + '_ {
+		contents.lines().filter_map(|line| {
+			let line = line.trim();
+			if line.is_empty() || line.starts_with('#') {
+				return None;
+			}
 
-				let values: std::vec::Vec<f64> = line
-					.split_whitespace()
-					.map(|token| token.parse::<f64>().expect("numeric test value"))
-					.collect();
-				assert_eq!(values.len(), 18, "expected 18 columns in sample table");
+			let mut values = [0.0; 18];
+			let mut count = 0usize;
+			for token in line.split_whitespace() {
+				assert!(count < values.len(), "expected 18 columns in sample table");
+				values[count] = token.parse::<f64>().expect("numeric test value");
+				count += 1;
+			}
+			assert_eq!(count, values.len(), "expected 18 columns in sample table");
 
-				Some(SampleCase {
-					decimal_year: values[0],
-					height_km: values[1],
-					latitude_deg: values[2],
-					longitude_deg: values[3],
-					declination_deg: values[4],
-					inclination_deg: values[5],
-					h_nt: values[6],
-					x_nt: values[7],
-					y_nt: values[8],
-					z_nt: values[9],
-					f_nt: values[10],
-					d_declination_deg_per_year: values[11],
-					d_inclination_deg_per_year: values[12],
-					d_h_nt_per_year: values[13],
-					d_x_nt_per_year: values[14],
-					d_y_nt_per_year: values[15],
-					d_z_nt_per_year: values[16],
-					d_f_nt_per_year: values[17],
-				})
+			Some(SampleCase {
+				decimal_year: values[0],
+				height_km: values[1],
+				latitude_deg: values[2],
+				longitude_deg: values[3],
+				declination_deg: values[4],
+				inclination_deg: values[5],
+				h_nt: values[6],
+				x_nt: values[7],
+				y_nt: values[8],
+				z_nt: values[9],
+				f_nt: values[10],
+				d_declination_deg_per_year: values[11],
+				d_inclination_deg_per_year: values[12],
+				d_h_nt_per_year: values[13],
+				d_x_nt_per_year: values[14],
+				d_y_nt_per_year: values[15],
+				d_z_nt_per_year: values[16],
+				d_f_nt_per_year: values[17],
 			})
-			.collect()
+		})
 	}
 
 	fn assert_close(actual: f64, expected: f64, tolerance: f64, label: &str) {

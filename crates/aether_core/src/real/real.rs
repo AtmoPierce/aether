@@ -12,15 +12,15 @@ pub trait Real:
     + Div<Output = Self>
     + Neg<Output = Self>
 {
-    const ZERO:    Self;
-    const ONE:     Self;
-    const PI:      Self;
+    const ZERO: Self;
+    const ONE: Self;
+    const PI: Self;
     const FRAC_PI_2: Self;
     const EPSILON: Self;
     const INFINITY: Self;
     const NEG_INFINITY: Self;
 
-    // Basic math operations (re-exports)
+    // Basic math operations
     fn abs(self) -> Self;
     fn signum(self) -> Self;
 
@@ -51,6 +51,42 @@ pub trait Real:
     fn log2(self) -> Self;
     fn log10(self) -> Self;
 
+    // Default hyperbolic functions.
+    //
+    // Implementors may override these with native versions.
+    #[inline]
+    fn sinh(self) -> Self {
+        let two = Self::from_f64(2.0);
+        (self.exp() - (-self).exp()) / two
+    }
+
+    #[inline]
+    fn cosh(self) -> Self {
+        let two = Self::from_f64(2.0);
+        (self.exp() + (-self).exp()) / two
+    }
+
+    #[inline]
+    fn tanh(self) -> Self {
+        let two = Self::from_f64(2.0);
+        let e2x = (two * self).exp();
+        (e2x - Self::ONE) / (e2x + Self::ONE)
+    }
+
+    // Default special exp/log forms.
+    //
+    // Implementors should override these when native `exp_m1` / `ln_1p`
+    // exist, because these defaults lose accuracy near zero.
+    #[inline]
+    fn exp_m1(self) -> Self {
+        self.exp() - Self::ONE
+    }
+
+    #[inline]
+    fn ln_1p(self) -> Self {
+        (Self::ONE + self).ln()
+    }
+
     fn powi(self, n: i32) -> Self;
     fn powf(self, n: Self) -> Self;
 
@@ -58,17 +94,21 @@ pub trait Real:
     fn to_radians(self) -> Self;
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "fpx")]
+#[path = "fpx_impl.rs"]
+mod fpx_impl;
+
+#[cfg(all(not(feature = "fpx"), feature = "std"))]
 #[path = "std_impl.rs"]
 mod std_impl;
 
-#[cfg(not(feature = "std"))]
+#[cfg(all(not(feature = "fpx"), not(feature = "std")))]
 #[path = "no_std_impl.rs"]
 mod no_std_impl;
 
 /* -------------------- f16 -------------------- */
 
-#[cfg(feature = "f16")]
+#[cfg(all(feature = "f16", not(feature = "fpx")))]
 impl Real for f16 {
     const ZERO:    Self = 0.0;
     const ONE:     Self = 1.0;
@@ -108,6 +148,13 @@ impl Real for f16 {
     #[inline] fn log2(self) -> Self { self.log2() }
     #[inline] fn log10(self) -> Self { self.log10() }
 
+    #[inline] fn sinh(self) -> Self { self.sinh() }
+    #[inline] fn cosh(self) -> Self { self.cosh() }
+    #[inline] fn tanh(self) -> Self { self.tanh() }
+
+    #[inline] fn exp_m1(self) -> Self { self.exp_m1() }
+    #[inline] fn ln_1p(self) -> Self { self.ln_1p() }
+
     #[inline] fn powi(self, n: i32) -> Self { self.powi(n) }
     #[inline] fn powf(self, n: Self) -> Self { self.powf(n) }
 
@@ -117,7 +164,7 @@ impl Real for f16 {
 
 /* -------------------- f128 -------------------- */
 
-#[cfg(feature = "f128")]
+#[cfg(all(feature = "f128", not(feature = "fpx")))]
 impl Real for f128 {
     const ZERO:    Self = 0.0;
     const ONE:     Self = 1.0;
@@ -156,6 +203,13 @@ impl Real for f128 {
     #[inline] fn ln(self) -> Self { self.ln() }
     #[inline] fn log2(self) -> Self { self.log2() }
     #[inline] fn log10(self) -> Self { self.log10() }
+
+    #[inline] fn sinh(self) -> Self { self.sinh() }
+    #[inline] fn cosh(self) -> Self { self.cosh() }
+    #[inline] fn tanh(self) -> Self { self.tanh() }
+
+    #[inline] fn exp_m1(self) -> Self { self.exp_m1() }
+    #[inline] fn ln_1p(self) -> Self { self.ln_1p() }
 
     #[inline] fn powi(self, n: i32) -> Self { self.powi(n) }
     #[inline] fn powf(self, n: Self) -> Self { self.powf(n) }

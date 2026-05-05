@@ -32,6 +32,11 @@ impl Real for f32 {
     #[inline] fn ln(self) -> Self { f32::ln(self) }
     #[inline] fn log2(self) -> Self { f32::log2(self) }
     #[inline] fn log10(self) -> Self { f32::log10(self) }
+    #[inline] fn sinh(self) -> Self { libm::sinhf(self) }
+    #[inline] fn cosh(self) -> Self { libm::coshf(self) }
+    #[inline] fn tanh(self) -> Self { libm::tanhf(self) }
+    #[inline] fn exp_m1(self) -> Self { libm::expm1f(self) }
+    #[inline] fn ln_1p(self) -> Self { libm::log1pf(self) }
     #[inline] fn powi(self, n: i32) -> Self { f32::powi(self, n) }
     #[inline] fn powf(self, n: Self) -> Self { f32::powf(self, n) }
     #[inline] fn to_degrees(self) -> Self { f32::to_degrees(self) }
@@ -70,6 +75,12 @@ impl Real for f64 {
     #[inline] fn ln(self) -> Self { f64::ln(self) }
     #[inline] fn log2(self) -> Self { f64::log2(self) }
     #[inline] fn log10(self) -> Self { f64::log10(self) }
+    // f64
+    #[inline] fn sinh(self) -> Self { libm::sinh(self) }
+    #[inline] fn cosh(self) -> Self { libm::cosh(self) }
+    #[inline] fn tanh(self) -> Self { libm::tanh(self) }
+    #[inline] fn exp_m1(self) -> Self { libm::expm1(self) }
+    #[inline] fn ln_1p(self) -> Self { libm::log1p(self) }
     #[inline] fn powi(self, n: i32) -> Self { f64::powi(self, n) }
     #[inline] fn powf(self, n: Self) -> Self { f64::powf(self, n) }
     #[inline] fn to_degrees(self) -> Self { f64::to_degrees(self) }

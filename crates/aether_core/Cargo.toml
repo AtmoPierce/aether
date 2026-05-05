@@ -10,6 +10,7 @@ default = ["no_std"]
 bincode = ["dep:bincode"]
 serde = ["dep:serde", "dep:serde-json-core"]
 serde-json-core = ["dep:serde-json-core"]
+fpx = ["dep:fpx-core"]
 std = []
 no_std = ["dep:libm"]
 f16 = []
@@ -31,8 +32,8 @@ regex = { workspace = true, optional=true}
 serde = { workspace = true, optional=true}
 bincode = { workspace = true, optional=true }
 serde-json-core = { workspace = true, optional=true}
+fpx-core = { path = "../../../fpx/fpx-core", package = "fpx-core", optional = true }
 libm = { workspace = true, optional = true }
 
 [dev-dependencies]
 approx = { workspace = true }
-nalgebra = { workspace = true }

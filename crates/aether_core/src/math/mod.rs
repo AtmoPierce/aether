@@ -1,9 +1,11 @@
 pub mod macros;
 pub mod algorithms;
 pub mod arch;
+pub mod complex;
 pub mod matrix;
 pub mod vector;
 pub mod tensor;
+pub use complex::{Complex, ComplexField};
 pub use matrix::Matrix;
 pub use vector::Vector;
 pub use tensor::{Tensor3, Tensor4, TensorView, TensorViewMut};

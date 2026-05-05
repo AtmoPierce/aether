@@ -1,0 +1,281 @@
+use std::collections::HashMap;
+use std::fmt::Write as _;
+use std::fs;
+use std::path::PathBuf;
+
+#[path = "../../aether_units/src/parser/mod.rs"]
+mod units_parser;
+
+use units_parser::{parse_unit_expr, ParsedUnitExpr, UnitSymbol};
+
+fn main() {
+    let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| ".".to_string()));
+    let source_path = manifest_dir.join("src/physical/allascii.txt");
+    let output_path = manifest_dir.join("src/physical/generated.rs");
+
+    let source = fs::read_to_string(&source_path).expect("failed to read allascii.txt");
+    let constants = parse_constants(&source);
+    let generated = render_generated_module(&constants);
+    fs::write(&output_path, generated).expect("failed to write generated.rs");
+
+    println!("updated {}", output_path.display());
+}
+
+#[derive(Debug)]
+struct ParsedConstant {
+    identifier: String,
+    value_numeric: f64,
+    uncertainty_kind: UncertaintyKind,
+    unit: ParsedUnitExpr,
+}
+
+#[derive(Debug)]
+enum UncertaintyKind {
+    Exact,
+    Standard {
+        numeric: f64,
+    },
+}
+
+fn parse_constants(source: &str) -> Vec<ParsedConstant> {
+    let mut saw_separator = false;
+    let mut used_identifiers = HashMap::<String, usize>::new();
+    let mut constants = Vec::new();
+
+    for line in source.lines() {
+        let trimmed = line.trim();
+        if trimmed.is_empty() {
+            continue;
+        }
+
+        if !saw_separator {
+            if trimmed.chars().all(|ch| ch == '-') {
+                saw_separator = true;
+            }
+            continue;
+        }
+
+        let columns = split_columns(trimmed);
+        if columns.len() < 3 {
+            continue;
+        }
+
+        let quantity = columns[0].to_string();
+        let value_raw = columns[1].to_string();
+        let uncertainty_raw = columns[2].to_string();
+        let unit_raw = columns.get(3).copied().unwrap_or("");
+
+        let base_identifier = sanitize_identifier(&quantity);
+        let entry_count = used_identifiers.entry(base_identifier.clone()).or_insert(0);
+        *entry_count += 1;
+        let identifier = if *entry_count == 1 {
+            base_identifier
+        } else {
+            format!("{}_{}", base_identifier, *entry_count)
+        };
+
+        let value_numeric = parse_ascii_number(&value_raw)
+    	            .unwrap_or_else(|| panic!("failed to parse value for {}: {}", quantity, value_raw));
+
+        let uncertainty_kind = if uncertainty_raw == "(exact)" {
+            UncertaintyKind::Exact
+        } else {
+            let numeric = parse_ascii_number(&uncertainty_raw)
+	                .unwrap_or_else(|| panic!("failed to parse uncertainty for {}: {}", quantity, uncertainty_raw));
+            UncertaintyKind::Standard { numeric }
+        };
+
+        constants.push(ParsedConstant {
+            identifier,
+            value_numeric,
+            uncertainty_kind,
+            unit: parse_unit_expr(unit_raw).unwrap_or_else(|error| panic!("failed to parse unit {:?}: {:?}", unit_raw, error)),
+        });
+    }
+
+    constants
+}
+
+fn split_columns(line: &str) -> Vec<&str> {
+    let mut fields = Vec::new();
+    let bytes = line.as_bytes();
+    let mut start = 0usize;
+    let mut idx = 0usize;
+
+    while idx < bytes.len() {
+        if bytes[idx] == b' ' {
+            let mut end = idx;
+            while end < bytes.len() && bytes[end] == b' ' {
+                end += 1;
+            }
+            if end - idx >= 2 {
+                let field = line[start..idx].trim();
+                if !field.is_empty() {
+                    fields.push(field);
+                }
+                start = end;
+            }
+            idx = end;
+            continue;
+        }
+        idx += 1;
+    }
+
+    let tail = line[start..].trim();
+    if !tail.is_empty() {
+        fields.push(tail);
+    }
+    fields
+}
+
+fn sanitize_identifier(quantity: &str) -> String {
+    let mut identifier = String::with_capacity(quantity.len() + 8);
+    let mut previous_was_underscore = false;
+
+    for ch in quantity.chars() {
+        if ch.is_ascii_alphanumeric() {
+            identifier.push(ch.to_ascii_uppercase());
+            previous_was_underscore = false;
+        } else if !previous_was_underscore {
+            identifier.push('_');
+            previous_was_underscore = true;
+        }
+    }
+
+    let identifier = identifier.trim_matches('_').to_string();
+    if identifier.is_empty() || identifier.chars().next().is_some_and(|ch| ch.is_ascii_digit()) {
+        format!("NIST_{}", identifier)
+    } else {
+        identifier
+    }
+}
+
+fn parse_ascii_number(raw: &str) -> Option<f64> {
+    let compact = raw.replace(' ', "");
+    let normalized = compact.replace("...", "");
+    normalized.parse::<f64>().ok()
+}
+
+fn render_generated_module(constants: &[ParsedConstant]) -> String {
+    let mut output = String::new();
+    writeln!(output, "// @generated by tools/generate_nist_constants.rs from src/physical/allascii.txt").unwrap();
+    writeln!(output).unwrap();
+    writeln!(output, "use super::{{NistConstant, PhysicalConstant, Uncertainty}};").unwrap();
+    writeln!(output, "use aether_units::parser::{{UnitExpr, UnitSymbol, UnitTerm}};").unwrap();
+    writeln!(output).unwrap();
+
+    for constant in constants {
+        writeln!(output, "pub const {}: NistConstant<f64> = NistConstant::new(", constant.identifier).unwrap();
+        writeln!(output, "    PhysicalConstant::new(").unwrap();
+        writeln!(output, "        {:.17e},", constant.value_numeric).unwrap();
+        match &constant.uncertainty_kind {
+            UncertaintyKind::Exact => {
+                writeln!(output, "        Uncertainty::exact(),").unwrap();
+            }
+            UncertaintyKind::Standard { numeric } => {
+                writeln!(output, "        Uncertainty::standard({:.17e}),", numeric).unwrap();
+            }
+        }
+        writeln!(output, "    ),").unwrap();
+        writeln!(output, "    {},", render_unit_expr(&constant.unit)).unwrap();
+        writeln!(output, ");").unwrap();
+        writeln!(output).unwrap();
+    }
+
+    writeln!(output, "pub static ALL_CONSTANTS: &[&NistConstant<f64>] = &[").unwrap();
+    for constant in constants {
+        writeln!(output, "    &{},", constant.identifier).unwrap();
+    }
+    writeln!(output, "];\n").unwrap();
+
+    writeln!(output, "#[cfg(test)]").unwrap();
+    writeln!(output, "mod generated_constant_tests {{").unwrap();
+    writeln!(output, "    use super::*;").unwrap();
+    writeln!(output).unwrap();
+    writeln!(output, "    fn assert_generated_constant(constant: &'static NistConstant<f64>) {{").unwrap();
+    writeln!(output, "        assert!(constant.constant.value.is_finite());").unwrap();
+    writeln!(output, "        match constant.constant.uncertainty {{").unwrap();
+    writeln!(output, "            Uncertainty::Exact => {{}}",
+    ).unwrap();
+    writeln!(output, "            Uncertainty::Standard(value) => {{").unwrap();
+    writeln!(output, "                assert!(value.is_finite());").unwrap();
+    writeln!(output, "                assert!(value >= 0.0);").unwrap();
+    writeln!(output, "            }}").unwrap();
+    writeln!(output, "        }}").unwrap();
+    writeln!(output, "        assert!(ALL_CONSTANTS.iter().any(|candidate| **candidate == *constant));").unwrap();
+    writeln!(output, "    }}").unwrap();
+    writeln!(output).unwrap();
+    for constant in constants {
+        writeln!(output, "    #[test]").unwrap();
+        writeln!(output, "    fn {}_generated_constant_is_valid() {{", constant.identifier.to_ascii_lowercase()).unwrap();
+        writeln!(output, "        assert_generated_constant(&{});", constant.identifier).unwrap();
+        writeln!(output, "    }}").unwrap();
+        writeln!(output).unwrap();
+    }
+    writeln!(output, "}}").unwrap();
+
+    output
+}
+
+fn render_unit_expr(unit: &ParsedUnitExpr) -> String {
+    if unit.terms.is_empty() {
+        return "UnitExpr::dimensionless()".to_string();
+    }
+
+    let rendered_terms = unit
+        .terms
+        .iter()
+        .map(|term| {
+            format!(
+                "UnitTerm::new(UnitSymbol::{}, {})",
+                render_unit_symbol(term.symbol),
+                term.exponent
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    format!("UnitExpr::new(&[{}])", rendered_terms)
+}
+
+fn render_unit_symbol(symbol: UnitSymbol) -> &'static str {
+    match symbol {
+        UnitSymbol::Meter => "Meter",
+        UnitSymbol::Kilogram => "Kilogram",
+        UnitSymbol::Second => "Second",
+        UnitSymbol::Ampere => "Ampere",
+        UnitSymbol::Kelvin => "Kelvin",
+        UnitSymbol::Mole => "Mole",
+        UnitSymbol::Candela => "Candela",
+        UnitSymbol::Hertz => "Hertz",
+        UnitSymbol::Newton => "Newton",
+        UnitSymbol::Pascal => "Pascal",
+        UnitSymbol::Joule => "Joule",
+        UnitSymbol::Watt => "Watt",
+        UnitSymbol::Coulomb => "Coulomb",
+        UnitSymbol::Volt => "Volt",
+        UnitSymbol::Farad => "Farad",
+        UnitSymbol::Ohm => "Ohm",
+        UnitSymbol::Siemens => "Siemens",
+        UnitSymbol::Weber => "Weber",
+        UnitSymbol::Tesla => "Tesla",
+        UnitSymbol::Henry => "Henry",
+        UnitSymbol::Lumen => "Lumen",
+        UnitSymbol::Lux => "Lux",
+        UnitSymbol::Becquerel => "Becquerel",
+        UnitSymbol::Gray => "Gray",
+        UnitSymbol::Sievert => "Sievert",
+        UnitSymbol::Katal => "Katal",
+        UnitSymbol::Radian => "Radian",
+        UnitSymbol::Steradian => "Steradian",
+        UnitSymbol::ElectronVolt => "ElectronVolt",
+        UnitSymbol::MegaElectronVolt => "MegaElectronVolt",
+        UnitSymbol::GigaElectronVolt => "GigaElectronVolt",
+        UnitSymbol::AtomicMassUnit => "AtomicMassUnit",
+        UnitSymbol::Hartree => "Hartree",
+        UnitSymbol::MegaHertz => "MegaHertz",
+        UnitSymbol::KiloPascal => "KiloPascal",
+        UnitSymbol::SpeedOfLight => "SpeedOfLight",
+        UnitSymbol::Femtometer => "Femtometer",
+    }
+}

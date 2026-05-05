@@ -5,6 +5,4 @@ fn gravity_test() {
     let y = 0.0;
     let z = 0.0;
     let g_r = gravity_rectangular(x, y, z);
-
-    println!("Gravity: {}", g_r);
 }

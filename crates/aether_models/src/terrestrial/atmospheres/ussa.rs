@@ -181,16 +181,3 @@ impl USSA {
         return Ok(viscosity);
     }
 }
-
-#[cfg(test)]
-mod tests {
-    // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::*;
-
-    #[test]
-    fn test_add() {
-        use USSA;
-        let mut ussa = USSA::new();
-        println!("Pressure: {}", ussa.pressure(160000.0).unwrap());
-    }
-}

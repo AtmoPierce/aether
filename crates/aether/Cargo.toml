@@ -10,6 +10,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 aether_core = { path = "../aether_core" }
+aether_fft = { path = "../aether_fft" }
 aether_catalogs = { path = "../aether_catalogs" }
 aether_benchmark = { path = "../aether_benchmark" }
 aether_examples = { path = "../aether_examples" }
@@ -29,6 +30,7 @@ serde = ["aether_core/serde"]
 bincode = ["aether_core/bincode"]
 std = [
     "aether_core/std",
+    "aether_fft/std",
     "aether_catalogs/std",
     "aether_benchmark/std",
     "aether_fluids/std",
@@ -42,6 +44,7 @@ std = [
 ]
 no_std = [
     "aether_core/no_std",
+    "aether_fft/no_std",
     "aether_benchmark/no_std",
     "aether_fluids/no_std",
     "aether_graphics/no_std",
@@ -59,13 +62,12 @@ simd = ["aether_core/simd"]
 fma = ["aether_core/fma"]
 
 [dev-dependencies]
-criterion = { workspace = true }
-nalgebra = { workspace = true }
+# criterion = { workspace = true }
 
-[[bench]]
-name = "throughput"
-harness = false
+# [[bench]]
+# name = "throughput"
+# harness = false
 
-[[bench]]
-name = "precision"
-harness = false
+# [[bench]]
+# name = "precision"
+# harness = false

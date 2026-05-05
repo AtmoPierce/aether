@@ -147,25 +147,29 @@ impl<T: Real> OrbitCamera<T> {
 
     #[inline]
     pub fn right(&self) -> Vector<T, 3> {
-        // right = world_up × forward (Z-up locked), with robust fallback near poles.
         let fwd = self.forward();
         let world_up = Vector::new([T::ZERO, T::ZERO, T::ONE]);
-        let mut right = world_up.cross(&fwd);
+
+        // Conventional right-handed camera right axis.
+        let mut right = fwd.cross(&world_up);
 
         let n2 = right[0] * right[0] + right[1] * right[1] + right[2] * right[2];
         if n2 < T::from_f64(1.0e-16) {
-            right = Vector::new([T::ONE, T::ZERO, T::ZERO]).cross(&fwd);
+            right = fwd.cross(&Vector::new([T::ONE, T::ZERO, T::ZERO]));
         }
 
         right.normalize()
     }
 
+
     #[inline]
     pub fn cam_up(&self) -> Vector<T, 3> {
-        // up' = forward × right, locked to world-up hemisphere (+Z)
         let fwd = self.forward();
         let right = self.right();
-        let up = fwd.cross(&right);
+
+        // Keep basis consistent with right = forward × world_up.
+        let up = right.cross(&fwd);
+
         let n2 = up[0] * up[0] + up[1] * up[1] + up[2] * up[2];
         if n2 < T::from_f64(1.0e-16) {
             Vector::new([T::ZERO, T::ZERO, T::ONE])

@@ -7,7 +7,7 @@ license-file.workspace = true
 
 [features]
 default = ["no_std"]
-std = []
+std = ["dep:aether_opt"]
 no_std = []
 
 [lib]
@@ -16,4 +16,8 @@ crate-type = ["rlib"]
 [dependencies]
 aether_core = {path = "../aether_core"}
 aether_rand = {path = "../aether_rand"}
-aether_opt =  {path = "../aether_opt"}
+aether_opt =  {path = "../aether_opt", optional = true}
+
+[dev-dependencies]
+aether_fft = { path = "../aether_fft", features = ["std"] }
+aether_viz = { path = "../aether_viz" }

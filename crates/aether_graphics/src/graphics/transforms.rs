@@ -1,4 +1,3 @@
-use aether_core::attitude::DirectionCosineMatrix;
 use aether_core::coordinate::Cartesian;
 use aether_core::math::{Matrix, Vector};
 use aether_core::reference_frame::ReferenceFrame;
@@ -10,8 +9,8 @@ pub fn look_at<T: Real, F: ReferenceFrame>(
     up: &Cartesian<T, F>,
 ) -> Matrix<T, 4, 4> {
     let f = (center - eye).normalize().data;
-    let r = up.data.cross(&f).normalize();
-    let u = f.cross(&r);
+    let r = f.cross(&up.data).normalize();
+    let u = r.cross(&f);
 
     Matrix::new([
         [r[0], r[1], r[2], -r.dot(&eye.data)],
@@ -22,26 +21,20 @@ pub fn look_at<T: Real, F: ReferenceFrame>(
 }
 
 pub fn perspective<T: Real>(aspect: T, fov_y_rad: T, near: T, far: T) -> Matrix<T, 4, 4> {
-    // assert!(aspect > T::ZERO, "Aspect ratio must be > 0");
-    // assert!(fov_y_rad > T::ZERO, "Field of view must be > 0");
-    // assert!(near != far, "Near and far planes must not be equal");
-
     let f = T::ONE / (fov_y_rad / T::from_f32(2.0)).tan();
     let nf = T::ONE / (near - far);
 
-    Matrix {
-        data: [
-            [f / aspect, T::ZERO, T::ZERO, T::ZERO],
-            [T::ZERO, f, T::ZERO, T::ZERO],
-            [T::ZERO, T::ZERO, (far + near) * nf, -T::ONE],
-            [
-                T::ZERO,
-                T::ZERO,
-                (T::from_f32(2.0) * far * near) * nf,
-                T::ZERO,
-            ],
+    Matrix::new([
+        [f / aspect, T::ZERO, T::ZERO, T::ZERO],
+        [T::ZERO, f, T::ZERO, T::ZERO],
+        [
+            T::ZERO,
+            T::ZERO,
+            (far + near) * nf,
+            (T::from_f32(2.0) * far * near) * nf,
         ],
-    }
+        [T::ZERO, T::ZERO, -T::ONE, T::ZERO],
+    ])
 }
 
 pub fn look_at_perspective<T: Real, F: ReferenceFrame>(
