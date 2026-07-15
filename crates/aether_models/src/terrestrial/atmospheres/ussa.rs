@@ -46,15 +46,12 @@ impl USSA {
     }
 
     fn get_base_index(&self, geometric_height: f64) -> Result<usize, &'static str> {
-        let mut i = 0;
-        for _value in Self::base_geometric_heights {
+        for i in 0..(Self::base_geometric_heights.len() - 1) {
             if geometric_height < Self::base_geometric_heights[i + 1] {
                 return Ok(i);
-            } else {
-                i += 1;
             }
         }
-        return Err("yikes...");
+        return Err("geometric height out of range");
     }
 
     fn get_gradient_index(&self, base_index: usize) -> Result<usize, Constraint> {
@@ -168,7 +165,7 @@ impl USSA {
         let temperature = self
             .temperature(geometric_height)
             .expect("Could not determine temperature.");
-        return Ok(1.4 * Self::R_Star / Self::air_molar_mass * temperature);
+        return Ok((Self::gamma * Self::R_Star / Self::air_molar_mass * temperature).sqrt());
     }
 
     pub fn dynamic_viscosity(&self, geometric_height: f64) -> Result<f64, &'static str> {
@@ -179,5 +176,23 @@ impl USSA {
             / (temperature + Self::dynamic_viscosity_nist_B)
             * 0.1; // 0.1 is to convert to Pascal*second
         return Ok(viscosity);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sea_level_speed_of_sound_matches_standard_atmosphere() {
+        let ussa = USSA::new();
+        let speed = ussa.speed_of_sound(0.0).unwrap();
+        assert!((speed - 340.294).abs() < 0.5);
+    }
+
+    #[test]
+    fn out_of_range_height_returns_error() {
+        let ussa = USSA::new();
+        assert!(ussa.pressure(1.0e6).is_err());
     }
 }

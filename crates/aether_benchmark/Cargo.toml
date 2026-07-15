@@ -10,9 +10,9 @@ crate-type = ["rlib"]
 
 [features]
 default = ["no_std"]
-std = []
+std = ["dep:minstant", "dep:once_cell"]
 no_std = []
 
 [dependencies]
-minstant = { workspace = true }
-once_cell = { workspace = true }
+minstant = { workspace = true, optional = true }
+once_cell = { workspace = true, optional = true }

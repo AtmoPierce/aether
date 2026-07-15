@@ -7,15 +7,15 @@ license-file.workspace = true
 
 [features]
 default = ["no_std"]
-std = []
+std = ["dep:csv", "dep:minstant", "dep:once_cell", "dep:serde"]
 no_std = []
 
 [dependencies]
 aether_opt = {path = "../aether_opt"}
 aether_core = { path = "../aether_core" }
-minstant = { workspace = true }
-once_cell = { workspace = true }
-csv = { workspace = true }
-serde = { workspace = true }
+minstant = { workspace = true, optional = true }
+once_cell = { workspace = true, optional = true }
+csv = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
 
 [target.'cfg(feature = "std")'.dependencies]

@@ -1,5 +1,3 @@
-#![cfg_attr(all(feature = "no_std", not(feature = "std")), no_std)]
-
 use aether_shapes::attributes::Solid;
 use aether_shapes::cylinder::Cylinder;
 use aether_shapes::sphere::Sphere;
