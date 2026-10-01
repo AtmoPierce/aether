@@ -58,9 +58,7 @@ impl<const N: usize> CubicSpline<N> {
 
         let a = (x1 - x) / h;
         let b = (x - x0) / h;
-        a * y0
-            + b * y1
-            + ((a * a * a - a) * y2_0 + (b * b * b - b) * y2_1) * (h * h / 6.0)
+        a * y0 + b * y1 + ((a * a * a - a) * y2_0 + (b * b * b - b) * y2_1) * (h * h / 6.0)
     }
 
     pub const fn sample_count(&self) -> usize {
@@ -95,14 +93,16 @@ mod tests {
 
     #[test]
     fn cubic_spline_reproduces_linear_samples() {
-        let spline = CubicSpline::new(Vector::new([0.0, 1.0, 2.0]), Vector::new([1.0, 3.0, 5.0])).unwrap();
+        let spline =
+            CubicSpline::new(Vector::new([0.0, 1.0, 2.0]), Vector::new([1.0, 3.0, 5.0])).unwrap();
         assert!((spline.evaluate(0.5) - 2.0).abs() < 1.0e-12);
         assert!((spline.evaluate(1.5) - 4.0).abs() < 1.0e-12);
     }
 
     #[test]
     fn cubic_spline_hits_knots() {
-        let spline = CubicSpline::new(Vector::new([0.0, 1.0, 3.0]), Vector::new([0.0, 2.0, 1.0])).unwrap();
+        let spline =
+            CubicSpline::new(Vector::new([0.0, 1.0, 3.0]), Vector::new([0.0, 2.0, 1.0])).unwrap();
         assert!((spline.evaluate(0.0) - 0.0).abs() < 1.0e-12);
         assert!((spline.evaluate(1.0) - 2.0).abs() < 1.0e-12);
         assert!((spline.evaluate(3.0) - 1.0).abs() < 1.0e-12);
@@ -110,6 +110,8 @@ mod tests {
 
     #[test]
     fn cubic_spline_rejects_unsorted_samples() {
-        assert!(CubicSpline::new(Vector::new([0.0, 1.0, 1.0]), Vector::new([0.0, 1.0, 2.0])).is_err());
+        assert!(
+            CubicSpline::new(Vector::new([0.0, 1.0, 1.0]), Vector::new([0.0, 1.0, 2.0])).is_err()
+        );
     }
 }

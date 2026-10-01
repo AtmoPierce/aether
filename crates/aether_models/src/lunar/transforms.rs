@@ -8,19 +8,11 @@ use super::{
 };
 
 pub fn icrf_to_lirf() -> DirectionCosineMatrix<f64, ICRF<f64>, LIRF> {
-    DirectionCosineMatrix::new(
-        1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, 0.0, 1.0,
-    )
+    DirectionCosineMatrix::new(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
 }
 
 pub fn lirf_to_icrf() -> DirectionCosineMatrix<f64, LIRF, ICRF<f64>> {
-    DirectionCosineMatrix::new(
-        1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, 0.0, 1.0,
-    )
+    DirectionCosineMatrix::new(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
 }
 
 pub fn lirf_to_ltrf(time: f64) -> DirectionCosineMatrix<f64, LIRF, LTRF> {
@@ -78,19 +70,11 @@ pub fn ltrf_to_icrf_at_epoch(
 #[cfg(test)]
 mod tests {
     use super::{
-        icrf_to_lirf,
-        icrf_to_ltrf,
-        icrf_to_ltrf_at_epoch,
-        lirf_to_icrf,
-        lirf_to_ltrf,
-        ltrf_to_icrf,
-        ltrf_to_icrf_at_epoch,
-        ltrf_to_lirf,
+        icrf_to_lirf, icrf_to_ltrf, icrf_to_ltrf_at_epoch, lirf_to_icrf, lirf_to_ltrf,
+        ltrf_to_icrf, ltrf_to_icrf_at_epoch, ltrf_to_lirf,
     };
     use crate::{
-        attitude::DirectionCosineMatrix,
-        coordinate::Cartesian,
-        lunar::frames::LIRF,
+        attitude::DirectionCosineMatrix, coordinate::Cartesian, lunar::frames::LIRF,
         reference_frame::ICRF,
     };
 
@@ -163,9 +147,15 @@ mod tests {
     fn central_rotation_can_be_non_identity() {
         let theta: f64 = 0.25;
         let central = DirectionCosineMatrix::<f64, ICRF<f64>, LIRF>::new(
-            theta.cos(), theta.sin(), 0.0,
-            -theta.sin(), theta.cos(), 0.0,
-            0.0, 0.0, 1.0,
+            theta.cos(),
+            theta.sin(),
+            0.0,
+            -theta.sin(),
+            theta.cos(),
+            0.0,
+            0.0,
+            0.0,
+            1.0,
         );
 
         let i2l = central;

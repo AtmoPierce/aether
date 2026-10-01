@@ -1,6 +1,9 @@
 use core::fmt;
 
-use aether_core::{math::ComplexField, real::real::{Real, RealCast}};
+use aether_core::{
+    math::ComplexField,
+    real::real::{Real, RealCast},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FftAlgorithm {
@@ -178,7 +181,8 @@ fn radix2_transform_in_place<C: ComplexField>(
     let mut block_len = 2usize;
     while block_len <= len {
         let half_block = block_len / 2;
-        let theta = sign * C::RealPart::from_f64(2.0) * C::RealPart::PI / C::RealPart::from_usize(block_len);
+        let theta = sign * C::RealPart::from_f64(2.0) * C::RealPart::PI
+            / C::RealPart::from_usize(block_len);
         let w_len = C::from_polar(C::RealPart::ONE, theta);
 
         let mut block_start = 0usize;
@@ -251,9 +255,9 @@ mod tests {
 
     fn coherent_real_tone<const N: usize>(bin: usize, amplitude: f64) -> [Complex<f64>; N] {
         core::array::from_fn(|index| {
-                let angle = 2.0 * core::f64::consts::PI * bin as f64 * index as f64 / N as f64;
-                Complex::from_real(amplitude * angle.cos())
-            })
+            let angle = 2.0 * core::f64::consts::PI * bin as f64 * index as f64 / N as f64;
+            Complex::from_real(amplitude * angle.cos())
+        })
     }
 
     fn magnitude_spectrum<const N: usize>(values: &[Complex<f64>; N]) -> [f64; N] {
@@ -278,7 +282,10 @@ mod tests {
                     "expected dominant tone at bin {index}, got {magnitude}"
                 );
             } else {
-                assert!(magnitude <= 1e-9, "unexpected leakage at bin {index}: {magnitude}");
+                assert!(
+                    magnitude <= 1e-9,
+                    "unexpected leakage at bin {index}: {magnitude}"
+                );
             }
         }
     }
@@ -345,7 +352,8 @@ mod tests {
     #[test]
     fn dft_inverse_round_trips_a_short_signal() {
         let base = coherent_real_tone::<5>(1, 1.0);
-        let input = core::array::from_fn(|index| base[index] + Complex::from_real(0.1 * index as f64));
+        let input =
+            core::array::from_fn(|index| base[index] + Complex::from_real(0.1 * index as f64));
 
         let mut forward = [Complex::zero(); 5];
         dft_into(&input, &mut forward, FftDirection::Forward).unwrap();
@@ -364,8 +372,13 @@ mod tests {
         let mut data = input;
         let mut scratch = [Complex::zero(); 5];
 
-        transform_in_place_with_scratch(&mut data, &mut scratch, FftDirection::Forward, FftAlgorithm::Auto)
-            .unwrap();
+        transform_in_place_with_scratch(
+            &mut data,
+            &mut scratch,
+            FftDirection::Forward,
+            FftAlgorithm::Auto,
+        )
+        .unwrap();
 
         let mut expected = [Complex::zero(); 5];
         dft_into(&input, &mut expected, FftDirection::Forward).unwrap();
@@ -395,7 +408,10 @@ mod tests {
             if index == 2 || index == 6 {
                 assert!((magnitude - 4.0).abs() <= 1e-9);
             } else {
-                assert!(magnitude <= 1e-9, "unexpected leakage at bin {index}: {magnitude}");
+                assert!(
+                    magnitude <= 1e-9,
+                    "unexpected leakage at bin {index}: {magnitude}"
+                );
             }
         }
     }

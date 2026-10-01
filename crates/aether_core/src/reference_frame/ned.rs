@@ -1,6 +1,6 @@
 use crate::coordinate::Cartesian;
-use crate::reference_frame::{FixedFrame, ReferenceFrame};
 use crate::real::Real;
+use crate::reference_frame::{FixedFrame, ReferenceFrame};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct NED<T: Real> {

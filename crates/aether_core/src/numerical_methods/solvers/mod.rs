@@ -1,9 +1,9 @@
 pub mod lu;
-pub mod spd;
 pub mod newton;
+pub mod spd;
 pub use lu::*;
+pub use newton::*;
 pub use spd::*;
-pub use newton::*;  
 
 #[cfg(test)]
 #[path = "tests/mod.rs"]

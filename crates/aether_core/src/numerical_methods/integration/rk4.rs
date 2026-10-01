@@ -1,9 +1,9 @@
-use crate::coordinate::Cartesian;
 use crate::attitude::Euler;
+use crate::coordinate::Cartesian;
 use crate::math::Vector;
-use core::marker::PhantomData;
 use crate::real::Real;
 use crate::reference_frame::ReferenceFrame;
+use core::marker::PhantomData;
 pub trait Rk4Integrate<T: Real> {
     /// RK4 step given `self` as the current state,
     /// `f` as the derivative function, and `dt` as the time step.
@@ -39,10 +39,7 @@ impl<T: Real + Copy, RF> Rk4Integrate<T> for Cartesian<T, RF> {
 
         Self {
             data: self.data
-                + (k1.data
-                    + k2.data * T::from_f32(2.0)
-                    + k3.data * T::from_f32(2.0)
-                    + k4.data)
+                + (k1.data + k2.data * T::from_f32(2.0) + k3.data * T::from_f32(2.0) + k4.data)
                     * sixth_dt,
             _reference_frame: PhantomData,
         }

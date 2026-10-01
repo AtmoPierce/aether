@@ -11,7 +11,9 @@ pub enum CovarianceError {
     ZeroVarianceAxis,
 }
 
-pub fn mean<T: Real, const N: usize>(samples: &[Vector<T, N>]) -> Result<Vector<T, N>, CovarianceError> {
+pub fn mean<T: Real, const N: usize>(
+    samples: &[Vector<T, N>],
+) -> Result<Vector<T, N>, CovarianceError> {
     if samples.is_empty() {
         return Err(CovarianceError::EmptySamples);
     }
@@ -42,7 +44,8 @@ pub fn sample_covariance<T: Real, const N: usize>(
         let centered = *sample - mean;
         for row in 0..N {
             for col in 0..N {
-                covariance.data[row][col] = covariance.data[row][col] + centered[row] * centered[col];
+                covariance.data[row][col] =
+                    covariance.data[row][col] + centered[row] * centered[col];
             }
         }
     }
@@ -74,7 +77,8 @@ pub fn sample_cross_covariance<T: Real, const N: usize, const M: usize>(
         let centered_y = *y - mean_y;
         for row in 0..N {
             for col in 0..M {
-                covariance.data[row][col] = covariance.data[row][col] + centered_x[row] * centered_y[col];
+                covariance.data[row][col] =
+                    covariance.data[row][col] + centered_x[row] * centered_y[col];
             }
         }
     }
@@ -105,8 +109,8 @@ pub fn correlation_from_covariance<T: Real, const N: usize>(
 
     for row in 0..N {
         for col in 0..N {
-            correlation.data[row][col] = covariance.data[row][col]
-                / (standard_deviations[row] * standard_deviations[col]);
+            correlation.data[row][col] =
+                covariance.data[row][col] / (standard_deviations[row] * standard_deviations[col]);
         }
     }
 
@@ -121,9 +125,8 @@ pub fn covariance_from_correlation<T: Real, const N: usize>(
 
     for row in 0..N {
         for col in 0..N {
-            covariance.data[row][col] = correlation.data[row][col]
-                * standard_deviations[row]
-                * standard_deviations[col];
+            covariance.data[row][col] =
+                correlation.data[row][col] * standard_deviations[row] * standard_deviations[col];
         }
     }
 
@@ -170,20 +173,19 @@ mod tests {
 
     #[test]
     fn correlation_and_covariance_round_trip() {
-        let covariance = Matrix::new([
-            [4.0_f64, 3.0_f64],
-            [3.0_f64, 9.0_f64],
-        ]);
+        let covariance = Matrix::new([[4.0_f64, 3.0_f64], [3.0_f64, 9.0_f64]]);
 
         let standard_deviations = standard_deviations_from_covariance(&covariance)
             .expect("standard deviations should exist");
-        let correlation = correlation_from_covariance(&covariance)
-            .expect("correlation should exist");
+        let correlation =
+            correlation_from_covariance(&covariance).expect("correlation should exist");
         let rebuilt_covariance = covariance_from_correlation(&correlation, &standard_deviations);
 
         for row in 0..2 {
             for col in 0..2 {
-                assert!((rebuilt_covariance.data[row][col] - covariance.data[row][col]).abs() < 1.0e-12);
+                assert!(
+                    (rebuilt_covariance.data[row][col] - covariance.data[row][col]).abs() < 1.0e-12
+                );
             }
         }
     }

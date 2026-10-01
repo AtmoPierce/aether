@@ -5,9 +5,9 @@ mod tests {
     use crate::attitude::{DirectionCosineMatrix, Euler, Quaternion};
     use crate::math::Matrix;
     use crate::matrix;
+    use crate::real::Real;
     use crate::reference_frame::Body;
     use approx::assert_relative_eq;
-    use crate::real::Real;
 
     const EPSILON: f64 = 1e-6;
 
@@ -64,11 +64,11 @@ mod tests {
             -0.48,  0.64,  0.60
         ];
 
-        let dcm1:DirectionCosineMatrix<f64, Body<f64>, Body<f64>>  = DirectionCosineMatrix::from(&dcm);
+        let dcm1: DirectionCosineMatrix<f64, Body<f64>, Body<f64>> =
+            DirectionCosineMatrix::from(&dcm);
 
         // Exercise your exact TryFrom implementation
-        let q = Quaternion::try_from(&dcm1)
-            .expect("TryFrom<DCM> failed");
+        let q = Quaternion::try_from(&dcm1).expect("TryFrom<DCM> failed");
 
         let dcm2 = DirectionCosineMatrix::from(&q);
 
@@ -80,7 +80,10 @@ mod tests {
                 assert!(
                     (m1[r][c] - m2[r][c]).abs() <= EPSILON,
                     "Mismatch at ({}, {}): {} vs {}",
-                    r, c, m1[r][c], m2[r][c]
+                    r,
+                    c,
+                    m1[r][c],
+                    m2[r][c]
                 );
             }
         }
@@ -102,7 +105,10 @@ mod tests {
                 assert!(
                     (m1[r][c] - m2[r][c]).abs() <= 1e-1,
                     "Mismatch at ({}, {}): {} vs {}",
-                    r, c, m1[r][c], m2[r][c]
+                    r,
+                    c,
+                    m1[r][c],
+                    m2[r][c]
                 );
             }
         }

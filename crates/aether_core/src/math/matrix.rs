@@ -1,15 +1,15 @@
 use super::algorithms::MatrixAlgorithms;
-#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
-use super::arch::x86::matrix_simd;
-#[cfg(all(feature = "simd", target_arch = "aarch64"))]
-use super::arch::arm::neon as arm_neon;
 #[cfg(all(feature = "simd", target_arch = "arm"))]
 use super::arch::arm::m33_dsp;
+#[cfg(all(feature = "simd", target_arch = "aarch64"))]
+use super::arch::arm::neon as arm_neon;
+#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
+use super::arch::x86::matrix_simd;
 use super::vector::Vector;
-use crate::real::{Real};
-use core::ops::{Add, Sub, Mul, Div, Neg, AddAssign};
-use core::ops::{Index, IndexMut};
+use crate::real::Real;
 use core::mem::MaybeUninit;
+use core::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
+use core::ops::{Index, IndexMut};
 use core::ptr;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -1087,9 +1087,7 @@ impl<T, const M: usize, const N: usize> IndexMut<(usize, usize)> for Matrix<T, M
 }
 
 /* -------------------- Casting ----------------------------- */
-impl<const M: usize, const N: usize> From<Matrix<f32, M, N>>
-    for Matrix<f64, M, N>
-{
+impl<const M: usize, const N: usize> From<Matrix<f32, M, N>> for Matrix<f64, M, N> {
     #[inline]
     fn from(src: Matrix<f32, M, N>) -> Self {
         let mut out = Matrix::<f64, M, N>::zeros();
@@ -1102,9 +1100,7 @@ impl<const M: usize, const N: usize> From<Matrix<f32, M, N>>
     }
 }
 
-impl<const M: usize, const N: usize> From<Matrix<f64, M, N>>
-    for Matrix<f32, M, N>
-{
+impl<const M: usize, const N: usize> From<Matrix<f64, M, N>> for Matrix<f32, M, N> {
     #[inline]
     fn from(src: Matrix<f64, M, N>) -> Self {
         let mut out = Matrix::<f32, M, N>::zeros();
@@ -1214,7 +1210,9 @@ where
             inited_rows += 1;
         }
 
-        Ok(Matrix { data: unsafe { out.assume_init() } })
+        Ok(Matrix {
+            data: unsafe { out.assume_init() },
+        })
     }
 }
 
@@ -1260,7 +1258,9 @@ where
             inited_rows += 1;
         }
 
-        Ok(Matrix { data: unsafe { out.assume_init() } })
+        Ok(Matrix {
+            data: unsafe { out.assume_init() },
+        })
     }
 }
 
@@ -1381,8 +1381,7 @@ where
 
         struct MatrixVisitor<T, const M: usize, const N: usize>(PhantomData<T>);
 
-        impl<'de, T, const M: usize, const N: usize> serde::de::Visitor<'de>
-            for MatrixVisitor<T, M, N>
+        impl<'de, T, const M: usize, const N: usize> serde::de::Visitor<'de> for MatrixVisitor<T, M, N>
         where
             T: serde::Deserialize<'de>,
         {
@@ -1426,7 +1425,9 @@ where
                     return Err(serde::de::Error::invalid_length(M + 1, &self));
                 }
 
-                Ok(Matrix { data: unsafe { out.assume_init() } })
+                Ok(Matrix {
+                    data: unsafe { out.assume_init() },
+                })
             }
         }
 

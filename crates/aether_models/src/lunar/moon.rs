@@ -5,7 +5,7 @@ use crate::{
     coordinate::Cartesian,
     math::Matrix,
     real::Real,
-    reference_frame::{ICRF, ReferenceFrame},
+    reference_frame::{ReferenceFrame, ICRF},
 };
 
 use super::{
@@ -33,9 +33,7 @@ impl Default for Moon {
             gravitational_constant: constants::SELENOCENTRIC_GRAVITATIONAL_CONSTANT,
             epoch_time: 0.0,
             icrf_to_lirf_at_epoch: DirectionCosineMatrix::new(
-                1.0, 0.0, 0.0,
-                0.0, 1.0, 0.0,
-                0.0, 0.0, 1.0,
+                1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
             ),
         }
     }

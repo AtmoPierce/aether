@@ -3,6 +3,10 @@
 pub enum PlotStyle {
     /// Continuous line
     Line,
+    /// Continuous line using an explicit `Palette99` color index.
+    LineWithPalette(usize),
+    /// Dashed line using an explicit `Palette99` color index.
+    DashedLineWithPalette(usize),
     /// Discrete points
     Points,
 }
@@ -68,6 +72,8 @@ impl<'a> PlotConfig<'a> {
 pub mod realtime;
 pub use realtime::{CsvRealtimeConfig, CsvRealtimePlotter};
 
+pub mod rtos;
+
 /// One (x,y) series to draw.
 #[derive(Debug, Clone, Copy)]
 pub struct XYSeries<'a> {
@@ -79,10 +85,21 @@ pub struct XYSeries<'a> {
 
 impl<'a> XYSeries<'a> {
     pub fn new(xs: &'a [f64], ys: &'a [f64]) -> Self {
-        Self { xs, ys, label: None, style: PlotStyle::Line }
+        Self {
+            xs,
+            ys,
+            label: None,
+            style: PlotStyle::Line,
+        }
     }
-    pub fn with_label(mut self, label: &'a str) -> Self { self.label = Some(label); self }
-    pub fn with_style(mut self, style: PlotStyle) -> Self { self.style = style; self }
+    pub fn with_label(mut self, label: &'a str) -> Self {
+        self.label = Some(label);
+        self
+    }
+    pub fn with_style(mut self, style: PlotStyle) -> Self {
+        self.style = style;
+        self
+    }
 }
 
 /// One histogram series to draw.
@@ -91,14 +108,31 @@ pub struct HistogramSeries<'a> {
     pub values: &'a [f64],
     pub label: Option<&'a str>,
     pub bins: usize,
+    /// Explicit `Palette99` color index. Series order is used when omitted.
+    pub palette_index: Option<usize>,
 }
 
 impl<'a> HistogramSeries<'a> {
     pub fn new(values: &'a [f64]) -> Self {
-        Self { values, label: None, bins: 40 }
+        Self {
+            values,
+            label: None,
+            bins: 40,
+            palette_index: None,
+        }
     }
-    pub fn with_label(mut self, label: &'a str) -> Self { self.label = Some(label); self }
-    pub fn with_bins(mut self, bins: usize) -> Self { self.bins = bins.max(1); self }
+    pub fn with_label(mut self, label: &'a str) -> Self {
+        self.label = Some(label);
+        self
+    }
+    pub fn with_bins(mut self, bins: usize) -> Self {
+        self.bins = bins.max(1);
+        self
+    }
+    pub fn with_palette(mut self, palette_index: usize) -> Self {
+        self.palette_index = Some(palette_index);
+        self
+    }
 }
 
 /// One paired-data series for a correlation plot.
@@ -111,7 +145,11 @@ pub struct CorrelationSeries<'a> {
 
 impl<'a> CorrelationSeries<'a> {
     pub fn new(xs: &'a [f64], ys: &'a [f64]) -> Self {
-        Self { xs, ys, label: None }
+        Self {
+            xs,
+            ys,
+            label: None,
+        }
     }
 
     pub fn with_label(mut self, label: &'a str) -> Self {
@@ -120,14 +158,15 @@ impl<'a> CorrelationSeries<'a> {
     }
 }
 
-#[cfg(feature = "svg")]
-use plotters::prelude::SVGBackend;
 #[cfg(feature = "bitmap")]
 use plotters::prelude::BitMapBackend;
+#[cfg(feature = "svg")]
+use plotters::prelude::SVGBackend;
 
 use plotters::coord::Shift;
+use plotters::element::DashedPathElement;
 use plotters::prelude::*;
-use plotters::series::LineSeries;
+use plotters::series::{DashedLineSeries, LineSeries};
 
 #[cfg(feature = "svg")]
 fn with_svg_root<F>(
@@ -196,11 +235,7 @@ where
         pts.push((x, e));
     }
     if min_e == max_e {
-        let pad = if min_e == 0.0 {
-            1.0
-        } else {
-            min_e.abs() * 0.1
-        };
+        let pad = if min_e == 0.0 { 1.0 } else { min_e.abs() * 0.1 };
         min_e -= pad;
         max_e += pad;
     }
@@ -216,7 +251,8 @@ where
                 .y_label_area_size(60)
                 .build_cartesian_2d(a..b, min_e..max_e)?;
             let y_label_fmt = |v: &f64| format_axis_value(*v);
-            chart.configure_mesh()
+            chart
+                .configure_mesh()
                 .x_desc("x")
                 .y_desc("error")
                 .y_label_formatter(&y_label_fmt)
@@ -224,7 +260,9 @@ where
                 .axis_desc_style(("monospace", 16))
                 .draw()?;
             chart.draw_series(LineSeries::new(pts, &BLACK))?;
-            if save_path.is_some() { root.present()?; }
+            if save_path.is_some() {
+                root.present()?;
+            }
             Ok(())
         });
     }
@@ -240,7 +278,8 @@ where
                 .y_label_area_size(60)
                 .build_cartesian_2d(a..b, min_e..max_e)?;
             let y_label_fmt = |v: &f64| format_axis_value(*v);
-            chart.configure_mesh()
+            chart
+                .configure_mesh()
                 .x_desc("x")
                 .y_desc("error")
                 .y_label_formatter(&y_label_fmt)
@@ -248,7 +287,9 @@ where
                 .axis_desc_style(("monospace", 16))
                 .draw()?;
             chart.draw_series(LineSeries::new(pts, &BLACK))?;
-            if save_path.is_some() { root.present()?; }
+            if save_path.is_some() {
+                root.present()?;
+            }
             Ok(())
         });
     }
@@ -321,14 +362,11 @@ pub fn plot_series_with_config(
         .map(|s| {
             assert_eq!(s.xs.len(), s.ys.len(), "x/y length mismatch in a series");
 
-            let points = s
-                .xs
-                .iter()
-                .zip(s.ys.iter())
-                .filter_map(|(&x, &y)| {
-                    transform_point(x, y, config.x_scale, config.y_scale)
-                })
-                .collect::<Vec<_>>();
+            let points =
+                s.xs.iter()
+                    .zip(s.ys.iter())
+                    .filter_map(|(&x, &y)| transform_point(x, y, config.x_scale, config.y_scale))
+                    .collect::<Vec<_>>();
 
             PreparedSeries {
                 points,
@@ -357,8 +395,12 @@ pub fn plot_series_with_config(
         }
     }
 
-    if x_min == x_max { x_max = x_min + 1.0; }
-    if y_min == y_max { y_max = y_min + 1.0; }
+    if x_min == x_max {
+        x_max = x_min + 1.0;
+    }
+    if y_min == y_max {
+        y_max = y_min + 1.0;
+    }
 
     let x_pad = (x_max - x_min).abs() * 0.03;
     let y_pad = (y_max - y_min).abs() * 0.03;
@@ -376,61 +418,88 @@ pub fn plot_series_with_config(
 
             let mut chart = ChartBuilder::on(&root)
                 .margin(20)
-            .caption(config.title, ("monospace", 24))
+                .caption(config.title, ("monospace", 24))
                 .x_label_area_size(40)
                 .y_label_area_size(80)
                 .build_cartesian_2d(x_range.clone(), y_range.clone())?;
 
             let y_label_fmt = |v: &f64| format_axis_value(*v);
             let mut mesh = chart.configure_mesh();
-            if let Some(ref lbl) = x_desc { mesh.x_desc(lbl); }
-            if let Some(ref lbl) = y_desc { mesh.y_desc(lbl); }
+            if let Some(ref lbl) = x_desc {
+                mesh.x_desc(lbl);
+            }
+            if let Some(ref lbl) = y_desc {
+                mesh.y_desc(lbl);
+            }
             mesh.y_label_formatter(&y_label_fmt)
                 .label_style(("monospace", 18))
                 .axis_desc_style(("monospace", 18))
                 .draw()?;
 
             for (idx, s) in prepared.iter().enumerate() {
-                let color = Palette99::pick(idx).mix(1.0);
+                let palette_index = match s.style {
+                    PlotStyle::LineWithPalette(index) | PlotStyle::DashedLineWithPalette(index) => {
+                        index
+                    }
+                    _ => idx,
+                };
+                let color = Palette99::pick(palette_index).mix(1.0);
 
                 match s.style {
-                    PlotStyle::Line => {
-                        let ds = chart.draw_series(LineSeries::new(
+                    PlotStyle::Line | PlotStyle::LineWithPalette(_) => {
+                        let ds =
+                            chart.draw_series(LineSeries::new(s.points.iter().copied(), &color))?;
+                        if let Some(lbl) = s.label {
+                            let _ = ds.label(lbl).legend(move |(x, y)| {
+                                PathElement::new(vec![(x, y), (x + 20, y)], color.stroke_width(2))
+                            });
+                        }
+                    }
+                    PlotStyle::DashedLineWithPalette(_) => {
+                        let ds = chart.draw_series(DashedLineSeries::new(
                             s.points.iter().copied(),
-                            &color,
+                            10,
+                            6,
+                            color.stroke_width(2),
                         ))?;
                         if let Some(lbl) = s.label {
-                            let _ = ds
-                                .label(lbl)
-                                .legend(move |(x, y)| {
-                                    PathElement::new(vec![(x, y), (x + 20, y)], color.stroke_width(2))
-                                });
+                            let _ = ds.label(lbl).legend(move |(x, y)| {
+                                DashedPathElement::new(
+                                    vec![(x, y), (x + 20, y)],
+                                    5,
+                                    3,
+                                    color.stroke_width(2),
+                                )
+                            });
                         }
                     }
                     PlotStyle::Points => {
                         let ds = chart.draw_series(
-                            s.points.iter().map(|&(x, y)| Circle::new((x, y), 3, color.filled())),
+                            s.points
+                                .iter()
+                                .map(|&(x, y)| Circle::new((x, y), 3, color.filled())),
                         )?;
                         if let Some(lbl) = s.label {
                             let _ = ds
                                 .label(lbl)
-                                .legend(move |(x, y)| {
-                                    Circle::new((x + 10, y), 4, color.filled())
-                                });
+                                .legend(move |(x, y)| Circle::new((x + 10, y), 4, color.filled()));
                         }
                     }
                 }
             }
 
             if prepared.iter().any(|s| s.label.is_some()) {
-                chart.configure_series_labels()
+                chart
+                    .configure_series_labels()
                     .border_style(&BLACK)
                     .background_style(WHITE.mix(0.8))
                     .label_font(("monospace", 16))
                     .draw()?;
             }
 
-            if config.save_path.is_some() { root.present()?; }
+            if config.save_path.is_some() {
+                root.present()?;
+            }
             Ok(())
         });
     }
@@ -449,54 +518,81 @@ pub fn plot_series_with_config(
 
             let y_label_fmt = |v: &f64| format_axis_value(*v);
             let mut mesh = chart.configure_mesh();
-            if let Some(ref lbl) = x_desc { mesh.x_desc(lbl); }
-            if let Some(ref lbl) = y_desc { mesh.y_desc(lbl); }
+            if let Some(ref lbl) = x_desc {
+                mesh.x_desc(lbl);
+            }
+            if let Some(ref lbl) = y_desc {
+                mesh.y_desc(lbl);
+            }
             mesh.y_label_formatter(&y_label_fmt)
                 .label_style(("monospace", 18))
                 .axis_desc_style(("monospace", 18))
                 .draw()?;
 
             for (idx, s) in prepared.iter().enumerate() {
-                let color = Palette99::pick(idx).mix(1.0);
+                let palette_index = match s.style {
+                    PlotStyle::LineWithPalette(index) | PlotStyle::DashedLineWithPalette(index) => {
+                        index
+                    }
+                    _ => idx,
+                };
+                let color = Palette99::pick(palette_index).mix(1.0);
 
                 match s.style {
-                    PlotStyle::Line => {
-                        let ds = chart.draw_series(LineSeries::new(
+                    PlotStyle::Line | PlotStyle::LineWithPalette(_) => {
+                        let ds =
+                            chart.draw_series(LineSeries::new(s.points.iter().copied(), &color))?;
+                        if let Some(lbl) = s.label {
+                            let _ = ds.label(lbl).legend(move |(x, y)| {
+                                PathElement::new(vec![(x, y), (x + 20, y)], color.stroke_width(2))
+                            });
+                        }
+                    }
+                    PlotStyle::DashedLineWithPalette(_) => {
+                        let ds = chart.draw_series(DashedLineSeries::new(
                             s.points.iter().copied(),
-                            &color,
+                            10,
+                            6,
+                            color.stroke_width(2),
                         ))?;
                         if let Some(lbl) = s.label {
-                            let _ = ds
-                                .label(lbl)
-                                .legend(move |(x, y)| {
-                                    PathElement::new(vec![(x, y), (x + 20, y)], color.stroke_width(2))
-                                });
+                            let _ = ds.label(lbl).legend(move |(x, y)| {
+                                DashedPathElement::new(
+                                    vec![(x, y), (x + 20, y)],
+                                    5,
+                                    3,
+                                    color.stroke_width(2),
+                                )
+                            });
                         }
                     }
                     PlotStyle::Points => {
                         let ds = chart.draw_series(
-                            s.points.iter().map(|&(x, y)| Circle::new((x, y), 3, color.filled())),
+                            s.points
+                                .iter()
+                                .map(|&(x, y)| Circle::new((x, y), 3, color.filled())),
                         )?;
                         if let Some(lbl) = s.label {
                             let _ = ds
                                 .label(lbl)
-                                .legend(move |(x, y)| {
-                                    Circle::new((x + 10, y), 4, color.filled())
-                                });
+                                .legend(move |(x, y)| Circle::new((x + 10, y), 4, color.filled()));
                         }
                     }
                 }
             }
 
             if prepared.iter().any(|s| s.label.is_some()) {
-                chart.configure_series_labels()
+                chart
+                    .configure_series_labels()
                     .border_style(&BLACK)
                     .background_style(WHITE.mix(0.8))
                     .label_font(("monospace", 16))
                     .draw()?;
             }
 
-            if config.save_path.is_some() { root.present()?; }
+            if config.save_path.is_some() {
+                root.present()?;
+            }
             Ok(())
         });
     }
@@ -506,6 +602,9 @@ pub fn plot_series_with_config(
 }
 
 /// Plot one or more histograms using shared x-axis bounds.
+///
+/// When multiple series are provided, each bin is divided into adjacent bars
+/// so every series remains visible without translucent overlays.
 pub fn plot_histograms(
     series: &[HistogramSeries<'_>],
     title: &str,
@@ -513,11 +612,15 @@ pub fn plot_histograms(
     y_label: Option<&str>,
     save_path: Option<&str>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    assert!(!series.is_empty(), "plot_histograms: need at least one series");
+    assert!(
+        !series.is_empty(),
+        "plot_histograms: need at least one series"
+    );
 
     struct PreparedHistogram<'a> {
         counts: Vec<f64>,
         label: Option<&'a str>,
+        palette_index: usize,
     }
 
     let finite_values = series
@@ -531,22 +634,22 @@ pub fn plot_histograms(
     }
 
     let mut x_min = finite_values.iter().copied().fold(f64::INFINITY, f64::min);
-    let mut x_max = finite_values.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+    let mut x_max = finite_values
+        .iter()
+        .copied()
+        .fold(f64::NEG_INFINITY, f64::max);
     if x_min == x_max {
         x_min -= 0.5;
         x_max += 0.5;
     }
 
-    let bin_count = series
-        .iter()
-        .map(|s| s.bins.max(1))
-        .max()
-        .unwrap_or(1);
+    let bin_count = series.iter().map(|s| s.bins.max(1)).max().unwrap_or(1);
     let bin_width = (x_max - x_min) / bin_count as f64;
 
     let prepared = series
         .iter()
-        .map(|s| {
+        .enumerate()
+        .map(|(series_index, s)| {
             let mut counts = vec![0.0_f64; bin_count];
             for value in s.values.iter().copied().filter(|value| value.is_finite()) {
                 let mut index = ((value - x_min) / bin_width).floor() as usize;
@@ -559,6 +662,7 @@ pub fn plot_histograms(
             PreparedHistogram {
                 counts,
                 label: s.label,
+                palette_index: s.palette_index.unwrap_or(series_index),
             }
         })
         .collect::<Vec<_>>();
@@ -585,45 +689,60 @@ pub fn plot_histograms(
 
             let y_label_fmt = |v: &f64| format_axis_value(*v);
             let mut mesh = chart.configure_mesh();
-            if let Some(lbl) = x_label { mesh.x_desc(lbl); }
-            if let Some(lbl) = y_label { mesh.y_desc(lbl); }
+            if let Some(lbl) = x_label {
+                mesh.x_desc(lbl);
+            }
+            if let Some(lbl) = y_label {
+                mesh.y_desc(lbl);
+            }
             mesh.y_label_formatter(&y_label_fmt)
                 .label_style(("monospace", 18))
                 .axis_desc_style(("monospace", 18))
                 .draw()?;
 
             for (idx, histogram) in prepared.iter().enumerate() {
-                let fill = Palette99::pick(idx).mix(0.35).filled();
-                let stroke = Palette99::pick(idx).mix(1.0).stroke_width(1);
+                let fill = Palette99::pick(histogram.palette_index).filled();
+                let stroke = Palette99::pick(histogram.palette_index)
+                    .mix(1.0)
+                    .stroke_width(1);
                 let ds = chart.draw_series((0..bin_count).map(|bin_index| {
-                    let left = x_min + bin_index as f64 * bin_width;
-                    let right = left + bin_width;
-                    Rectangle::new([(left, 0.0_f64), (right, histogram.counts[bin_index])], fill)
+                    let (left, right) =
+                        histogram_bar_bounds(x_min, bin_width, bin_index, idx, prepared.len());
+                    Rectangle::new(
+                        [(left, 0.0_f64), (right, histogram.counts[bin_index])],
+                        fill,
+                    )
                 }))?;
 
                 if let Some(lbl) = histogram.label {
-                    let legend_fill = Palette99::pick(idx).mix(0.35).filled();
+                    let legend_fill = Palette99::pick(histogram.palette_index).filled();
                     let _ = ds.label(lbl).legend(move |(x, y)| {
                         Rectangle::new([(x, y - 4), (x + 14, y + 4)], legend_fill)
                     });
                 }
 
                 chart.draw_series((0..bin_count).map(|bin_index| {
-                    let left = x_min + bin_index as f64 * bin_width;
-                    let right = left + bin_width;
-                    Rectangle::new([(left, 0.0_f64), (right, histogram.counts[bin_index])], stroke)
+                    let (left, right) =
+                        histogram_bar_bounds(x_min, bin_width, bin_index, idx, prepared.len());
+                    Rectangle::new(
+                        [(left, 0.0_f64), (right, histogram.counts[bin_index])],
+                        stroke,
+                    )
                 }))?;
             }
 
             if prepared.iter().any(|s| s.label.is_some()) {
-                chart.configure_series_labels()
+                chart
+                    .configure_series_labels()
                     .border_style(&BLACK)
                     .background_style(WHITE.mix(0.8))
                     .label_font(("monospace", 16))
                     .draw()?;
             }
 
-            if save_path.is_some() { root.present()?; }
+            if save_path.is_some() {
+                root.present()?;
+            }
             Ok(())
         });
     }
@@ -642,51 +761,81 @@ pub fn plot_histograms(
 
             let y_label_fmt = |v: &f64| format_axis_value(*v);
             let mut mesh = chart.configure_mesh();
-            if let Some(lbl) = x_label { mesh.x_desc(lbl); }
-            if let Some(lbl) = y_label { mesh.y_desc(lbl); }
+            if let Some(lbl) = x_label {
+                mesh.x_desc(lbl);
+            }
+            if let Some(lbl) = y_label {
+                mesh.y_desc(lbl);
+            }
             mesh.y_label_formatter(&y_label_fmt)
                 .label_style(("monospace", 18))
                 .axis_desc_style(("monospace", 18))
                 .draw()?;
 
             for (idx, histogram) in prepared.iter().enumerate() {
-                let fill = Palette99::pick(idx).mix(0.35).filled();
-                let stroke = Palette99::pick(idx).mix(1.0).stroke_width(1);
-                let mut ds = chart.draw_series((0..bin_count).map(|bin_index| {
-                    let left = x_min + bin_index as f64 * bin_width;
-                    let right = left + bin_width;
-                    Rectangle::new([(left, 0.0_f64), (right, histogram.counts[bin_index])], fill)
+                let fill = Palette99::pick(histogram.palette_index).filled();
+                let stroke = Palette99::pick(histogram.palette_index)
+                    .mix(1.0)
+                    .stroke_width(1);
+                let ds = chart.draw_series((0..bin_count).map(|bin_index| {
+                    let (left, right) =
+                        histogram_bar_bounds(x_min, bin_width, bin_index, idx, prepared.len());
+                    Rectangle::new(
+                        [(left, 0.0_f64), (right, histogram.counts[bin_index])],
+                        fill,
+                    )
                 }))?;
 
                 if let Some(lbl) = histogram.label {
-                    let legend_fill = Palette99::pick(idx).mix(0.35).filled();
+                    let legend_fill = Palette99::pick(histogram.palette_index).filled();
                     let _ = ds.label(lbl).legend(move |(x, y)| {
                         Rectangle::new([(x, y - 4), (x + 14, y + 4)], legend_fill)
                     });
                 }
 
                 chart.draw_series((0..bin_count).map(|bin_index| {
-                    let left = x_min + bin_index as f64 * bin_width;
-                    let right = left + bin_width;
-                    Rectangle::new([(left, 0.0_f64), (right, histogram.counts[bin_index])], stroke)
+                    let (left, right) =
+                        histogram_bar_bounds(x_min, bin_width, bin_index, idx, prepared.len());
+                    Rectangle::new(
+                        [(left, 0.0_f64), (right, histogram.counts[bin_index])],
+                        stroke,
+                    )
                 }))?;
             }
 
             if prepared.iter().any(|s| s.label.is_some()) {
-                chart.configure_series_labels()
+                chart
+                    .configure_series_labels()
                     .border_style(&BLACK)
                     .background_style(WHITE.mix(0.8))
                     .label_font(("monospace", 16))
                     .draw()?;
             }
 
-            if save_path.is_some() { root.present()?; }
+            if save_path.is_some() {
+                root.present()?;
+            }
             Ok(())
         });
     }
 
     #[allow(unreachable_code)]
     Err("no backend enabled; enable `svg` or `bitmap` feature".into())
+}
+
+fn histogram_bar_bounds(
+    x_min: f64,
+    bin_width: f64,
+    bin_index: usize,
+    series_index: usize,
+    series_count: usize,
+) -> (f64, f64) {
+    debug_assert!(series_count > 0);
+    debug_assert!(series_index < series_count);
+
+    let bar_width = bin_width / series_count as f64;
+    let left = x_min + bin_index as f64 * bin_width + series_index as f64 * bar_width;
+    (left, left + bar_width)
 }
 
 /// Plot one or more correlation datasets as scatter plots.
@@ -715,7 +864,10 @@ pub fn plot_correlation_with_config(
     series: &[CorrelationSeries<'_>],
     config: &PlotConfig<'_>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    assert!(!series.is_empty(), "plot_correlation: need at least one series");
+    assert!(
+        !series.is_empty(),
+        "plot_correlation: need at least one series"
+    );
 
     let converted = series
         .iter()
@@ -740,7 +892,12 @@ pub fn plot(
     save_path: Option<&str>,
     style: PlotStyle,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let s = XYSeries { xs, ys, label: None, style };
+    let s = XYSeries {
+        xs,
+        ys,
+        label: None,
+        style,
+    };
     plot_series(&[s], title, x_label, y_label, save_path)
 }
 
@@ -775,16 +932,15 @@ fn format_axis_value(v: f64) -> String {
     } else {
         let s = format!("{:.6}", v);
         let s = s.trim_end_matches('0').trim_end_matches('.');
-        if s == "-0" { "0".to_string() } else { s.to_string() }
+        if s == "-0" {
+            "0".to_string()
+        } else {
+            s.to_string()
+        }
     }
 }
 
-fn transform_point(
-    x: f64,
-    y: f64,
-    x_scale: AxisScale,
-    y_scale: AxisScale,
-) -> Option<(f64, f64)> {
+fn transform_point(x: f64, y: f64, x_scale: AxisScale, y_scale: AxisScale) -> Option<(f64, f64)> {
     let x = transform_value(x, x_scale)?;
     let y = transform_value(y, y_scale)?;
     if x.is_finite() && y.is_finite() {
@@ -806,4 +962,31 @@ fn axis_label(label: Option<&str>, scale: AxisScale) -> Option<String> {
         AxisScale::Linear => label.to_string(),
         AxisScale::Log10 => format!("log10({label})"),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{histogram_bar_bounds, HistogramSeries};
+
+    #[test]
+    fn histogram_can_use_an_explicit_palette_color() {
+        let values = [1.0, 2.0];
+        let series = HistogramSeries::new(&values).with_palette(7);
+
+        assert_eq!(series.palette_index, Some(7));
+    }
+
+    #[test]
+    fn single_histogram_uses_the_entire_bin() {
+        assert_eq!(histogram_bar_bounds(-1.0, 2.0, 3, 0, 1), (5.0, 7.0));
+    }
+
+    #[test]
+    fn multiple_histograms_tile_each_bin_without_overlap() {
+        let bars = (0..3)
+            .map(|series_index| histogram_bar_bounds(2.0, 6.0, 1, series_index, 3))
+            .collect::<Vec<_>>();
+
+        assert_eq!(bars, vec![(8.0, 10.0), (10.0, 12.0), (12.0, 14.0)]);
+    }
 }

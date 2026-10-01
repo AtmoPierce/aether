@@ -84,7 +84,6 @@ mod tests {
         );
     }
 
-
     #[test]
     fn test_matrix_vector_mul() {
         let m = Matrix {
@@ -123,7 +122,6 @@ mod tests {
         let r = m * v;
         assert_eq!(r.data, [7.0, 5.5, -0.5, 6.0]);
     }
-
 
     #[cfg(feature = "bincode")]
     #[test]

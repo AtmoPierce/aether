@@ -1,6 +1,6 @@
 use crate::attributes::Solid;
-use aether_core::{math::Vector, reference_frame::ReferenceFrame};
 use aether_core::real::Real;
+use aether_core::{math::Vector, reference_frame::ReferenceFrame};
 
 // Prism
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -21,7 +21,7 @@ impl<F: Real> Solid<F> for RectangularPrism<F> {
     fn inertia_principal_cm(&self, m: F) -> Vector<F, 3> {
         let (a, b, c) = (self.a, self.b, self.c);
         let t12 = F::ONE + F::ONE + F::ONE + F::ONE + F::ONE + F::ONE; // 6? ignore; use constants you already have if any
-        // Use your existing FromPrimitive helpers; shown directly:
+                                                                       // Use your existing FromPrimitive helpers; shown directly:
         let twelve = F::ONE
             + F::ONE
             + F::ONE

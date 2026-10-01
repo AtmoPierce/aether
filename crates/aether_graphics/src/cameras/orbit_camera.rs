@@ -1,7 +1,7 @@
 use aether_core::attitude::Quaternion;
 use aether_core::math::Vector;
-use aether_core::reference_frame::ReferenceFrame;
 use aether_core::real::Real;
+use aether_core::reference_frame::ReferenceFrame;
 
 // 1) Define a phantom camera frame
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -160,7 +160,6 @@ impl<T: Real> OrbitCamera<T> {
 
         right.normalize()
     }
-
 
     #[inline]
     pub fn cam_up(&self) -> Vector<T, 3> {

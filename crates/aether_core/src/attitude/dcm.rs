@@ -1,9 +1,9 @@
 use super::euler::Euler;
 use super::quaternion::Quaternion;
+use crate::real::Real;
 use crate::{coordinate::Cartesian, math::Matrix, reference_frame::ReferenceFrame};
 use core::marker::PhantomData;
 use core::ops::{Add, Div, Mul, Neg, Sub};
-use crate::real::Real;
 
 #[derive(Debug, Clone, Copy, Default)]
 #[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
@@ -101,7 +101,8 @@ where
 }
 
 // From
-impl<T, A: ReferenceFrame, B: ReferenceFrame> From<Euler<T, A, B>> for DirectionCosineMatrix<T, A, B>
+impl<T, A: ReferenceFrame, B: ReferenceFrame> From<Euler<T, A, B>>
+    for DirectionCosineMatrix<T, A, B>
 where
     T: Real + Mul<Output = T> + Add<Output = T> + Copy + Default,
 {
@@ -116,15 +117,14 @@ where
     }
 }
 
-impl<T: Real, A: ReferenceFrame, B: ReferenceFrame>
-    From<Quaternion<T, A, B>> for DirectionCosineMatrix<T, A, B>
+impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> From<Quaternion<T, A, B>>
+    for DirectionCosineMatrix<T, A, B>
 {
     #[inline]
     fn from(q: Quaternion<T, A, B>) -> Self {
         Self::from(&q)
     }
 }
-
 
 impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> From<&Quaternion<T, A, B>>
     for DirectionCosineMatrix<T, A, B>
@@ -288,6 +288,3 @@ impl<T: Real + core::fmt::Display, A: ReferenceFrame, B: ReferenceFrame> core::f
 #[cfg(test)]
 #[path = "tests/dcm_tests.rs"]
 mod dcm_tests;
-
-
-

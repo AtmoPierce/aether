@@ -7,9 +7,9 @@ pub const GPS_WEEK_MODULUS: u32 = 1024;
 
 #[derive(Copy, Clone, Debug)]
 pub struct GpsWeekTime {
-    pub raw_week: u16,   // 0..1023
-    pub sow: i64,        // seconds of week
-    pub full_week: u32,  // rollover-corrected
+    pub raw_week: u16,  // 0..1023
+    pub sow: i64,       // seconds of week
+    pub full_week: u32, // rollover-corrected
 }
 
 impl Time<GPS> {
@@ -45,7 +45,9 @@ impl defmt::Format for GpsWeekTime {
         defmt::write!(
             f,
             "W{} (raw {}), +{}s",
-            self.full_week, self.raw_week, self.sow
+            self.full_week,
+            self.raw_week,
+            self.sow
         );
     }
 }

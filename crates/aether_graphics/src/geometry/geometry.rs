@@ -1,6 +1,11 @@
-use aether_core::math::{Matrix, Vector};
 #[cfg(feature = "pro")]
 use super::polynomial_profile::{ClosedPolynomialProfile2D, ProfileExtrusion3D};
+use aether_core::math::{Matrix, Vector};
+#[cfg(feature = "pro")]
+use aether_pro::step::{
+    load_step_assembly_part_file, load_step_part_file, step_length_unit_scale_to_si_file,
+    tessellate_step_file, FacePatch, Part, TessellationOptions, TriangleMesh,
+};
 #[cfg(feature = "pro")]
 use bincode::{
     config::standard,
@@ -10,11 +15,6 @@ use bincode::{
 use serde::{Deserialize, Serialize};
 use std::io::BufReader;
 use std::path::Path;
-#[cfg(feature = "pro")]
-use aether_pro::step::{
-    load_step_assembly_part_file, load_step_part_file, step_length_unit_scale_to_si_file,
-    tessellate_step_file, FacePatch, Part, TessellationOptions, TriangleMesh,
-};
 
 pub type Vec2<T> = Vector<T, 2>;
 pub type Vec3<T> = Vector<T, 3>;
@@ -85,7 +85,9 @@ impl GeometryDiskCache {
             .iter()
             .zip(geometry.colors.iter())
             .zip(geometry.texture.iter())
-            .map(|((p, c), uv)| Element::new(p[0], p[1], p[2], c[0], c[1], c[2], c[3], uv[0], uv[1]))
+            .map(|((p, c), uv)| {
+                Element::new(p[0], p[1], p[2], c[0], c[1], c[2], c[3], uv[0], uv[1])
+            })
             .collect();
 
         geometry
@@ -204,7 +206,13 @@ impl Geometry {
             .map_err(|e| format!("Failed to read modified time for {}: {}", path.display(), e))?;
         let modified_ms = modified
             .duration_since(std::time::UNIX_EPOCH)
-            .map_err(|e| format!("Failed to convert modified time for {}: {}", path.display(), e))?
+            .map_err(|e| {
+                format!(
+                    "Failed to convert modified time for {}: {}",
+                    path.display(),
+                    e
+                )
+            })?
             .as_millis();
         Ok((len, modified_ms))
     }
@@ -232,10 +240,11 @@ impl Geometry {
             Ok(bytes) => bytes,
             Err(_) => return Ok(None),
         };
-        let cache: GeometryDiskCache = match decode_from_slice::<GeometryDiskCache, _>(&bytes, standard()) {
-            Ok((cache, _)) => cache,
-            Err(_) => return Ok(None),
-        };
+        let cache: GeometryDiskCache =
+            match decode_from_slice::<GeometryDiskCache, _>(&bytes, standard()) {
+                Ok((cache, _)) => cache,
+                Err(_) => return Ok(None),
+            };
         if cache.version != STEP_GEOMETRY_CACHE_VERSION {
             return Ok(None);
         }
@@ -253,8 +262,13 @@ impl Geometry {
         let cache_path = Self::step_geometry_cache_path(path)?;
         let (source_len, source_modified_ms) = Self::file_signature(path)?;
         let cache = GeometryDiskCache::from_geometry(self, source_len, source_modified_ms);
-        let bytes = encode_to_vec(&cache, standard())
-            .map_err(|e| format!("Failed to serialize STEP cache for {}: {}", path.display(), e))?;
+        let bytes = encode_to_vec(&cache, standard()).map_err(|e| {
+            format!(
+                "Failed to serialize STEP cache for {}: {}",
+                path.display(),
+                e
+            )
+        })?;
         std::fs::write(&cache_path, bytes)
             .map_err(|e| format!("Failed to write STEP cache {}: {}", cache_path.display(), e))
     }
@@ -282,18 +296,21 @@ impl Geometry {
             .clone()
             .into_iter()
             .flat_map(|p| {
-                core::iter::once(p.x).chain(core::iter::once(p.y).chain(
-                    core::iter::once(p.z).chain(
-                        core::iter::once(p.r).chain(
-                            core::iter::once(p.g).chain(
-                                core::iter::once(p.b).chain(
-                                    core::iter::once(p.a)
-                                        .chain(core::iter::once(p.s).chain(core::iter::once(p.t))),
+                core::iter::once(p.x).chain(
+                    core::iter::once(p.y).chain(
+                        core::iter::once(p.z).chain(
+                            core::iter::once(p.r).chain(
+                                core::iter::once(p.g).chain(
+                                    core::iter::once(p.b).chain(
+                                        core::iter::once(p.a).chain(
+                                            core::iter::once(p.s).chain(core::iter::once(p.t)),
+                                        ),
+                                    ),
                                 ),
                             ),
                         ),
                     ),
-                ))
+                )
             })
             .collect()
     }
@@ -460,7 +477,10 @@ impl Geometry {
     fn load_part(&mut self, part: Part) -> Result<(), String> {
         self.reset_mesh_buffers();
 
-        let default_color = part.appearance.base_color_rgba.unwrap_or([1.0, 1.0, 1.0, 1.0]);
+        let default_color = part
+            .appearance
+            .base_color_rgba
+            .unwrap_or([1.0, 1.0, 1.0, 1.0]);
 
         if part.face_patches.is_empty() {
             self.load_triangle_mesh_with_color(part.mesh, default_color)
@@ -635,11 +655,12 @@ impl Geometry {
         let base_radius = diameter * 0.5;
         let tangent_radius = x_tangency_point
             * (base_radius
-                + (base_radius * base_radius + length * length - x_tangency_point * x_tangency_point)
+                + (base_radius * base_radius + length * length
+                    - x_tangency_point * x_tangency_point)
                     .sqrt())
             / (length + x_tangency_point);
-        let nose_radius =
-            (tangent_radius * tangent_radius + x_tangency_point * x_tangency_point) / (2.0 * x_tangency_point);
+        let nose_radius = (tangent_radius * tangent_radius + x_tangency_point * x_tangency_point)
+            / (2.0 * x_tangency_point);
         let tangent_axial = length - x_tangency_point;
         let sphere_center_axial = length - nose_radius;
 
@@ -654,7 +675,8 @@ impl Geometry {
             };
 
             for angle_index in 0..angle_subdivisions {
-                let angle = 2.0 * std::f32::consts::PI * angle_index as f32 / angle_subdivisions as f32;
+                let angle =
+                    2.0 * std::f32::consts::PI * angle_index as f32 / angle_subdivisions as f32;
                 self.push_vertex(
                     ring_radius * angle.cos(),
                     -axial - self.y_offset,
@@ -665,19 +687,19 @@ impl Geometry {
 
         for axial_index in 0..length_subdivisions {
             for angle_index in 0..angle_subdivisions {
-                self.indices.push(axial_index * angle_subdivisions + angle_index);
+                self.indices
+                    .push(axial_index * angle_subdivisions + angle_index);
                 self.indices.push(
                     axial_index * angle_subdivisions + (angle_index + 1) % angle_subdivisions,
                 );
                 self.indices.push(
-                    (axial_index + 1) * angle_subdivisions
-                        + (angle_index + 1) % angle_subdivisions,
+                    (axial_index + 1) * angle_subdivisions + (angle_index + 1) % angle_subdivisions,
                 );
 
-                self.indices.push(axial_index * angle_subdivisions + angle_index);
+                self.indices
+                    .push(axial_index * angle_subdivisions + angle_index);
                 self.indices.push(
-                    (axial_index + 1) * angle_subdivisions
-                        + (angle_index + 1) % angle_subdivisions,
+                    (axial_index + 1) * angle_subdivisions + (angle_index + 1) % angle_subdivisions,
                 );
                 self.indices
                     .push((axial_index + 1) * angle_subdivisions + angle_index);
@@ -761,7 +783,12 @@ impl Geometry {
         let mut top_ring: Vec<u32> = Vec::with_capacity(angle_subdivisions as usize);
         for j in 0..angle_subdivisions {
             let a = j as f32 * sector_step;
-            top_ring.push(push_cap_vertex(self, radius * a.cos(), y_top, radius * a.sin()));
+            top_ring.push(push_cap_vertex(
+                self,
+                radius * a.cos(),
+                y_top,
+                radius * a.sin(),
+            ));
         }
         for j in 0..angle_subdivisions {
             let jn = (j + 1) % angle_subdivisions;
@@ -774,7 +801,12 @@ impl Geometry {
         let mut bot_ring: Vec<u32> = Vec::with_capacity(angle_subdivisions as usize);
         for j in 0..angle_subdivisions {
             let a = j as f32 * sector_step;
-            bot_ring.push(push_cap_vertex(self, radius * a.cos(), y_bot, radius * a.sin()));
+            bot_ring.push(push_cap_vertex(
+                self,
+                radius * a.cos(),
+                y_bot,
+                radius * a.sin(),
+            ));
         }
         for j in 0..angle_subdivisions {
             let jn = (j + 1) % angle_subdivisions;
@@ -815,8 +847,9 @@ impl Geometry {
                 self.positions.push(Vec3::new([x, y, z]));
                 self.colors.push(white);
                 self.texture.push(Vec2::new([s, t]));
-                self.elements
-                    .push(Element::new(x, y, z, white[0], white[1], white[2], white[3], s, t));
+                self.elements.push(Element::new(
+                    x, y, z, white[0], white[1], white[2], white[3], s, t,
+                ));
             }
         }
 
@@ -873,116 +906,146 @@ impl Geometry {
         let ia = self.positions.len() as u32;
         self.positions.push(Vec3::new([p, n, n]));
         self.texture.push(Vec2::new([0.0, 0.0]));
-        self.elements.push(Element::new(p, n, n, c[0], c[1], c[2], c[3], 0.0, 0.0));
+        self.elements
+            .push(Element::new(p, n, n, c[0], c[1], c[2], c[3], 0.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, n, p]));
         self.texture.push(Vec2::new([1.0, 0.0]));
-        self.elements.push(Element::new(p, n, p, c[0], c[1], c[2], c[3], 1.0, 0.0));
+        self.elements
+            .push(Element::new(p, n, p, c[0], c[1], c[2], c[3], 1.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, p, p]));
         self.texture.push(Vec2::new([1.0, 1.0]));
-        self.elements.push(Element::new(p, p, p, c[0], c[1], c[2], c[3], 1.0, 1.0));
+        self.elements
+            .push(Element::new(p, p, p, c[0], c[1], c[2], c[3], 1.0, 1.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, p, n]));
         self.texture.push(Vec2::new([0.0, 1.0]));
-        self.elements.push(Element::new(p, p, n, c[0], c[1], c[2], c[3], 0.0, 1.0));
+        self.elements
+            .push(Element::new(p, p, n, c[0], c[1], c[2], c[3], 0.0, 1.0));
         self.colors.push(c);
-        self.indices.extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
+        self.indices
+            .extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
 
         let ia = self.positions.len() as u32;
         self.positions.push(Vec3::new([n, n, p]));
         self.texture.push(Vec2::new([0.0, 0.0]));
-        self.elements.push(Element::new(n, n, p, c[0], c[1], c[2], c[3], 0.0, 0.0));
+        self.elements
+            .push(Element::new(n, n, p, c[0], c[1], c[2], c[3], 0.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([n, n, n]));
         self.texture.push(Vec2::new([1.0, 0.0]));
-        self.elements.push(Element::new(n, n, n, c[0], c[1], c[2], c[3], 1.0, 0.0));
+        self.elements
+            .push(Element::new(n, n, n, c[0], c[1], c[2], c[3], 1.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([n, p, n]));
         self.texture.push(Vec2::new([1.0, 1.0]));
-        self.elements.push(Element::new(n, p, n, c[0], c[1], c[2], c[3], 1.0, 1.0));
+        self.elements
+            .push(Element::new(n, p, n, c[0], c[1], c[2], c[3], 1.0, 1.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([n, p, p]));
         self.texture.push(Vec2::new([0.0, 1.0]));
-        self.elements.push(Element::new(n, p, p, c[0], c[1], c[2], c[3], 0.0, 1.0));
+        self.elements
+            .push(Element::new(n, p, p, c[0], c[1], c[2], c[3], 0.0, 1.0));
         self.colors.push(c);
-        self.indices.extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
+        self.indices
+            .extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
 
         let ia = self.positions.len() as u32;
         self.positions.push(Vec3::new([n, p, n]));
         self.texture.push(Vec2::new([0.0, 0.0]));
-        self.elements.push(Element::new(n, p, n, c[0], c[1], c[2], c[3], 0.0, 0.0));
+        self.elements
+            .push(Element::new(n, p, n, c[0], c[1], c[2], c[3], 0.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, p, n]));
         self.texture.push(Vec2::new([1.0, 0.0]));
-        self.elements.push(Element::new(p, p, n, c[0], c[1], c[2], c[3], 1.0, 0.0));
+        self.elements
+            .push(Element::new(p, p, n, c[0], c[1], c[2], c[3], 1.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, p, p]));
         self.texture.push(Vec2::new([1.0, 1.0]));
-        self.elements.push(Element::new(p, p, p, c[0], c[1], c[2], c[3], 1.0, 1.0));
+        self.elements
+            .push(Element::new(p, p, p, c[0], c[1], c[2], c[3], 1.0, 1.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([n, p, p]));
         self.texture.push(Vec2::new([0.0, 1.0]));
-        self.elements.push(Element::new(n, p, p, c[0], c[1], c[2], c[3], 0.0, 1.0));
+        self.elements
+            .push(Element::new(n, p, p, c[0], c[1], c[2], c[3], 0.0, 1.0));
         self.colors.push(c);
-        self.indices.extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
+        self.indices
+            .extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
 
         let ia = self.positions.len() as u32;
         self.positions.push(Vec3::new([n, n, p]));
         self.texture.push(Vec2::new([0.0, 0.0]));
-        self.elements.push(Element::new(n, n, p, c[0], c[1], c[2], c[3], 0.0, 0.0));
+        self.elements
+            .push(Element::new(n, n, p, c[0], c[1], c[2], c[3], 0.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, n, p]));
         self.texture.push(Vec2::new([1.0, 0.0]));
-        self.elements.push(Element::new(p, n, p, c[0], c[1], c[2], c[3], 1.0, 0.0));
+        self.elements
+            .push(Element::new(p, n, p, c[0], c[1], c[2], c[3], 1.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, n, n]));
         self.texture.push(Vec2::new([1.0, 1.0]));
-        self.elements.push(Element::new(p, n, n, c[0], c[1], c[2], c[3], 1.0, 1.0));
+        self.elements
+            .push(Element::new(p, n, n, c[0], c[1], c[2], c[3], 1.0, 1.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([n, n, n]));
         self.texture.push(Vec2::new([0.0, 1.0]));
-        self.elements.push(Element::new(n, n, n, c[0], c[1], c[2], c[3], 0.0, 1.0));
+        self.elements
+            .push(Element::new(n, n, n, c[0], c[1], c[2], c[3], 0.0, 1.0));
         self.colors.push(c);
-        self.indices.extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
+        self.indices
+            .extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
 
         let ia = self.positions.len() as u32;
         self.positions.push(Vec3::new([n, n, p]));
         self.texture.push(Vec2::new([0.0, 0.0]));
-        self.elements.push(Element::new(n, n, p, c[0], c[1], c[2], c[3], 0.0, 0.0));
+        self.elements
+            .push(Element::new(n, n, p, c[0], c[1], c[2], c[3], 0.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([n, p, p]));
         self.texture.push(Vec2::new([1.0, 0.0]));
-        self.elements.push(Element::new(n, p, p, c[0], c[1], c[2], c[3], 1.0, 0.0));
+        self.elements
+            .push(Element::new(n, p, p, c[0], c[1], c[2], c[3], 1.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, p, p]));
         self.texture.push(Vec2::new([1.0, 1.0]));
-        self.elements.push(Element::new(p, p, p, c[0], c[1], c[2], c[3], 1.0, 1.0));
+        self.elements
+            .push(Element::new(p, p, p, c[0], c[1], c[2], c[3], 1.0, 1.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, n, p]));
         self.texture.push(Vec2::new([0.0, 1.0]));
-        self.elements.push(Element::new(p, n, p, c[0], c[1], c[2], c[3], 0.0, 1.0));
+        self.elements
+            .push(Element::new(p, n, p, c[0], c[1], c[2], c[3], 0.0, 1.0));
         self.colors.push(c);
-        self.indices.extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
+        self.indices
+            .extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
 
         let ia = self.positions.len() as u32;
         self.positions.push(Vec3::new([p, n, n]));
         self.texture.push(Vec2::new([0.0, 0.0]));
-        self.elements.push(Element::new(p, n, n, c[0], c[1], c[2], c[3], 0.0, 0.0));
+        self.elements
+            .push(Element::new(p, n, n, c[0], c[1], c[2], c[3], 0.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([p, p, n]));
         self.texture.push(Vec2::new([1.0, 0.0]));
-        self.elements.push(Element::new(p, p, n, c[0], c[1], c[2], c[3], 1.0, 0.0));
+        self.elements
+            .push(Element::new(p, p, n, c[0], c[1], c[2], c[3], 1.0, 0.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([n, p, n]));
         self.texture.push(Vec2::new([1.0, 1.0]));
-        self.elements.push(Element::new(n, p, n, c[0], c[1], c[2], c[3], 1.0, 1.0));
+        self.elements
+            .push(Element::new(n, p, n, c[0], c[1], c[2], c[3], 1.0, 1.0));
         self.colors.push(c);
         self.positions.push(Vec3::new([n, n, n]));
         self.texture.push(Vec2::new([0.0, 1.0]));
-        self.elements.push(Element::new(n, n, n, c[0], c[1], c[2], c[3], 0.0, 1.0));
+        self.elements
+            .push(Element::new(n, n, n, c[0], c[1], c[2], c[3], 0.0, 1.0));
         self.colors.push(c);
-        self.indices.extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
+        self.indices
+            .extend_from_slice(&[ia, ia + 1, ia + 2, ia, ia + 2, ia + 3]);
     }
 
     pub fn triangular_prism(&mut self, a_side_length: f32, b_side_length: f32, depth: f32) {

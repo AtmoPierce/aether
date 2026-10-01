@@ -4,9 +4,9 @@ use crate::attitude::Quaternion;
 use crate::math::{Matrix, Vector};
 use crate::reference_frame::ReferenceFrame;
 
+use crate::real::Real;
 use core::marker::PhantomData; // Reference frame tracking.
 use core::slice::{Iter, IterMut};
-use crate::real::Real;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 #[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
@@ -70,9 +70,7 @@ impl<T: Real, RF: ReferenceFrame> Cartesian<T, RF> {
 impl<T: Real, RF> Cartesian<T, RF> {
     pub fn zero() -> Self {
         Self {
-            data: Vector {
-                data: [T::ZERO; 3],
-            },
+            data: Vector { data: [T::ZERO; 3] },
             _reference_frame: PhantomData,
         }
     }

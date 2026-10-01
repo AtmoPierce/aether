@@ -49,7 +49,9 @@ impl ClosedPolynomialProfile2D {
             return Err("Polynomial profile requires x_end > x_start".to_string());
         }
         if upper_coefficients.is_empty() || lower_coefficients.is_empty() {
-            return Err("Polynomial profile requires both upper and lower coefficient lists".to_string());
+            return Err(
+                "Polynomial profile requires both upper and lower coefficient lists".to_string(),
+            );
         }
 
         Ok(Self {
@@ -68,7 +70,10 @@ impl ClosedPolynomialProfile2D {
         evaluate_polynomial(&self.lower_coefficients, x)
     }
 
-    pub fn sample_section(&self, station_count: usize) -> Result<PolynomialProfileSection2D, String> {
+    pub fn sample_section(
+        &self,
+        station_count: usize,
+    ) -> Result<PolynomialProfileSection2D, String> {
         if station_count < 2 {
             return Err("Polynomial profile sampling requires at least two stations".to_string());
         }
@@ -188,10 +193,15 @@ impl PolynomialProfileSection2D {
     #[cfg(feature = "pro")]
     pub fn extruded_mesh(&self, extrusion: ProfileExtrusion3D) -> Result<TriangleMesh, String> {
         if self.upper_points.len() != self.lower_points.len() || self.upper_points.len() < 2 {
-            return Err("Polynomial section requires matched upper and lower point lists".to_string());
+            return Err(
+                "Polynomial section requires matched upper and lower point lists".to_string(),
+            );
         }
 
-        let plane_normal = extrusion.projection.u_axis.cross(&extrusion.projection.v_axis);
+        let plane_normal = extrusion
+            .projection
+            .u_axis
+            .cross(&extrusion.projection.v_axis);
         if plane_normal.norm() <= 1.0e-12 {
             return Err("Polynomial profile projection axes must span a valid plane".to_string());
         }
@@ -199,7 +209,9 @@ impl PolynomialProfileSection2D {
             return Err("Polynomial profile extrusion vector must be non-zero".to_string());
         }
         if plane_normal.dot(&extrusion.extrusion).abs() <= 1.0e-12 {
-            return Err("Polynomial profile extrusion vector must not lie in the section plane".to_string());
+            return Err(
+                "Polynomial profile extrusion vector must not lie in the section plane".to_string(),
+            );
         }
 
         let station_count = self.upper_points.len();
@@ -271,7 +283,8 @@ impl PolynomialProfileSection2D {
             );
         }
 
-        let front_outline = outline_indices_for_points(&self.upper_points, &self.lower_points, 0, station_count);
+        let front_outline =
+            outline_indices_for_points(&self.upper_points, &self.lower_points, 0, station_count);
         let back_outline = outline_indices_for_points(
             &self.upper_points,
             &self.lower_points,
@@ -432,13 +445,8 @@ mod tests {
     use super::*;
 
     fn example_profile() -> ClosedPolynomialProfile2D {
-        ClosedPolynomialProfile2D::new(
-            0.0,
-            1.0,
-            vec![0.08, 0.10, -0.18],
-            vec![-0.08, -0.10, 0.18],
-        )
-        .unwrap()
+        ClosedPolynomialProfile2D::new(0.0, 1.0, vec![0.08, 0.10, -0.18], vec![-0.08, -0.10, 0.18])
+            .unwrap()
     }
 
     #[test]
@@ -461,8 +469,12 @@ mod tests {
         );
         let projected = example_profile().projected_outline(7, projection).unwrap();
 
-        assert!(projected.iter().all(|point| (point[1] - 2.0).abs() < 1.0e-12));
-        assert!(projected.iter().any(|point| (point[2] - 3.0).abs() > 1.0e-12));
+        assert!(projected
+            .iter()
+            .all(|point| (point[1] - 2.0).abs() < 1.0e-12));
+        assert!(projected
+            .iter()
+            .any(|point| (point[2] - 3.0).abs() > 1.0e-12));
     }
 
     #[cfg(feature = "pro")]
@@ -471,10 +483,7 @@ mod tests {
         let mesh = example_profile()
             .extruded_mesh(
                 17,
-                ProfileExtrusion3D::new(
-                    PlanarProjection3D::default(),
-                    point3(0.0, 0.0, 0.2),
-                ),
+                ProfileExtrusion3D::new(PlanarProjection3D::default(), point3(0.0, 0.0, 0.2)),
             )
             .unwrap();
 
@@ -490,10 +499,7 @@ mod tests {
             .step_mesh_str(
                 "poly",
                 17,
-                ProfileExtrusion3D::new(
-                    PlanarProjection3D::default(),
-                    point3(0.0, 0.0, 0.2),
-                ),
+                ProfileExtrusion3D::new(PlanarProjection3D::default(), point3(0.0, 0.0, 0.2)),
             )
             .unwrap();
 

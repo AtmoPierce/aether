@@ -1,5 +1,5 @@
-use aether_core::math::Matrix;
 use crate::assert::matrix::*;
+use aether_core::math::Matrix;
 
 #[test]
 fn test_matrix_exact_equality() {

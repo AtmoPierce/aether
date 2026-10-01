@@ -1,6 +1,6 @@
 use crate::attributes::Solid;
+use aether_core::real::Real;
 use aether_core::{math::Vector, reference_frame::ReferenceFrame};
-use aether_core::real::{Real};
 
 // Sphere
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -21,8 +21,7 @@ impl<F: Real> Solid<F> for Sphere<F> {
             * self.r
     }
     fn inertia_principal_cm(&self, m: F) -> Vector<F, 3> {
-        let two_fifths =
-            (F::ONE + F::ONE) / (F::ONE + F::ONE + F::ONE + F::ONE + F::ONE);
+        let two_fifths = (F::ONE + F::ONE) / (F::ONE + F::ONE + F::ONE + F::ONE + F::ONE);
         let i = two_fifths * m * self.r * self.r;
         Vector::new([i, i, i])
     }

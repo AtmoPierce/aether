@@ -108,7 +108,9 @@ pub unsafe fn mul_matrix_neon_f32<const M: usize, const N: usize, const P: usize
     lhs: &Matrix<f32, M, N>,
     rhs: &Matrix<f32, N, P>,
 ) -> Matrix<f32, M, P> {
-    let mut out = Matrix { data: [[0.0; P]; M] };
+    let mut out = Matrix {
+        data: [[0.0; P]; M],
+    };
 
     if P == 4 {
         for i in 0..M {
@@ -185,7 +187,9 @@ pub unsafe fn mul_matrix_neon_f64<const M: usize, const N: usize, const P: usize
     lhs: &Matrix<f64, M, N>,
     rhs: &Matrix<f64, N, P>,
 ) -> Matrix<f64, M, P> {
-    let mut out = Matrix { data: [[0.0; P]; M] };
+    let mut out = Matrix {
+        data: [[0.0; P]; M],
+    };
 
     for i in 0..M {
         let c_row = out.data[i].as_mut_ptr();
@@ -217,7 +221,9 @@ pub unsafe fn mul_mat3_neon_f32(
     lhs: &Matrix<f32, 3, 3>,
     rhs: &Matrix<f32, 3, 3>,
 ) -> Matrix<f32, 3, 3> {
-    let mut out = Matrix { data: [[0.0_f32; 3]; 3] };
+    let mut out = Matrix {
+        data: [[0.0_f32; 3]; 3],
+    };
 
     for i in 0..3 {
         let mut acc = vdupq_n_f32(0.0_f32);
@@ -241,7 +247,9 @@ pub unsafe fn mul_mat3_neon_f64(
     lhs: &Matrix<f64, 3, 3>,
     rhs: &Matrix<f64, 3, 3>,
 ) -> Matrix<f64, 3, 3> {
-    let mut out = Matrix { data: [[0.0_f64; 3]; 3] };
+    let mut out = Matrix {
+        data: [[0.0_f64; 3]; 3],
+    };
 
     for i in 0..3 {
         let mut acc01 = vdupq_n_f64(0.0_f64);
@@ -267,7 +275,9 @@ pub unsafe fn mul_mat4_neon_f32(
     lhs: &Matrix<f32, 4, 4>,
     rhs: &Matrix<f32, 4, 4>,
 ) -> Matrix<f32, 4, 4> {
-    let mut out = Matrix { data: [[0.0_f32; 4]; 4] };
+    let mut out = Matrix {
+        data: [[0.0_f32; 4]; 4],
+    };
 
     for i in 0..4 {
         let mut acc = vdupq_n_f32(0.0_f32);
@@ -286,7 +296,9 @@ pub unsafe fn mul_mat4_neon_f64(
     lhs: &Matrix<f64, 4, 4>,
     rhs: &Matrix<f64, 4, 4>,
 ) -> Matrix<f64, 4, 4> {
-    let mut out = Matrix { data: [[0.0_f64; 4]; 4] };
+    let mut out = Matrix {
+        data: [[0.0_f64; 4]; 4],
+    };
 
     for i in 0..4 {
         let mut acc01 = vdupq_n_f64(0.0_f64);
@@ -311,7 +323,9 @@ pub unsafe fn mul_mat6_neon_f32(
     lhs: &Matrix<f32, 6, 6>,
     rhs: &Matrix<f32, 6, 6>,
 ) -> Matrix<f32, 6, 6> {
-    let mut out = Matrix { data: [[0.0_f32; 6]; 6] };
+    let mut out = Matrix {
+        data: [[0.0_f32; 6]; 6],
+    };
 
     for i in 0..6 {
         let mut acc0123 = vdupq_n_f32(0.0_f32);
@@ -341,7 +355,9 @@ pub unsafe fn mul_mat6_neon_f64(
     lhs: &Matrix<f64, 6, 6>,
     rhs: &Matrix<f64, 6, 6>,
 ) -> Matrix<f64, 6, 6> {
-    let mut out = Matrix { data: [[0.0_f64; 6]; 6] };
+    let mut out = Matrix {
+        data: [[0.0_f64; 6]; 6],
+    };
 
     for i in 0..6 {
         let mut acc01 = vdupq_n_f64(0.0_f64);

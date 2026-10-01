@@ -1,9 +1,9 @@
 use super::*;
 use crate::attitude::{DirectionCosineMatrix, Euler, Quaternion};
+use crate::real::Real;
 use crate::reference_frame::Body;
 use crate::{math::Matrix, matrix};
 use approx::assert_relative_eq;
-use crate::real::Real;
 pub fn matrices_approx_eq<T: Real + core::fmt::Debug>(
     a: &Matrix<T, 3, 3>,
     b: &Matrix<T, 3, 3>,

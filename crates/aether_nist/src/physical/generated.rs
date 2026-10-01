@@ -48,7 +48,10 @@ pub const ALPHA_PARTICLE_MOLAR_MASS: NistConstant<f64> = NistConstant::new(
         4.00150618330000034e-3,
         Uncertainty::standard(1.19999999999999994e-12),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const ALPHA_PARTICLE_PROTON_MASS_RATIO: NistConstant<f64> = NistConstant::new(
@@ -168,7 +171,11 @@ pub const ATOMIC_UNIT_OF_1ST_HYPERPOLARIZABILITY: NistConstant<f64> = NistConsta
         3.20636129959999994e-53,
         Uncertainty::standard(1.50000000000000006e-62),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 3), UnitTerm::new(UnitSymbol::Meter, 3), UnitTerm::new(UnitSymbol::Joule, -2)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Coulomb, 3),
+        UnitTerm::new(UnitSymbol::Meter, 3),
+        UnitTerm::new(UnitSymbol::Joule, -2),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_2ND_HYPERPOLARIZABILITY: NistConstant<f64> = NistConstant::new(
@@ -176,22 +183,23 @@ pub const ATOMIC_UNIT_OF_2ND_HYPERPOLARIZABILITY: NistConstant<f64> = NistConsta
         6.23537997350000030e-65,
         Uncertainty::standard(3.90000000000000013e-74),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 4), UnitTerm::new(UnitSymbol::Meter, 4), UnitTerm::new(UnitSymbol::Joule, -3)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Coulomb, 4),
+        UnitTerm::new(UnitSymbol::Meter, 4),
+        UnitTerm::new(UnitSymbol::Joule, -3),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_ACTION: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.05457181699999999e-34,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Second, 1)]),
+    PhysicalConstant::new(1.05457181699999999e-34, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Second, 1),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_CHARGE: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.60217663399999989e-19,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.60217663399999989e-19, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 1)]),
 );
 
@@ -200,7 +208,10 @@ pub const ATOMIC_UNIT_OF_CHARGE_DENSITY: NistConstant<f64> = NistConstant::new(
         1.08120238677000000e12,
         Uncertainty::standard(5.10000000000000000e2),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 1), UnitTerm::new(UnitSymbol::Meter, -3)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Coulomb, 1),
+        UnitTerm::new(UnitSymbol::Meter, -3),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_CURRENT: NistConstant<f64> = NistConstant::new(
@@ -216,7 +227,10 @@ pub const ATOMIC_UNIT_OF_ELECTRIC_DIPOLE_MOM: NistConstant<f64> = NistConstant::
         8.47835361980000069e-30,
         Uncertainty::standard(1.29999999999999999e-39),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 1), UnitTerm::new(UnitSymbol::Meter, 1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Coulomb, 1),
+        UnitTerm::new(UnitSymbol::Meter, 1),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_ELECTRIC_FIELD: NistConstant<f64> = NistConstant::new(
@@ -224,7 +238,10 @@ pub const ATOMIC_UNIT_OF_ELECTRIC_FIELD: NistConstant<f64> = NistConstant::new(
         5.14220675112000000e11,
         Uncertainty::standard(8.00000000000000000e1),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Volt, 1), UnitTerm::new(UnitSymbol::Meter, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Volt, 1),
+        UnitTerm::new(UnitSymbol::Meter, -1),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_ELECTRIC_FIELD_GRADIENT: NistConstant<f64> = NistConstant::new(
@@ -232,7 +249,10 @@ pub const ATOMIC_UNIT_OF_ELECTRIC_FIELD_GRADIENT: NistConstant<f64> = NistConsta
         9.71736244240000011e21,
         Uncertainty::standard(3.00000000000000000e12),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Volt, 1), UnitTerm::new(UnitSymbol::Meter, -2)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Volt, 1),
+        UnitTerm::new(UnitSymbol::Meter, -2),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_ELECTRIC_POLARIZABILITY: NistConstant<f64> = NistConstant::new(
@@ -240,7 +260,11 @@ pub const ATOMIC_UNIT_OF_ELECTRIC_POLARIZABILITY: NistConstant<f64> = NistConsta
         1.64877727212000000e-41,
         Uncertainty::standard(5.09999999999999974e-51),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 2), UnitTerm::new(UnitSymbol::Meter, 2), UnitTerm::new(UnitSymbol::Joule, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Coulomb, 2),
+        UnitTerm::new(UnitSymbol::Meter, 2),
+        UnitTerm::new(UnitSymbol::Joule, -1),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_ELECTRIC_POTENTIAL: NistConstant<f64> = NistConstant::new(
@@ -256,7 +280,10 @@ pub const ATOMIC_UNIT_OF_ELECTRIC_QUADRUPOLE_MOM: NistConstant<f64> = NistConsta
         4.48655151850000002e-40,
         Uncertainty::standard(1.39999999999999999e-49),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 1), UnitTerm::new(UnitSymbol::Meter, 2)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Coulomb, 1),
+        UnitTerm::new(UnitSymbol::Meter, 2),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_ENERGY: NistConstant<f64> = NistConstant::new(
@@ -288,7 +315,10 @@ pub const ATOMIC_UNIT_OF_MAG_DIPOLE_MOM: NistConstant<f64> = NistConstant::new(
         1.85480201314999992e-23,
         Uncertainty::standard(5.80000000000000005e-33),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_MAG_FLUX_DENSITY: NistConstant<f64> = NistConstant::new(
@@ -304,7 +334,10 @@ pub const ATOMIC_UNIT_OF_MAGNETIZABILITY: NistConstant<f64> = NistConstant::new(
         7.89103657939999945e-29,
         Uncertainty::standard(4.90000000000000039e-38),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -2)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -2),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_MASS: NistConstant<f64> = NistConstant::new(
@@ -320,7 +353,11 @@ pub const ATOMIC_UNIT_OF_MOMENTUM: NistConstant<f64> = NistConstant::new(
         1.99285191544999982e-24,
         Uncertainty::standard(3.09999999999999980e-34),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Meter, 1), UnitTerm::new(UnitSymbol::Second, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Meter, 1),
+        UnitTerm::new(UnitSymbol::Second, -1),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_PERMITTIVITY: NistConstant<f64> = NistConstant::new(
@@ -328,7 +365,10 @@ pub const ATOMIC_UNIT_OF_PERMITTIVITY: NistConstant<f64> = NistConstant::new(
         1.11265005620000006e-10,
         Uncertainty::standard(1.69999999999999986e-20),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Farad, 1), UnitTerm::new(UnitSymbol::Meter, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Farad, 1),
+        UnitTerm::new(UnitSymbol::Meter, -1),
+    ]),
 );
 
 pub const ATOMIC_UNIT_OF_TIME: NistConstant<f64> = NistConstant::new(
@@ -344,14 +384,14 @@ pub const ATOMIC_UNIT_OF_VELOCITY: NistConstant<f64> = NistConstant::new(
         2.18769126215999993e6,
         Uncertainty::standard(3.40000000000000024e-4),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 1), UnitTerm::new(UnitSymbol::Second, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 1),
+        UnitTerm::new(UnitSymbol::Second, -1),
+    ]),
 );
 
 pub const AVOGADRO_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.02214075999999987e23,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(6.02214075999999987e23, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Mole, -1)]),
 );
 
@@ -360,7 +400,10 @@ pub const BOHR_MAGNETON: NistConstant<f64> = NistConstant::new(
         9.27401006569999992e-24,
         Uncertainty::standard(2.90000000000000003e-33),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const BOHR_MAGNETON_IN_EV_T: NistConstant<f64> = NistConstant::new(
@@ -368,7 +411,10 @@ pub const BOHR_MAGNETON_IN_EV_T: NistConstant<f64> = NistConstant::new(
         5.78838179819999999e-5,
         Uncertainty::standard(1.79999999999999990e-14),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::ElectronVolt, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const BOHR_MAGNETON_IN_HZ_T: NistConstant<f64> = NistConstant::new(
@@ -376,7 +422,10 @@ pub const BOHR_MAGNETON_IN_HZ_T: NistConstant<f64> = NistConstant::new(
         1.39962449171000004e10,
         Uncertainty::standard(4.40000000000000036e0),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Hertz, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const BOHR_MAGNETON_IN_INVERSE_METER_PER_TESLA: NistConstant<f64> = NistConstant::new(
@@ -384,7 +433,10 @@ pub const BOHR_MAGNETON_IN_INVERSE_METER_PER_TESLA: NistConstant<f64> = NistCons
         4.66864477190000002e1,
         Uncertainty::standard(1.49999999999999987e-8),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, -1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const BOHR_MAGNETON_IN_K_T: NistConstant<f64> = NistConstant::new(
@@ -392,7 +444,10 @@ pub const BOHR_MAGNETON_IN_K_T: NistConstant<f64> = NistConstant::new(
         6.71713814720000024e-1,
         Uncertainty::standard(2.09999999999999999e-10),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kelvin, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kelvin, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const BOHR_RADIUS: NistConstant<f64> = NistConstant::new(
@@ -404,35 +459,35 @@ pub const BOHR_RADIUS: NistConstant<f64> = NistConstant::new(
 );
 
 pub const BOLTZMANN_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.38064900000000009e-23,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Kelvin, -1)]),
+    PhysicalConstant::new(1.38064900000000009e-23, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Kelvin, -1),
+    ]),
 );
 
 pub const BOLTZMANN_CONSTANT_IN_EV_K: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        8.61733326200000006e-5,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1), UnitTerm::new(UnitSymbol::Kelvin, -1)]),
+    PhysicalConstant::new(8.61733326200000006e-5, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::ElectronVolt, 1),
+        UnitTerm::new(UnitSymbol::Kelvin, -1),
+    ]),
 );
 
 pub const BOLTZMANN_CONSTANT_IN_HZ_K: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.08366191200000000e10,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1), UnitTerm::new(UnitSymbol::Kelvin, -1)]),
+    PhysicalConstant::new(2.08366191200000000e10, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Hertz, 1),
+        UnitTerm::new(UnitSymbol::Kelvin, -1),
+    ]),
 );
 
 pub const BOLTZMANN_CONSTANT_IN_INVERSE_METER_PER_KELVIN: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.95034800399999995e1,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -1), UnitTerm::new(UnitSymbol::Kelvin, -1)]),
+    PhysicalConstant::new(6.95034800399999995e1, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, -1),
+        UnitTerm::new(UnitSymbol::Kelvin, -1),
+    ]),
 );
 
 pub const CHARACTERISTIC_IMPEDANCE_OF_VACUUM: NistConstant<f64> = NistConstant::new(
@@ -460,82 +515,55 @@ pub const COMPTON_WAVELENGTH: NistConstant<f64> = NistConstant::new(
 );
 
 pub const CONDUCTANCE_QUANTUM: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        7.74809172900000037e-5,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(7.74809172900000037e-5, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Siemens, 1)]),
 );
 
 pub const CONVENTIONAL_VALUE_OF_AMPERE_90: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.00000008887000003e0,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.00000008887000003e0, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Ampere, 1)]),
 );
 
 pub const CONVENTIONAL_VALUE_OF_COULOMB_90: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.00000008887000003e0,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.00000008887000003e0, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 1)]),
 );
 
 pub const CONVENTIONAL_VALUE_OF_FARAD_90: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        9.99999982199999971e-1,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(9.99999982199999971e-1, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Farad, 1)]),
 );
 
 pub const CONVENTIONAL_VALUE_OF_HENRY_90: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.00000001778999992e0,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.00000001778999992e0, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Henry, 1)]),
 );
 
 pub const CONVENTIONAL_VALUE_OF_JOSEPHSON_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        4.83597900000000000e14,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1), UnitTerm::new(UnitSymbol::Volt, -1)]),
+    PhysicalConstant::new(4.83597900000000000e14, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Hertz, 1),
+        UnitTerm::new(UnitSymbol::Volt, -1),
+    ]),
 );
 
 pub const CONVENTIONAL_VALUE_OF_OHM_90: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.00000001778999992e0,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.00000001778999992e0, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Ohm, 1)]),
 );
 
 pub const CONVENTIONAL_VALUE_OF_VOLT_90: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.00000010665999994e0,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.00000010665999994e0, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Volt, 1)]),
 );
 
 pub const CONVENTIONAL_VALUE_OF_VON_KLITZING_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.58128070000000007e4,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(2.58128070000000007e4, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Ohm, 1)]),
 );
 
 pub const CONVENTIONAL_VALUE_OF_WATT_90: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.00000019552999997e0,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.00000019552999997e0, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Watt, 1)]),
 );
 
@@ -576,7 +604,10 @@ pub const DEUTERON_MAG_MOM: NistConstant<f64> = NistConstant::new(
         4.33073508699999971e-27,
         Uncertainty::standard(1.09999999999999997e-35),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const DEUTERON_MAG_MOM_TO_BOHR_MAGNETON_RATIO: NistConstant<f64> = NistConstant::new(
@@ -632,7 +663,10 @@ pub const DEUTERON_MOLAR_MASS: NistConstant<f64> = NistConstant::new(
         2.01355321465999980e-3,
         Uncertainty::standard(6.30000000000000042e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const DEUTERON_NEUTRON_MAG_MOM_RATIO: NistConstant<f64> = NistConstant::new(
@@ -680,7 +714,10 @@ pub const ELECTRON_CHARGE_TO_MASS_QUOTIENT: NistConstant<f64> = NistConstant::ne
         -1.75882000838000000e11,
         Uncertainty::standard(5.50000000000000000e1),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 1), UnitTerm::new(UnitSymbol::Kilogram, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Coulomb, 1),
+        UnitTerm::new(UnitSymbol::Kilogram, -1),
+    ]),
 );
 
 pub const ELECTRON_DEUTERON_MAG_MOM_RATIO: NistConstant<f64> = NistConstant::new(
@@ -712,7 +749,10 @@ pub const ELECTRON_GYROMAG_RATIO: NistConstant<f64> = NistConstant::new(
         1.76085962784000000e11,
         Uncertainty::standard(5.50000000000000000e1),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Second, -1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Second, -1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const ELECTRON_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConstant::new(
@@ -720,7 +760,10 @@ pub const ELECTRON_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConstant::new
         2.80249513861000014e4,
         Uncertainty::standard(8.69999999999999971e-6),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaHertz, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::MegaHertz, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const ELECTRON_HELION_MASS_RATIO: NistConstant<f64> = NistConstant::new(
@@ -736,7 +779,10 @@ pub const ELECTRON_MAG_MOM: NistConstant<f64> = NistConstant::new(
         -9.28476469170000003e-24,
         Uncertainty::standard(2.90000000000000003e-33),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const ELECTRON_MAG_MOM_ANOMALY: NistConstant<f64> = NistConstant::new(
@@ -800,7 +846,10 @@ pub const ELECTRON_MOLAR_MASS: NistConstant<f64> = NistConstant::new(
         5.48579909619999947e-7,
         Uncertainty::standard(1.70000000000000001e-16),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const ELECTRON_MUON_MAG_MOM_RATIO: NistConstant<f64> = NistConstant::new(
@@ -900,10 +949,7 @@ pub const ELECTRON_TRITON_MASS_RATIO: NistConstant<f64> = NistConstant::new(
 );
 
 pub const ELECTRON_VOLT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.60217663399999989e-19,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.60217663399999989e-19, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1)]),
 );
 
@@ -924,67 +970,49 @@ pub const ELECTRON_VOLT_HARTREE_RELATIONSHIP: NistConstant<f64> = NistConstant::
 );
 
 pub const ELECTRON_VOLT_HERTZ_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.41798924200000000e14,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(2.41798924200000000e14, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1)]),
 );
 
 pub const ELECTRON_VOLT_INVERSE_METER_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        8.06554393700000015e5,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(8.06554393700000015e5, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -1)]),
 );
 
 pub const ELECTRON_VOLT_JOULE_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.60217663399999989e-19,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.60217663399999989e-19, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1)]),
 );
 
 pub const ELECTRON_VOLT_KELVIN_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.16045181200000006e4,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.16045181200000006e4, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kelvin, 1)]),
 );
 
 pub const ELECTRON_VOLT_KILOGRAM_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.78266192099999995e-36,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.78266192099999995e-36, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1)]),
 );
 
 pub const ELEMENTARY_CHARGE: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.60217663399999989e-19,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.60217663399999989e-19, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 1)]),
 );
 
 pub const ELEMENTARY_CHARGE_OVER_H_BAR: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.51926744700000000e15,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Ampere, 1), UnitTerm::new(UnitSymbol::Joule, -1)]),
+    PhysicalConstant::new(1.51926744700000000e15, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Ampere, 1),
+        UnitTerm::new(UnitSymbol::Joule, -1),
+    ]),
 );
 
 pub const FARADAY_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        9.64853321200000064e4,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    PhysicalConstant::new(9.64853321200000064e4, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Coulomb, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const FERMI_COUPLING_CONSTANT: NistConstant<f64> = NistConstant::new(
@@ -1004,19 +1032,20 @@ pub const FINE_STRUCTURE_CONSTANT: NistConstant<f64> = NistConstant::new(
 );
 
 pub const FIRST_RADIATION_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        3.74177185200000016e-16,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Watt, 1), UnitTerm::new(UnitSymbol::Meter, 2)]),
+    PhysicalConstant::new(3.74177185200000016e-16, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Watt, 1),
+        UnitTerm::new(UnitSymbol::Meter, 2),
+    ]),
 );
 
 pub const FIRST_RADIATION_CONSTANT_FOR_SPECTRAL_RADIANCE: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.19104297200000012e-16,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Watt, 1), UnitTerm::new(UnitSymbol::Meter, 2), UnitTerm::new(UnitSymbol::Steradian, -1)]),
+    PhysicalConstant::new(1.19104297200000012e-16, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Watt, 1),
+        UnitTerm::new(UnitSymbol::Meter, 2),
+        UnitTerm::new(UnitSymbol::Steradian, -1),
+    ]),
 );
 
 pub const HARTREE_ATOMIC_MASS_UNIT_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
@@ -1112,7 +1141,10 @@ pub const HELION_MAG_MOM: NistConstant<f64> = NistConstant::new(
         -1.07461755197999998e-26,
         Uncertainty::standard(9.29999999999999955e-36),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const HELION_MAG_MOM_TO_BOHR_MAGNETON_RATIO: NistConstant<f64> = NistConstant::new(
@@ -1168,7 +1200,10 @@ pub const HELION_MOLAR_MASS: NistConstant<f64> = NistConstant::new(
         3.01493225009999985e-3,
         Uncertainty::standard(9.40000000000000034e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const HELION_PROTON_MASS_RATIO: NistConstant<f64> = NistConstant::new(
@@ -1204,10 +1239,7 @@ pub const HERTZ_ATOMIC_MASS_UNIT_RELATIONSHIP: NistConstant<f64> = NistConstant:
 );
 
 pub const HERTZ_ELECTRON_VOLT_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        4.13566769600000034e-15,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(4.13566769600000034e-15, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1)]),
 );
 
@@ -1220,42 +1252,27 @@ pub const HERTZ_HARTREE_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
 );
 
 pub const HERTZ_INVERSE_METER_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        3.33564095099999991e-9,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(3.33564095099999991e-9, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -1)]),
 );
 
 pub const HERTZ_JOULE_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.62607014999999983e-34,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(6.62607014999999983e-34, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1)]),
 );
 
 pub const HERTZ_KELVIN_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        4.79924307299999971e-11,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(4.79924307299999971e-11, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kelvin, 1)]),
 );
 
 pub const HERTZ_KILOGRAM_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        7.37249732299999941e-51,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(7.37249732299999941e-51, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1)]),
 );
 
 pub const HYPERFINE_TRANSITION_FREQUENCY_OF_CS_133: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        9.19263177000000000e9,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(9.19263177000000000e9, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1)]),
 );
 
@@ -1276,10 +1293,7 @@ pub const INVERSE_METER_ATOMIC_MASS_UNIT_RELATIONSHIP: NistConstant<f64> = NistC
 );
 
 pub const INVERSE_METER_ELECTRON_VOLT_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.23984198400000001e-6,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.23984198400000001e-6, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1)]),
 );
 
@@ -1292,51 +1306,36 @@ pub const INVERSE_METER_HARTREE_RELATIONSHIP: NistConstant<f64> = NistConstant::
 );
 
 pub const INVERSE_METER_HERTZ_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.99792458000000000e8,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(2.99792458000000000e8, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1)]),
 );
 
 pub const INVERSE_METER_JOULE_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.98644585699999992e-25,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.98644585699999992e-25, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1)]),
 );
 
 pub const INVERSE_METER_KELVIN_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.43877687700000000e-2,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.43877687700000000e-2, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kelvin, 1)]),
 );
 
 pub const INVERSE_METER_KILOGRAM_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.21021909400000011e-42,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(2.21021909400000011e-42, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1)]),
 );
 
 pub const INVERSE_OF_CONDUCTANCE_QUANTUM: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.29064037200000002e4,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.29064037200000002e4, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Ohm, 1)]),
 );
 
 pub const JOSEPHSON_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        4.83597848400000000e14,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1), UnitTerm::new(UnitSymbol::Volt, -1)]),
+    PhysicalConstant::new(4.83597848400000000e14, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Hertz, 1),
+        UnitTerm::new(UnitSymbol::Volt, -1),
+    ]),
 );
 
 pub const JOULE_ATOMIC_MASS_UNIT_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
@@ -1348,10 +1347,7 @@ pub const JOULE_ATOMIC_MASS_UNIT_RELATIONSHIP: NistConstant<f64> = NistConstant:
 );
 
 pub const JOULE_ELECTRON_VOLT_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.24150907400000000e18,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(6.24150907400000000e18, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1)]),
 );
 
@@ -1364,34 +1360,22 @@ pub const JOULE_HARTREE_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
 );
 
 pub const JOULE_HERTZ_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.50919017899999989e33,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.50919017899999989e33, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1)]),
 );
 
 pub const JOULE_INVERSE_METER_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        5.03411656699999995e24,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(5.03411656699999995e24, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -1)]),
 );
 
 pub const JOULE_KELVIN_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        7.24297051600000018e22,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(7.24297051600000018e22, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kelvin, 1)]),
 );
 
 pub const JOULE_KILOGRAM_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.11265005599999999e-17,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.11265005599999999e-17, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1)]),
 );
 
@@ -1404,10 +1388,7 @@ pub const KELVIN_ATOMIC_MASS_UNIT_RELATIONSHIP: NistConstant<f64> = NistConstant
 );
 
 pub const KELVIN_ELECTRON_VOLT_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        8.61733326200000006e-5,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(8.61733326200000006e-5, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1)]),
 );
 
@@ -1420,34 +1401,22 @@ pub const KELVIN_HARTREE_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
 );
 
 pub const KELVIN_HERTZ_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.08366191200000000e10,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(2.08366191200000000e10, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1)]),
 );
 
 pub const KELVIN_INVERSE_METER_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.95034800399999995e1,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(6.95034800399999995e1, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -1)]),
 );
 
 pub const KELVIN_JOULE_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.38064900000000009e-23,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.38064900000000009e-23, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1)]),
 );
 
 pub const KELVIN_KILOGRAM_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.53617918700000009e-40,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.53617918700000009e-40, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1)]),
 );
 
@@ -1460,10 +1429,7 @@ pub const KILOGRAM_ATOMIC_MASS_UNIT_RELATIONSHIP: NistConstant<f64> = NistConsta
 );
 
 pub const KILOGRAM_ELECTRON_VOLT_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        5.60958860299999976e35,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(5.60958860299999976e35, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1)]),
 );
 
@@ -1476,34 +1442,22 @@ pub const KILOGRAM_HARTREE_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
 );
 
 pub const KILOGRAM_HERTZ_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.35639248899999999e50,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.35639248899999999e50, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1)]),
 );
 
 pub const KILOGRAM_INVERSE_METER_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        4.52443833499999982e41,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(4.52443833499999982e41, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -1)]),
 );
 
 pub const KILOGRAM_JOULE_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        8.98755178700000000e16,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(8.98755178700000000e16, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1)]),
 );
 
 pub const KILOGRAM_KELVIN_RELATIONSHIP: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.50965726000000032e39,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(6.50965726000000032e39, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kelvin, 1)]),
 );
 
@@ -1524,43 +1478,35 @@ pub const LATTICE_SPACING_OF_IDEAL_SI_220: NistConstant<f64> = NistConstant::new
 );
 
 pub const LOSCHMIDT_CONSTANT_273_15_K_100_KPA: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.65164580399999987e25,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(2.65164580399999987e25, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -3)]),
 );
 
 pub const LOSCHMIDT_CONSTANT_273_15_K_101_325_KPA: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.68678011100000006e25,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(2.68678011100000006e25, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -3)]),
 );
 
 pub const LUMINOUS_EFFICACY: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.83000000000000000e2,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Lumen, 1), UnitTerm::new(UnitSymbol::Watt, -1)]),
+    PhysicalConstant::new(6.83000000000000000e2, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Lumen, 1),
+        UnitTerm::new(UnitSymbol::Watt, -1),
+    ]),
 );
 
 pub const MAG_FLUX_QUANTUM: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.06783384800000017e-15,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(2.06783384800000017e-15, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Weber, 1)]),
 );
 
 pub const MOLAR_GAS_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        8.31446261800000030e0,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Mole, -1), UnitTerm::new(UnitSymbol::Kelvin, -1)]),
+    PhysicalConstant::new(8.31446261800000030e0, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+        UnitTerm::new(UnitSymbol::Kelvin, -1),
+    ]),
 );
 
 pub const MOLAR_MASS_CONSTANT: NistConstant<f64> = NistConstant::new(
@@ -1568,7 +1514,10 @@ pub const MOLAR_MASS_CONSTANT: NistConstant<f64> = NistConstant::new(
         1.00000000104999995e-3,
         Uncertainty::standard(3.09999999999999992e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const MOLAR_MASS_OF_CARBON_12: NistConstant<f64> = NistConstant::new(
@@ -1576,31 +1525,35 @@ pub const MOLAR_MASS_OF_CARBON_12: NistConstant<f64> = NistConstant::new(
         1.20000000125999994e-2,
         Uncertainty::standard(3.69999999999999999e-12),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const MOLAR_PLANCK_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        3.99031271200000001e-10,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Hertz, -1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    PhysicalConstant::new(3.99031271200000001e-10, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Hertz, -1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const MOLAR_VOLUME_OF_IDEAL_GAS_273_15_K_100_KPA: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.27109546399999994e-2,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 3), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    PhysicalConstant::new(2.27109546399999994e-2, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 3),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const MOLAR_VOLUME_OF_IDEAL_GAS_273_15_K_101_325_KPA: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.24139695399999984e-2,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 3), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    PhysicalConstant::new(2.24139695399999984e-2, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 3),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const MOLAR_VOLUME_OF_SILICON: NistConstant<f64> = NistConstant::new(
@@ -1608,7 +1561,10 @@ pub const MOLAR_VOLUME_OF_SILICON: NistConstant<f64> = NistConstant::new(
         1.20588319899999999e-5,
         Uncertainty::standard(5.99999999999999968e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 3), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 3),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const MOLYBDENUM_X_UNIT: NistConstant<f64> = NistConstant::new(
@@ -1648,7 +1604,10 @@ pub const MUON_MAG_MOM: NistConstant<f64> = NistConstant::new(
         -4.49044829999999982e-26,
         Uncertainty::standard(1.00000000000000006e-33),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const MUON_MAG_MOM_ANOMALY: NistConstant<f64> = NistConstant::new(
@@ -1712,7 +1671,10 @@ pub const MUON_MOLAR_MASS: NistConstant<f64> = NistConstant::new(
         1.13428925800000002e-4,
         Uncertainty::standard(2.49999999999999985e-12),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const MUON_NEUTRON_MASS_RATIO: NistConstant<f64> = NistConstant::new(
@@ -1748,19 +1710,19 @@ pub const MUON_TAU_MASS_RATIO: NistConstant<f64> = NistConstant::new(
 );
 
 pub const NATURAL_UNIT_OF_ACTION: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.05457181699999999e-34,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Second, 1)]),
+    PhysicalConstant::new(1.05457181699999999e-34, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Second, 1),
+    ]),
 );
 
 pub const NATURAL_UNIT_OF_ACTION_IN_EV_S: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.58211956900000031e-16,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1), UnitTerm::new(UnitSymbol::Second, 1)]),
+    PhysicalConstant::new(6.58211956900000031e-16, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::ElectronVolt, 1),
+        UnitTerm::new(UnitSymbol::Second, 1),
+    ]),
 );
 
 pub const NATURAL_UNIT_OF_ENERGY: NistConstant<f64> = NistConstant::new(
@@ -1800,7 +1762,11 @@ pub const NATURAL_UNIT_OF_MOMENTUM: NistConstant<f64> = NistConstant::new(
         2.73092453445999983e-22,
         Uncertainty::standard(8.50000000000000027e-32),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Meter, 1), UnitTerm::new(UnitSymbol::Second, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Meter, 1),
+        UnitTerm::new(UnitSymbol::Second, -1),
+    ]),
 );
 
 pub const NATURAL_UNIT_OF_MOMENTUM_IN_MEV_C: NistConstant<f64> = NistConstant::new(
@@ -1808,7 +1774,10 @@ pub const NATURAL_UNIT_OF_MOMENTUM_IN_MEV_C: NistConstant<f64> = NistConstant::n
         5.10998950690000009e-1,
         Uncertainty::standard(1.59999999999999990e-10),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaElectronVolt, 1), UnitTerm::new(UnitSymbol::SpeedOfLight, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::MegaElectronVolt, 1),
+        UnitTerm::new(UnitSymbol::SpeedOfLight, -1),
+    ]),
 );
 
 pub const NATURAL_UNIT_OF_TIME: NistConstant<f64> = NistConstant::new(
@@ -1820,11 +1789,11 @@ pub const NATURAL_UNIT_OF_TIME: NistConstant<f64> = NistConstant::new(
 );
 
 pub const NATURAL_UNIT_OF_VELOCITY: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.99792458000000000e8,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 1), UnitTerm::new(UnitSymbol::Second, -1)]),
+    PhysicalConstant::new(2.99792458000000000e8, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 1),
+        UnitTerm::new(UnitSymbol::Second, -1),
+    ]),
 );
 
 pub const NEUTRON_COMPTON_WAVELENGTH: NistConstant<f64> = NistConstant::new(
@@ -1864,7 +1833,10 @@ pub const NEUTRON_GYROMAG_RATIO: NistConstant<f64> = NistConstant::new(
         1.83247174000000000e8,
         Uncertainty::standard(4.30000000000000000e1),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Second, -1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Second, -1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const NEUTRON_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConstant::new(
@@ -1872,7 +1844,10 @@ pub const NEUTRON_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConstant::new(
         2.91646934999999985e1,
         Uncertainty::standard(6.90000000000000001e-6),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaHertz, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::MegaHertz, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const NEUTRON_MAG_MOM: NistConstant<f64> = NistConstant::new(
@@ -1880,7 +1855,10 @@ pub const NEUTRON_MAG_MOM: NistConstant<f64> = NistConstant::new(
         -9.66236530000000000e-27,
         Uncertainty::standard(2.29999999999999986e-33),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const NEUTRON_MAG_MOM_TO_BOHR_MAGNETON_RATIO: NistConstant<f64> = NistConstant::new(
@@ -1936,7 +1914,10 @@ pub const NEUTRON_MOLAR_MASS: NistConstant<f64> = NistConstant::new(
         1.00866491712000000e-3,
         Uncertainty::standard(5.10000000000000048e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const NEUTRON_MUON_MASS_RATIO: NistConstant<f64> = NistConstant::new(
@@ -1971,13 +1952,14 @@ pub const NEUTRON_PROTON_MASS_DIFFERENCE_ENERGY_EQUIVALENT: NistConstant<f64> = 
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1)]),
 );
 
-pub const NEUTRON_PROTON_MASS_DIFFERENCE_ENERGY_EQUIVALENT_IN_MEV: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.29333250999999994e0,
-        Uncertainty::standard(3.80000000000000015e-7),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaElectronVolt, 1)]),
-);
+pub const NEUTRON_PROTON_MASS_DIFFERENCE_ENERGY_EQUIVALENT_IN_MEV: NistConstant<f64> =
+    NistConstant::new(
+        PhysicalConstant::new(
+            1.29333250999999994e0,
+            Uncertainty::standard(3.80000000000000015e-7),
+        ),
+        UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaElectronVolt, 1)]),
+    );
 
 pub const NEUTRON_PROTON_MASS_DIFFERENCE_IN_U: NistConstant<f64> = NistConstant::new(
     PhysicalConstant::new(
@@ -2024,7 +2006,11 @@ pub const NEWTONIAN_CONSTANT_OF_GRAVITATION: NistConstant<f64> = NistConstant::n
         6.67429999999999938e-11,
         Uncertainty::standard(1.49999999999999992e-15),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 3), UnitTerm::new(UnitSymbol::Kilogram, -1), UnitTerm::new(UnitSymbol::Second, -2)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 3),
+        UnitTerm::new(UnitSymbol::Kilogram, -1),
+        UnitTerm::new(UnitSymbol::Second, -2),
+    ]),
 );
 
 pub const NEWTONIAN_CONSTANT_OF_GRAVITATION_OVER_H_BAR_C: NistConstant<f64> = NistConstant::new(
@@ -2032,7 +2018,10 @@ pub const NEWTONIAN_CONSTANT_OF_GRAVITATION_OVER_H_BAR_C: NistConstant<f64> = Ni
         6.70883000000000055e-39,
         Uncertainty::standard(1.50000000000000002e-43),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::GigaElectronVolt, -2), UnitTerm::new(UnitSymbol::SpeedOfLight, 4)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::GigaElectronVolt, -2),
+        UnitTerm::new(UnitSymbol::SpeedOfLight, 4),
+    ]),
 );
 
 pub const NUCLEAR_MAGNETON: NistConstant<f64> = NistConstant::new(
@@ -2040,7 +2029,10 @@ pub const NUCLEAR_MAGNETON: NistConstant<f64> = NistConstant::new(
         5.05078373930000011e-27,
         Uncertainty::standard(1.60000000000000011e-36),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const NUCLEAR_MAGNETON_IN_EV_T: NistConstant<f64> = NistConstant::new(
@@ -2048,7 +2040,10 @@ pub const NUCLEAR_MAGNETON_IN_EV_T: NistConstant<f64> = NistConstant::new(
         3.15245125416999989e-8,
         Uncertainty::standard(9.80000000000000024e-18),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::ElectronVolt, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const NUCLEAR_MAGNETON_IN_INVERSE_METER_PER_TESLA: NistConstant<f64> = NistConstant::new(
@@ -2056,7 +2051,10 @@ pub const NUCLEAR_MAGNETON_IN_INVERSE_METER_PER_TESLA: NistConstant<f64> = NistC
         2.54262341008999991e-2,
         Uncertainty::standard(7.89999999999999986e-12),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, -1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, -1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const NUCLEAR_MAGNETON_IN_K_T: NistConstant<f64> = NistConstant::new(
@@ -2064,7 +2062,10 @@ pub const NUCLEAR_MAGNETON_IN_K_T: NistConstant<f64> = NistConstant::new(
         3.65826777059999981e-4,
         Uncertainty::standard(1.09999999999999998e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kelvin, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kelvin, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const NUCLEAR_MAGNETON_IN_MHZ_T: NistConstant<f64> = NistConstant::new(
@@ -2072,23 +2073,26 @@ pub const NUCLEAR_MAGNETON_IN_MHZ_T: NistConstant<f64> = NistConstant::new(
         7.62259321879999963e0,
         Uncertainty::standard(2.39999999999999998e-9),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaHertz, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::MegaHertz, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const PLANCK_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.62607014999999983e-34,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Hertz, -1)]),
+    PhysicalConstant::new(6.62607014999999983e-34, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Hertz, -1),
+    ]),
 );
 
 pub const PLANCK_CONSTANT_IN_EV_HZ: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        4.13566769600000034e-15,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1), UnitTerm::new(UnitSymbol::Hertz, -1)]),
+    PhysicalConstant::new(4.13566769600000034e-15, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::ElectronVolt, 1),
+        UnitTerm::new(UnitSymbol::Hertz, -1),
+    ]),
 );
 
 pub const PLANCK_LENGTH: NistConstant<f64> = NistConstant::new(
@@ -2136,7 +2140,10 @@ pub const PROTON_CHARGE_TO_MASS_QUOTIENT: NistConstant<f64> = NistConstant::new(
         9.57883314300000072e7,
         Uncertainty::standard(2.99999999999999989e-2),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Coulomb, 1), UnitTerm::new(UnitSymbol::Kilogram, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Coulomb, 1),
+        UnitTerm::new(UnitSymbol::Kilogram, -1),
+    ]),
 );
 
 pub const PROTON_COMPTON_WAVELENGTH: NistConstant<f64> = NistConstant::new(
@@ -2168,7 +2175,10 @@ pub const PROTON_GYROMAG_RATIO: NistConstant<f64> = NistConstant::new(
         2.67522187080000013e8,
         Uncertainty::standard(1.10000000000000001e-1),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Second, -1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Second, -1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const PROTON_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConstant::new(
@@ -2176,7 +2186,10 @@ pub const PROTON_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConstant::new(
         4.25774784609999983e1,
         Uncertainty::standard(1.79999999999999991e-8),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaHertz, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::MegaHertz, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const PROTON_MAG_MOM: NistConstant<f64> = NistConstant::new(
@@ -2184,7 +2197,10 @@ pub const PROTON_MAG_MOM: NistConstant<f64> = NistConstant::new(
         1.41060679545000013e-26,
         Uncertainty::standard(6.00000000000000031e-36),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const PROTON_MAG_MOM_TO_BOHR_MAGNETON_RATIO: NistConstant<f64> = NistConstant::new(
@@ -2248,7 +2264,10 @@ pub const PROTON_MOLAR_MASS: NistConstant<f64> = NistConstant::new(
         1.00727646763999995e-3,
         Uncertainty::standard(3.09999999999999992e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const PROTON_MUON_MASS_RATIO: NistConstant<f64> = NistConstant::new(
@@ -2304,7 +2323,10 @@ pub const QUANTUM_OF_CIRCULATION: NistConstant<f64> = NistConstant::new(
         3.63694754670000012e-4,
         Uncertainty::standard(1.09999999999999998e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 2), UnitTerm::new(UnitSymbol::Second, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 2),
+        UnitTerm::new(UnitSymbol::Second, -1),
+    ]),
 );
 
 pub const QUANTUM_OF_CIRCULATION_TIMES_2: NistConstant<f64> = NistConstant::new(
@@ -2312,7 +2334,10 @@ pub const QUANTUM_OF_CIRCULATION_TIMES_2: NistConstant<f64> = NistConstant::new(
         7.27389509340000025e-4,
         Uncertainty::standard(2.29999999999999979e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 2), UnitTerm::new(UnitSymbol::Second, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 2),
+        UnitTerm::new(UnitSymbol::Second, -1),
+    ]),
 );
 
 pub const REDUCED_COMPTON_WAVELENGTH: NistConstant<f64> = NistConstant::new(
@@ -2340,27 +2365,27 @@ pub const REDUCED_NEUTRON_COMPTON_WAVELENGTH: NistConstant<f64> = NistConstant::
 );
 
 pub const REDUCED_PLANCK_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.05457181699999999e-34,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Second, 1)]),
+    PhysicalConstant::new(1.05457181699999999e-34, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Second, 1),
+    ]),
 );
 
 pub const REDUCED_PLANCK_CONSTANT_IN_EV_S: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        6.58211956900000031e-16,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::ElectronVolt, 1), UnitTerm::new(UnitSymbol::Second, 1)]),
+    PhysicalConstant::new(6.58211956900000031e-16, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::ElectronVolt, 1),
+        UnitTerm::new(UnitSymbol::Second, 1),
+    ]),
 );
 
 pub const REDUCED_PLANCK_CONSTANT_TIMES_C_IN_MEV_FM: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.97326980399999997e2,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaElectronVolt, 1), UnitTerm::new(UnitSymbol::Femtometer, 1)]),
+    PhysicalConstant::new(1.97326980399999997e2, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::MegaElectronVolt, 1),
+        UnitTerm::new(UnitSymbol::Femtometer, 1),
+    ]),
 );
 
 pub const REDUCED_PROTON_COMPTON_WAVELENGTH: NistConstant<f64> = NistConstant::new(
@@ -2428,11 +2453,11 @@ pub const SACKUR_TETRODE_CONSTANT_1_K_101_325_KPA: NistConstant<f64> = NistConst
 );
 
 pub const SECOND_RADIATION_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.43877687700000000e-2,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 1), UnitTerm::new(UnitSymbol::Kelvin, 1)]),
+    PhysicalConstant::new(1.43877687700000000e-2, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 1),
+        UnitTerm::new(UnitSymbol::Kelvin, 1),
+    ]),
 );
 
 pub const SHIELDED_HELION_GYROMAG_RATIO: NistConstant<f64> = NistConstant::new(
@@ -2440,7 +2465,10 @@ pub const SHIELDED_HELION_GYROMAG_RATIO: NistConstant<f64> = NistConstant::new(
         2.03789460780000001e8,
         Uncertainty::standard(1.79999999999999993e-1),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Second, -1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Second, -1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const SHIELDED_HELION_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConstant::new(
@@ -2448,7 +2476,10 @@ pub const SHIELDED_HELION_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConsta
         3.24341000330000000e1,
         Uncertainty::standard(2.79999999999999993e-8),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaHertz, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::MegaHertz, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const SHIELDED_HELION_MAG_MOM: NistConstant<f64> = NistConstant::new(
@@ -2456,7 +2487,10 @@ pub const SHIELDED_HELION_MAG_MOM: NistConstant<f64> = NistConstant::new(
         -1.07455311035000005e-26,
         Uncertainty::standard(9.29999999999999955e-36),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const SHIELDED_HELION_MAG_MOM_TO_BOHR_MAGNETON_RATIO: NistConstant<f64> = NistConstant::new(
@@ -2496,7 +2530,10 @@ pub const SHIELDED_PROTON_GYROMAG_RATIO: NistConstant<f64> = NistConstant::new(
         2.67515319400000006e8,
         Uncertainty::standard(1.10000000000000009e0),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Second, -1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Second, -1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const SHIELDED_PROTON_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConstant::new(
@@ -2504,7 +2541,10 @@ pub const SHIELDED_PROTON_GYROMAG_RATIO_IN_MHZ_T: NistConstant<f64> = NistConsta
         4.25763854300000020e1,
         Uncertainty::standard(1.69999999999999987e-7),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::MegaHertz, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::MegaHertz, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const SHIELDED_PROTON_MAG_MOM: NistConstant<f64> = NistConstant::new(
@@ -2512,7 +2552,10 @@ pub const SHIELDED_PROTON_MAG_MOM: NistConstant<f64> = NistConstant::new(
         1.41057058300000001e-26,
         Uncertainty::standard(5.80000000000000039e-35),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const SHIELDED_PROTON_MAG_MOM_TO_BOHR_MAGNETON_RATIO: NistConstant<f64> = NistConstant::new(
@@ -2548,43 +2591,38 @@ pub const SHIELDING_DIFFERENCE_OF_T_AND_P_IN_HT: NistConstant<f64> = NistConstan
 );
 
 pub const SPEED_OF_LIGHT_IN_VACUUM: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.99792458000000000e8,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 1), UnitTerm::new(UnitSymbol::Second, -1)]),
+    PhysicalConstant::new(2.99792458000000000e8, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 1),
+        UnitTerm::new(UnitSymbol::Second, -1),
+    ]),
 );
 
 pub const STANDARD_ACCELERATION_OF_GRAVITY: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        9.80664999999999942e0,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 1), UnitTerm::new(UnitSymbol::Second, -2)]),
+    PhysicalConstant::new(9.80664999999999942e0, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 1),
+        UnitTerm::new(UnitSymbol::Second, -2),
+    ]),
 );
 
 pub const STANDARD_ATMOSPHERE: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.01325000000000000e5,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.01325000000000000e5, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Pascal, 1)]),
 );
 
 pub const STANDARD_STATE_PRESSURE: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        1.00000000000000000e5,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(1.00000000000000000e5, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Pascal, 1)]),
 );
 
 pub const STEFAN_BOLTZMANN_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        5.67037441899999991e-8,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Watt, 1), UnitTerm::new(UnitSymbol::Meter, -2), UnitTerm::new(UnitSymbol::Kelvin, -4)]),
+    PhysicalConstant::new(5.67037441899999991e-8, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Watt, 1),
+        UnitTerm::new(UnitSymbol::Meter, -2),
+        UnitTerm::new(UnitSymbol::Kelvin, -4),
+    ]),
 );
 
 pub const TAU_COMPTON_WAVELENGTH: NistConstant<f64> = NistConstant::new(
@@ -2640,7 +2678,10 @@ pub const TAU_MOLAR_MASS: NistConstant<f64> = NistConstant::new(
         1.90754000000000010e-3,
         Uncertainty::standard(1.29999999999999999e-7),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const TAU_MUON_MASS_RATIO: NistConstant<f64> = NistConstant::new(
@@ -2696,7 +2737,10 @@ pub const TRITON_MAG_MOM: NistConstant<f64> = NistConstant::new(
         1.50460951779999990e-26,
         Uncertainty::standard(2.99999999999999989e-35),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Joule, 1), UnitTerm::new(UnitSymbol::Tesla, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Joule, 1),
+        UnitTerm::new(UnitSymbol::Tesla, -1),
+    ]),
 );
 
 pub const TRITON_MAG_MOM_TO_BOHR_MAGNETON_RATIO: NistConstant<f64> = NistConstant::new(
@@ -2752,7 +2796,10 @@ pub const TRITON_MOLAR_MASS: NistConstant<f64> = NistConstant::new(
         3.01550071912999986e-3,
         Uncertainty::standard(9.40000000000000034e-13),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Kilogram, 1), UnitTerm::new(UnitSymbol::Mole, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Kilogram, 1),
+        UnitTerm::new(UnitSymbol::Mole, -1),
+    ]),
 );
 
 pub const TRITON_PROTON_MASS_RATIO: NistConstant<f64> = NistConstant::new(
@@ -2792,7 +2839,10 @@ pub const VACUUM_ELECTRIC_PERMITTIVITY: NistConstant<f64> = NistConstant::new(
         8.85418781880000041e-12,
         Uncertainty::standard(1.40000000000000002e-21),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Farad, 1), UnitTerm::new(UnitSymbol::Meter, -1)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Farad, 1),
+        UnitTerm::new(UnitSymbol::Meter, -1),
+    ]),
 );
 
 pub const VACUUM_MAG_PERMEABILITY: NistConstant<f64> = NistConstant::new(
@@ -2800,14 +2850,14 @@ pub const VACUUM_MAG_PERMEABILITY: NistConstant<f64> = NistConstant::new(
         1.25663706127000005e-6,
         Uncertainty::standard(1.99999999999999996e-16),
     ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Newton, 1), UnitTerm::new(UnitSymbol::Ampere, -2)]),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Newton, 1),
+        UnitTerm::new(UnitSymbol::Ampere, -2),
+    ]),
 );
 
 pub const VON_KLITZING_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.58128074500000002e4,
-        Uncertainty::exact(),
-    ),
+    PhysicalConstant::new(2.58128074500000002e4, Uncertainty::exact()),
     UnitExpr::new(&[UnitTerm::new(UnitSymbol::Ohm, 1)]),
 );
 
@@ -2820,19 +2870,19 @@ pub const WEAK_MIXING_ANGLE: NistConstant<f64> = NistConstant::new(
 );
 
 pub const WIEN_FREQUENCY_DISPLACEMENT_LAW_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        5.87892575700000000e10,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Hertz, 1), UnitTerm::new(UnitSymbol::Kelvin, -1)]),
+    PhysicalConstant::new(5.87892575700000000e10, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Hertz, 1),
+        UnitTerm::new(UnitSymbol::Kelvin, -1),
+    ]),
 );
 
 pub const WIEN_WAVELENGTH_DISPLACEMENT_LAW_CONSTANT: NistConstant<f64> = NistConstant::new(
-    PhysicalConstant::new(
-        2.89777195500000003e-3,
-        Uncertainty::exact(),
-    ),
-    UnitExpr::new(&[UnitTerm::new(UnitSymbol::Meter, 1), UnitTerm::new(UnitSymbol::Kelvin, 1)]),
+    PhysicalConstant::new(2.89777195500000003e-3, Uncertainty::exact()),
+    UnitExpr::new(&[
+        UnitTerm::new(UnitSymbol::Meter, 1),
+        UnitTerm::new(UnitSymbol::Kelvin, 1),
+    ]),
 );
 
 pub const W_TO_Z_MASS_RATIO: NistConstant<f64> = NistConstant::new(
@@ -3065,7 +3115,6 @@ pub static ALL_CONSTANTS: &[&NistConstant<f64>] = &[
     &NATURAL_UNIT_OF_ACTION,
     &NATURAL_UNIT_OF_ACTION_IN_EV_S,
     &NATURAL_UNIT_OF_ENERGY,
-
     &NATURAL_UNIT_OF_ENERGY_IN_MEV,
     &NATURAL_UNIT_OF_LENGTH,
     &NATURAL_UNIT_OF_MASS,
@@ -3215,7 +3264,9 @@ mod generated_constant_tests {
                 assert!(value >= 0.0);
             }
         }
-        assert!(ALL_CONSTANTS.iter().any(|candidate| **candidate == *constant));
+        assert!(ALL_CONSTANTS
+            .iter()
+            .any(|candidate| **candidate == *constant));
     }
 
     #[test]
@@ -4992,5 +5043,4 @@ mod generated_constant_tests {
     fn w_to_z_mass_ratio_generated_constant_is_valid() {
         assert_generated_constant(&W_TO_Z_MASS_RATIO);
     }
-
 }

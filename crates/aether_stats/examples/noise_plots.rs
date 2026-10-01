@@ -110,34 +110,52 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     write_psd(
         &output_dir.join("white_noise_psd.svg"),
         "White Noise PSD",
-        &[XYSeries::new(&white_noise_psd.frequencies_hz, &white_noise_psd.power_density)
-            .with_label("white noise")],
+        &[XYSeries::new(
+            &white_noise_psd.frequencies_hz,
+            &white_noise_psd.power_density,
+        )
+        .with_label("white noise")],
     )?;
 
     write_psd(
         &output_dir.join("random_walk_psd.svg"),
         "Random Walk PSD",
-        &[XYSeries::new(&random_walk_psd.frequencies_hz, &random_walk_psd.power_density)
-            .with_label("random walk")],
+        &[XYSeries::new(
+            &random_walk_psd.frequencies_hz,
+            &random_walk_psd.power_density,
+        )
+        .with_label("random walk")],
     )?;
 
     write_psd(
         &output_dir.join("gauss_markov_psd.svg"),
         "Gauss-Markov PSD",
-        &[XYSeries::new(&gauss_markov_psd.frequencies_hz, &gauss_markov_psd.power_density)
-            .with_label("gauss-markov")],
+        &[XYSeries::new(
+            &gauss_markov_psd.frequencies_hz,
+            &gauss_markov_psd.power_density,
+        )
+        .with_label("gauss-markov")],
     )?;
 
     write_psd(
         &output_dir.join("noise_psd_comparison.svg"),
         "Noise PSD Comparison",
         &[
-            XYSeries::new(&white_noise_psd.frequencies_hz, &white_noise_psd.power_density)
-                .with_label("white noise"),
-            XYSeries::new(&random_walk_psd.frequencies_hz, &random_walk_psd.power_density)
-                .with_label("random walk"),
-            XYSeries::new(&gauss_markov_psd.frequencies_hz, &gauss_markov_psd.power_density)
-                .with_label("gauss-markov"),
+            XYSeries::new(
+                &white_noise_psd.frequencies_hz,
+                &white_noise_psd.power_density,
+            )
+            .with_label("white noise"),
+            XYSeries::new(
+                &random_walk_psd.frequencies_hz,
+                &random_walk_psd.power_density,
+            )
+            .with_label("random walk"),
+            XYSeries::new(
+                &gauss_markov_psd.frequencies_hz,
+                &gauss_markov_psd.power_density,
+            )
+            .with_label("gauss-markov"),
         ],
     )?;
 
@@ -178,10 +196,7 @@ fn sample_gauss_markov(sample_count: usize, sample_dt: f64) -> Vec<f64> {
 }
 
 fn successive_differences(values: &[f64]) -> Vec<f64> {
-    values
-        .windows(2)
-        .map(|pair| pair[1] - pair[0])
-        .collect()
+    values.windows(2).map(|pair| pair[1] - pair[0]).collect()
 }
 
 fn write_plot(
@@ -191,7 +206,9 @@ fn write_plot(
     y_label: &str,
     series: &[XYSeries<'_>],
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let save_path = output_path.to_str().ok_or("output path is not valid UTF-8")?;
+    let save_path = output_path
+        .to_str()
+        .ok_or("output path is not valid UTF-8")?;
     plot_series(series, title, Some(x_label), Some(y_label), Some(save_path))
 }
 
@@ -202,7 +219,9 @@ fn write_histogram(
     y_label: &str,
     series: &[HistogramSeries<'_>],
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let save_path = output_path.to_str().ok_or("output path is not valid UTF-8")?;
+    let save_path = output_path
+        .to_str()
+        .ok_or("output path is not valid UTF-8")?;
     plot_histograms(series, title, Some(x_label), Some(y_label), Some(save_path))
 }
 
@@ -211,6 +230,8 @@ fn write_psd(
     title: &str,
     series: &[XYSeries<'_>],
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let save_path = output_path.to_str().ok_or("output path is not valid UTF-8")?;
+    let save_path = output_path
+        .to_str()
+        .ok_or("output path is not valid UTF-8")?;
     plot_psd(series, title, Some(save_path))
 }

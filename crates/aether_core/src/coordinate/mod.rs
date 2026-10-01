@@ -6,11 +6,11 @@ pub use cylindrical::Cylindrical;
 pub use spherical::Spherical;
 
 pub mod coordinate {
+    use crate::real::Real;
     use crate::{
         coordinate::{Cartesian, Cylindrical, Spherical},
         reference_frame::ReferenceFrame,
     };
-    use crate::real::Real;
     pub enum Coordinate<T: Real, F: ReferenceFrame> {
         CartesianValue(Cartesian<T, F>),
         CylindricalValue(Cylindrical<T>),

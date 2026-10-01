@@ -2,9 +2,9 @@
 
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::fs::File;
 use std::io::Read;
-use sha2::{Digest, Sha256};
 pub mod color;
 use color::gaia_color::{bp_rp_to_rgb, srgb_to_linear};
 
@@ -154,9 +154,7 @@ impl GncCatalogReader {
         path: P,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let file = File::open(path)?;
-        let mut rdr = csv::ReaderBuilder::new()
-            .flexible(true)
-            .from_reader(file);
+        let mut rdr = csv::ReaderBuilder::new().flexible(true).from_reader(file);
         let mut records = Vec::new();
         let mut skipped = 0usize;
 

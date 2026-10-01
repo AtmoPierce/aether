@@ -43,7 +43,9 @@ fn mul_mat_scalar_f32<const M: usize, const N: usize, const P: usize>(
     matrix_a: &Matrix<f32, M, N>,
     matrix_b: &Matrix<f32, N, P>,
 ) -> Matrix<f32, M, P> {
-    let mut out = Matrix { data: [[0.0; P]; M] };
+    let mut out = Matrix {
+        data: [[0.0; P]; M],
+    };
     for i in 0..M {
         for j in 0..P {
             let mut acc = 0.0_f32;
@@ -60,7 +62,9 @@ fn mul_mat_scalar_f64<const M: usize, const N: usize, const P: usize>(
     matrix_a: &Matrix<f64, M, N>,
     matrix_b: &Matrix<f64, N, P>,
 ) -> Matrix<f64, M, P> {
-    let mut out = Matrix { data: [[0.0; P]; M] };
+    let mut out = Matrix {
+        data: [[0.0; P]; M],
+    };
     for i in 0..M {
         for j in 0..P {
             let mut acc = 0.0_f64;

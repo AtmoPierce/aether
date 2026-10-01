@@ -3,8 +3,8 @@
 use std::thread;
 
 use aether_core::math::Vector;
-use aether_rand::randomizers::XorShift64Star;
 use aether_core::real::Real;
+use aether_rand::randomizers::XorShift64Star;
 
 #[inline]
 fn clamp<F: Real>(x: F, lo: F, hi: F) -> F {
@@ -56,20 +56,20 @@ impl<F: Real + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
         }
 
         Self {
-            lr0:           F::from_f64(1e-2),
-            decay:         F::from_f64(1e-3),
-            momentum:      F::ZERO,
-            batch_size:    32,
-            ema_beta:      F::from_f64(0.95),
-            tol_grad_ema:  F::from_f64(1e-4),
-            tol_step:      F::from_f64(1e-8),
-            tol_f:         F::ZERO,
-            min_iters:     0,
-            max_iters:     100_000,
-            has_bounds:    false,
+            lr0: F::from_f64(1e-2),
+            decay: F::from_f64(1e-3),
+            momentum: F::ZERO,
+            batch_size: 32,
+            ema_beta: F::from_f64(0.95),
+            tol_grad_ema: F::from_f64(1e-4),
+            tol_step: F::from_f64(1e-8),
+            tol_f: F::ZERO,
+            min_iters: 0,
+            max_iters: 100_000,
+            has_bounds: false,
             min_bounds,
             max_bounds,
-            threads:       None,
+            threads: None,
             seed,
         }
     }
@@ -248,8 +248,8 @@ impl<F: Real + Copy + Send, const N: usize> GDStochasticParallel<F, N> {
                     let start = (bs_total * t) / t_used;
                     let end = (bs_total * (t + 1)) / t_used;
                     let seed_t = Self::thread_seed(base, k, t);
-                    let x_local = x;  // Copy by value into the thread
-                    let sg_ref = sg;  // &'scope G
+                    let x_local = x; // Copy by value into the thread
+                    let sg_ref = sg; // &'scope G
 
                     let handle = scope.spawn(move || {
                         let mut rng = XorShift64Star::new(seed_t);

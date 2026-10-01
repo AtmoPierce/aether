@@ -12,6 +12,7 @@ plotters = { workspace = true, default-features = false }
 eframe = { version = "0.28", default-features = true, optional = true }
 egui_plot = { version = "0.28", optional = true }
 glob = "0.3"
+csv = { workspace = true }
 
 [dev-dependencies]
 aether_core = { path = "../aether_core" }
@@ -33,6 +34,14 @@ path = "src/lib.rs"
 name = "csv_tail_egui"
 path = "src/bin/csv_tail_egui.rs"
 required-features = ["gui_egui"]
+
+[[bin]]
+name = "pulsar_trace_import"
+path = "src/bin/pulsar_trace_import.rs"
+
+[[bin]]
+name = "pulsar_rtos_plot"
+path = "src/bin/pulsar_rtos_plot.rs"
 
 [[example]]
 name = "correlation_linear_regression"

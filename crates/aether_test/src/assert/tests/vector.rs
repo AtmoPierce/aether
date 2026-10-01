@@ -1,5 +1,5 @@
-use aether_core::math::Vector;
 use crate::assert::vector::*;
+use aether_core::math::Vector;
 
 #[test]
 fn test_vector_exact_equality() {

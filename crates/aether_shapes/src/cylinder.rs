@@ -1,6 +1,6 @@
 use crate::attributes::Solid;
-use aether_core::{math::Vector, reference_frame::ReferenceFrame};
 use aether_core::real::Real;
+use aether_core::{math::Vector, reference_frame::ReferenceFrame};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CylinderLocal;

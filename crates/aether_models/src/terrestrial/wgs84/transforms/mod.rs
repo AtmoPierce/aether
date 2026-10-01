@@ -47,7 +47,8 @@ pub fn geocentric_to_ecef<T: Real>(
 ) -> Cartesian<T, ITRF<T>> {
     let semi_major_axis = T::from_f64(a);
     let eccentricity_squared = T::from_f64(e2);
-    let n = semi_major_axis / (T::ONE - eccentricity_squared * latitude.sin() * latitude.sin()).sqrt();
+    let n =
+        semi_major_axis / (T::ONE - eccentricity_squared * latitude.sin() * latitude.sin()).sqrt();
     let x = (n + altitude) * latitude.cos() * longitude.cos();
     let y = (n + altitude) * latitude.cos() * longitude.sin();
     let z = (n * (T::ONE - eccentricity_squared) + altitude) * latitude.sin();

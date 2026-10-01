@@ -1,6 +1,6 @@
-use core::marker::PhantomData;
-use super::time::{Time, TAI, UTC, GPS};
 use super::duration::Duration;
+use super::time::{Time, GPS, TAI, UTC};
+use core::marker::PhantomData;
 
 // -------------------------
 // Mission Epoch
@@ -17,7 +17,9 @@ impl MissionEpoch {
     }
 
     pub fn new_utc(start_utc: Time<UTC>) -> Self {
-        Self { start_tai: start_utc.to_tai() }
+        Self {
+            start_tai: start_utc.to_tai(),
+        }
     }
 
     pub fn start(&self) -> Time<TAI> {
@@ -39,7 +41,12 @@ pub struct Epoch<TS> {
 
 impl<TS> Epoch<TS> {
     pub const fn new(mission: MissionEpoch, ticks0: u64, ticks_per_sec: u64) -> Self {
-        Self { mission, ticks0, ticks_per_sec, _ts: PhantomData }
+        Self {
+            mission,
+            ticks0,
+            ticks_per_sec,
+            _ts: PhantomData,
+        }
     }
 
     fn duration_from_ticks(&self, now: u64) -> Duration {
@@ -47,7 +54,10 @@ impl<TS> Epoch<TS> {
         let sec = (dt / self.ticks_per_sec) as i64;
         let frac = (dt % self.ticks_per_sec) as u128;
         let nano = ((frac * 1_000_000_000u128) / (self.ticks_per_sec as u128)) as i32;
-        Duration { sec, nano_sec: nano }
+        Duration {
+            sec,
+            nano_sec: nano,
+        }
     }
 
     pub fn t_plus(&self, now: u64) -> Time<TS> {
@@ -93,14 +103,16 @@ impl<TS> TimeKeeper<TS> {
         let dt_ticks = now_ticks.wrapping_sub(*last_ticks);
         *last_ticks = now_ticks;
 
-        let sec  = (dt_ticks / self.epoch.ticks_per_sec) as i64;
+        let sec = (dt_ticks / self.epoch.ticks_per_sec) as i64;
         let frac = (dt_ticks % self.epoch.ticks_per_sec) as u128;
         let nano = ((frac * 1_000_000_000u128) / (self.epoch.ticks_per_sec as u128)) as i32;
 
-        Duration { sec, nano_sec: nano }
+        Duration {
+            sec,
+            nano_sec: nano,
+        }
     }
 }
-
 
 impl TimeKeeper<UTC> {
     pub fn now_utc(&self, ticks: u64) -> Time<UTC> {
@@ -113,7 +125,6 @@ impl TimeKeeper<GPS> {
         self.now_tai(ticks).to_gps()
     }
 }
-
 
 #[derive(Copy, Clone, Debug)]
 pub struct TimerEvent {
@@ -135,7 +146,6 @@ impl TimerEvent {
     /// Returns `true` if the event fired *at least once* during this step.
     /// If you want to count how many periods elapsed, we can extend this.
     pub fn step(&mut self, dt: Duration) -> bool {
-        
         self.acc = self.acc + dt;
         if self.acc >= self.period {
             // preserve overshoot – wrap but keep remainder
@@ -148,7 +158,6 @@ impl TimerEvent {
         }
     }
 }
-
 
 #[derive(Debug)]
 pub struct TimerSet<const N: usize> {

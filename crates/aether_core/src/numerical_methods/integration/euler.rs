@@ -1,5 +1,5 @@
-use crate::coordinate::Cartesian;
 use crate::attitude::Euler;
+use crate::coordinate::Cartesian;
 use crate::math::Vector;
 use crate::real::Real;
 use crate::reference_frame::ReferenceFrame;

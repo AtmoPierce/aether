@@ -1,8 +1,8 @@
 use crate::attitude::Quaternion;
 use crate::coordinate::Cartesian;
 use crate::math::Vector;
-use crate::reference_frame::{ReferenceFrame, RotatingFrame};
 use crate::real::Real;
+use crate::reference_frame::{ReferenceFrame, RotatingFrame};
 
 use core::marker::PhantomData;
 
@@ -34,11 +34,6 @@ impl<T: Real> RotatingFrame<T, ITRF<T>> for ITRF<T> {
         let half_theta = dtheta * T::from_f32(0.5);
 
         // Passive frame transform: ITRF(epoch) -> ITRF(t)
-        Quaternion::new(
-            half_theta.cos(),
-            T::ZERO,
-            T::ZERO,
-            half_theta.sin(),
-        )
+        Quaternion::new(half_theta.cos(), T::ZERO, T::ZERO, half_theta.sin())
     }
 }

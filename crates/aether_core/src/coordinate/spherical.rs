@@ -1,6 +1,6 @@
-use crate::real::Real;
 use super::cartesian::Cartesian;
 use super::cylindrical::Cylindrical;
+use crate::real::Real;
 use crate::{math::Vector, reference_frame::ReferenceFrame};
 
 #[derive(Debug, Clone, Copy, PartialEq)]

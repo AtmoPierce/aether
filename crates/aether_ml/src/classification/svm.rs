@@ -1,7 +1,7 @@
 #![cfg(feature = "std")]
 use aether_core::math::Vector;
+use aether_core::real::Real;
 use aether_opt::gradient_descent::GradientDescentGeneric;
-use aether_core::real::{Real};
 
 /// Linear SVM using hinge loss and L2 regularization trained with batch GD.
 #[derive(Clone, Copy, Debug)]

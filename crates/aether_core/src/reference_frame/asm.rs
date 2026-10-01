@@ -3,8 +3,8 @@
 //! It is treated as a `FixedFrame` in this context, meaning the transformation to
 //! inertial or world frames must be provided by the surrounding system.
 use crate::coordinate::Cartesian;
-use crate::reference_frame::{FixedFrame, ReferenceFrame};
 use crate::real::Real;
+use crate::reference_frame::{FixedFrame, ReferenceFrame};
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Assembly<T: Real> {
     /// Vector from origin to center of mass in Assembly coordinates

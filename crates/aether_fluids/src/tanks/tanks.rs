@@ -11,13 +11,11 @@ pub enum TankShape {
 impl TankShape {
     pub fn volume_m3(&self) -> f64 {
         match *self {
-            TankShape::Cylinder { radius_m, length_m } => {
-                Cylinder {
-                    r: radius_m,
-                    h: length_m,
-                }
-                .volume()
+            TankShape::Cylinder { radius_m, length_m } => Cylinder {
+                r: radius_m,
+                h: length_m,
             }
+            .volume(),
             TankShape::Sphere { radius_m } => Sphere { r: radius_m }.volume(),
         }
     }
@@ -87,9 +85,7 @@ pub fn aggregate_tank_mass_kg(tanks: &[TankMassState]) -> f64 {
 pub fn aggregate_tank_inertia_principal_cm_kg_m2(tanks: &[TankMassState]) -> [f64; 3] {
     let mut principal = [0.0; 3];
     for tank in tanks {
-        let i = tank
-            .shape
-            .inertia_principal_cm_kg_m2(tank.mass_kg.max(0.0));
+        let i = tank.shape.inertia_principal_cm_kg_m2(tank.mass_kg.max(0.0));
         principal[0] += i[0];
         principal[1] += i[1];
         principal[2] += i[2];

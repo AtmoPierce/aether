@@ -1,13 +1,12 @@
 #![no_std]
 
+use core::cmp::Ordering;
 use core::marker::PhantomData;
 use core::ops::{Add, Sub};
 use core::sync::atomic::{AtomicI32, Ordering as AtomicOrdering};
-use core::cmp::Ordering;
-
 
 #[cfg(feature = "telemetry-defmt")]
-use defmt::{Format};
+use defmt::Format;
 
 // -------------------------
 // Time scale markers
@@ -16,11 +15,11 @@ use defmt::{Format};
 #[derive(Copy, Clone, Debug)]
 pub enum Unix {} // Seconds since 1970-01-01 UTC
 #[derive(Copy, Clone, Debug)]
-pub enum UTC  {} // Same epoch as Unix
+pub enum UTC {} // Same epoch as Unix
 #[derive(Copy, Clone, Debug)]
-pub enum TAI  {} // TAI since Unix epoch
+pub enum TAI {} // TAI since Unix epoch
 #[derive(Copy, Clone, Debug)]
-pub enum GPS  {} // GPS seconds since GPS epoch
+pub enum GPS {} // GPS seconds since GPS epoch
 
 // -------------------------
 // Leap second model
@@ -65,7 +64,11 @@ pub struct Time<TS> {
 
 impl<TS> Time<TS> {
     pub const fn new(sec: i64, nano_sec: i32) -> Self {
-        Self { sec, nano_sec, _ts: PhantomData }
+        Self {
+            sec,
+            nano_sec,
+            _ts: PhantomData,
+        }
     }
 }
 
@@ -145,7 +148,6 @@ impl Time<GPS> {
     }
 }
 
-
 // -------------------------
 // GPS <-> TAI
 // -------------------------
@@ -161,4 +163,3 @@ impl Time<TAI> {
         self.to_utc().to_gps()
     }
 }
-

@@ -1,8 +1,8 @@
 use crate::attitude::DirectionCosineMatrix;
 use crate::coordinate::Cartesian;
 use crate::math::Matrix;
-use crate::reference_frame::{Assembly, ReferenceFrame};
 use crate::real::Real;
+use crate::reference_frame::{Assembly, ReferenceFrame};
 #[derive(Debug, Clone, Copy)]
 pub struct Pose<T: Real, From: ReferenceFrame> {
     /// DCM from the solid's Local frame to the Assembly frame (Local -> Assembly)

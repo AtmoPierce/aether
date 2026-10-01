@@ -37,4 +37,3 @@ where
 
     (worst_x, max_e)
 }
-

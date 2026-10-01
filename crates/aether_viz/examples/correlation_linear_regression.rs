@@ -1,7 +1,7 @@
 use aether_core::math::Vector;
 use aether_ml::linear::LinearRegression;
 use aether_viz::{
-    CorrelationSeries, PlotConfig, PlotStyle, XYSeries, plot_correlation, plot_series_with_config,
+    plot_correlation, plot_series_with_config, CorrelationSeries, PlotConfig, PlotStyle, XYSeries,
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -53,8 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let fit_path = format!("{output_dir}/correlation_with_fit.svg");
     let fit_title = format!(
         "Linear fit overlay (y = {:.3} x + {:.3})",
-        model.weights[0],
-        model.bias
+        model.weights[0], model.bias
     );
     let config = PlotConfig::new(fit_title.as_str())
         .with_x_label("feature x")
@@ -80,7 +79,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn pearson_correlation(xs: &[f64], ys: &[f64]) -> f64 {
-    assert_eq!(xs.len(), ys.len(), "correlation inputs must have equal length");
+    assert_eq!(
+        xs.len(),
+        ys.len(),
+        "correlation inputs must have equal length"
+    );
     assert!(!xs.is_empty(), "correlation inputs must not be empty");
 
     let count = xs.len() as f64;

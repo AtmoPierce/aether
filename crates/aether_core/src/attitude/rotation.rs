@@ -1,7 +1,7 @@
 use crate::attitude::{DirectionCosineMatrix, Quaternion};
 use crate::math::Vector;
-use crate::reference_frame::ReferenceFrame;
 use crate::real::Real;
+use crate::reference_frame::ReferenceFrame;
 
 use core::fmt;
 use core::ops::Mul;
@@ -12,9 +12,7 @@ pub struct Rotation<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame> {
     quat: Quaternion<T, Inertial, Body>,
 }
 
-impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame>
-    Rotation<T, Inertial, Body>
-{
+impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame> Rotation<T, Inertial, Body> {
     /// Create from a quaternion (assumed normalized).
     pub fn from_quaternion(q: Quaternion<T, Inertial, Body>) -> Self {
         Self { quat: q }
@@ -40,21 +38,17 @@ impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame>
 //
 
 impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame>
-    TryFrom<&DirectionCosineMatrix<T, Inertial, Body>>
-    for Rotation<T, Inertial, Body>
+    TryFrom<&DirectionCosineMatrix<T, Inertial, Body>> for Rotation<T, Inertial, Body>
 {
     type Error = ();
 
-    fn try_from(
-        dcm: &DirectionCosineMatrix<T, Inertial, Body>,
-    ) -> Result<Self, Self::Error> {
+    fn try_from(dcm: &DirectionCosineMatrix<T, Inertial, Body>) -> Result<Self, Self::Error> {
         Quaternion::try_from(dcm).map(Self::from_quaternion)
     }
 }
 
 impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame>
-    core::convert::From<&Quaternion<T, Inertial, Body>>
-    for Rotation<T, Inertial, Body>
+    core::convert::From<&Quaternion<T, Inertial, Body>> for Rotation<T, Inertial, Body>
 {
     fn from(q: &Quaternion<T, Inertial, Body>) -> Self {
         Self::from_quaternion(q.normalized())
@@ -65,15 +59,12 @@ impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame>
 // ===== Kinematics =====
 //
 
-impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame>
-    Rotation<T, Inertial, Body>
-{
+impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame> Rotation<T, Inertial, Body> {
     /// Integrate body angular velocity (expressed in Body frame).
     ///
     /// q_dot = 0.5 * w * q
     pub fn integrate(&self, omega_body: Vector<T, 3>, dt: T) -> Self {
-        let delta_q =
-            Quaternion::<T, Body, Body>::from_angular_velocity(omega_body, dt);
+        let delta_q = Quaternion::<T, Body, Body>::from_angular_velocity(omega_body, dt);
         Self::from_quaternion(&delta_q * &self.quat)
     }
 }
@@ -82,9 +73,7 @@ impl<T: Real, Inertial: ReferenceFrame, Body: ReferenceFrame>
 // ===== Quaternion helper =====
 //
 
-impl<T: Real, F: ReferenceFrame>
-    Quaternion<T, F, F>
-{
+impl<T: Real, F: ReferenceFrame> Quaternion<T, F, F> {
     pub fn from_angular_velocity(omega: Vector<T, 3>, dt: T) -> Self {
         let mag = omega.norm();
         if mag == T::ZERO {
@@ -96,12 +85,7 @@ impl<T: Real, F: ReferenceFrame>
         let half = angle * T::from_f32(0.5);
         let s = half.sin();
 
-        Self::new(
-            half.cos(),
-            axis[0] * s,
-            axis[1] * s,
-            axis[2] * s,
-        )
+        Self::new(half.cos(), axis[0] * s, axis[1] * s, axis[2] * s)
     }
 }
 
@@ -110,8 +94,7 @@ impl<T: Real, F: ReferenceFrame>
 //
 
 #[cfg(feature = "std")]
-impl<T, Inertial, Body> fmt::Display
-    for Rotation<T, Inertial, Body>
+impl<T, Inertial, Body> fmt::Display for Rotation<T, Inertial, Body>
 where
     T: Real + fmt::Display,
     Inertial: ReferenceFrame,

@@ -1,5 +1,5 @@
 use core::fmt::{Debug, Display, Formatter, Result as FmtResult};
-use core::ops::{Add, Sub, Mul, Div, Neg};
+use core::ops::{Add, Div, Mul, Neg, Sub};
 
 pub trait Real:
     RealCast
@@ -110,112 +110,304 @@ mod no_std_impl;
 
 #[cfg(all(feature = "f16", not(feature = "fpx")))]
 impl Real for f16 {
-    const ZERO:    Self = 0.0;
-    const ONE:     Self = 1.0;
-    const PI:      Self = core::f16::consts::PI;
+    const ZERO: Self = 0.0;
+    const ONE: Self = 1.0;
+    const PI: Self = core::f16::consts::PI;
     const FRAC_PI_2: Self = core::f16::consts::FRAC_PI_2;
     const EPSILON: Self = f16::EPSILON;
     const INFINITY: Self = f16::INFINITY;
     const NEG_INFINITY: Self = f16::NEG_INFINITY;
 
-    #[inline] fn abs(self) -> Self { self.abs() }
-    #[inline] fn signum(self) -> Self { self.signum() }
+    #[inline]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+    #[inline]
+    fn signum(self) -> Self {
+        self.signum()
+    }
 
-    #[inline] fn floor(self) -> Self { self.floor() }
-    #[inline] fn ceil(self) -> Self { self.ceil() }
-    #[inline] fn round(self) -> Self { self.round() }
-    #[inline] fn trunc(self) -> Self { self.trunc() }
-    #[inline] fn fract(self) -> Self { self.fract() }
+    #[inline]
+    fn floor(self) -> Self {
+        self.floor()
+    }
+    #[inline]
+    fn ceil(self) -> Self {
+        self.ceil()
+    }
+    #[inline]
+    fn round(self) -> Self {
+        self.round()
+    }
+    #[inline]
+    fn trunc(self) -> Self {
+        self.trunc()
+    }
+    #[inline]
+    fn fract(self) -> Self {
+        self.fract()
+    }
 
-    #[inline] fn min(self, other: Self) -> Self { self.min(other) }
-    #[inline] fn max(self, other: Self) -> Self { self.max(other) }
-    #[inline] fn copysign(self, sign: Self) -> Self { self.copysign(sign) }
+    #[inline]
+    fn min(self, other: Self) -> Self {
+        self.min(other)
+    }
+    #[inline]
+    fn max(self, other: Self) -> Self {
+        self.max(other)
+    }
+    #[inline]
+    fn copysign(self, sign: Self) -> Self {
+        self.copysign(sign)
+    }
 
-    #[inline] fn sqrt(self) -> Self { self.sqrt() }
+    #[inline]
+    fn sqrt(self) -> Self {
+        self.sqrt()
+    }
 
-    #[inline] fn sin(self) -> Self { self.sin() }
-    #[inline] fn cos(self) -> Self { self.cos() }
-    #[inline] fn tan(self) -> Self { self.tan() }
+    #[inline]
+    fn sin(self) -> Self {
+        self.sin()
+    }
+    #[inline]
+    fn cos(self) -> Self {
+        self.cos()
+    }
+    #[inline]
+    fn tan(self) -> Self {
+        self.tan()
+    }
 
-    #[inline] fn asin(self) -> Self { self.asin() }
-    #[inline] fn acos(self) -> Self { self.acos() }
-    #[inline] fn atan(self) -> Self { self.atan() }
-    #[inline] fn atan2(self, other: Self) -> Self { self.atan2(other) }
+    #[inline]
+    fn asin(self) -> Self {
+        self.asin()
+    }
+    #[inline]
+    fn acos(self) -> Self {
+        self.acos()
+    }
+    #[inline]
+    fn atan(self) -> Self {
+        self.atan()
+    }
+    #[inline]
+    fn atan2(self, other: Self) -> Self {
+        self.atan2(other)
+    }
 
-    #[inline] fn exp(self) -> Self { self.exp() }
-    #[inline] fn exp2(self) -> Self { self.exp2() }
-    #[inline] fn ln(self) -> Self { self.ln() }
-    #[inline] fn log2(self) -> Self { self.log2() }
-    #[inline] fn log10(self) -> Self { self.log10() }
+    #[inline]
+    fn exp(self) -> Self {
+        self.exp()
+    }
+    #[inline]
+    fn exp2(self) -> Self {
+        self.exp2()
+    }
+    #[inline]
+    fn ln(self) -> Self {
+        self.ln()
+    }
+    #[inline]
+    fn log2(self) -> Self {
+        self.log2()
+    }
+    #[inline]
+    fn log10(self) -> Self {
+        self.log10()
+    }
 
-    #[inline] fn sinh(self) -> Self { self.sinh() }
-    #[inline] fn cosh(self) -> Self { self.cosh() }
-    #[inline] fn tanh(self) -> Self { self.tanh() }
+    #[inline]
+    fn sinh(self) -> Self {
+        self.sinh()
+    }
+    #[inline]
+    fn cosh(self) -> Self {
+        self.cosh()
+    }
+    #[inline]
+    fn tanh(self) -> Self {
+        self.tanh()
+    }
 
-    #[inline] fn exp_m1(self) -> Self { self.exp_m1() }
-    #[inline] fn ln_1p(self) -> Self { self.ln_1p() }
+    #[inline]
+    fn exp_m1(self) -> Self {
+        self.exp_m1()
+    }
+    #[inline]
+    fn ln_1p(self) -> Self {
+        self.ln_1p()
+    }
 
-    #[inline] fn powi(self, n: i32) -> Self { self.powi(n) }
-    #[inline] fn powf(self, n: Self) -> Self { self.powf(n) }
+    #[inline]
+    fn powi(self, n: i32) -> Self {
+        self.powi(n)
+    }
+    #[inline]
+    fn powf(self, n: Self) -> Self {
+        self.powf(n)
+    }
 
-    #[inline] fn to_degrees(self) -> Self { self.to_degrees() }
-    #[inline] fn to_radians(self) -> Self { self.to_radians() }
+    #[inline]
+    fn to_degrees(self) -> Self {
+        self.to_degrees()
+    }
+    #[inline]
+    fn to_radians(self) -> Self {
+        self.to_radians()
+    }
 }
 
 /* -------------------- f128 -------------------- */
 
 #[cfg(all(feature = "f128", not(feature = "fpx")))]
 impl Real for f128 {
-    const ZERO:    Self = 0.0;
-    const ONE:     Self = 1.0;
-    const PI:      Self = core::f128::consts::PI;
+    const ZERO: Self = 0.0;
+    const ONE: Self = 1.0;
+    const PI: Self = core::f128::consts::PI;
     const FRAC_PI_2: Self = core::f128::consts::FRAC_PI_2;
     const EPSILON: Self = f128::EPSILON;
     const INFINITY: Self = f128::INFINITY;
     const NEG_INFINITY: Self = f128::NEG_INFINITY;
 
-    #[inline] fn abs(self) -> Self { self.abs() }
-    #[inline] fn signum(self) -> Self { self.signum() }
+    #[inline]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+    #[inline]
+    fn signum(self) -> Self {
+        self.signum()
+    }
 
-    #[inline] fn floor(self) -> Self { self.floor() }
-    #[inline] fn ceil(self) -> Self { self.ceil() }
-    #[inline] fn round(self) -> Self { self.round() }
-    #[inline] fn trunc(self) -> Self { self.trunc() }
-    #[inline] fn fract(self) -> Self { self.fract() }
+    #[inline]
+    fn floor(self) -> Self {
+        self.floor()
+    }
+    #[inline]
+    fn ceil(self) -> Self {
+        self.ceil()
+    }
+    #[inline]
+    fn round(self) -> Self {
+        self.round()
+    }
+    #[inline]
+    fn trunc(self) -> Self {
+        self.trunc()
+    }
+    #[inline]
+    fn fract(self) -> Self {
+        self.fract()
+    }
 
-    #[inline] fn min(self, other: Self) -> Self { self.min(other) }
-    #[inline] fn max(self, other: Self) -> Self { self.max(other) }
-    #[inline] fn copysign(self, sign: Self) -> Self { self.copysign(sign) }
+    #[inline]
+    fn min(self, other: Self) -> Self {
+        self.min(other)
+    }
+    #[inline]
+    fn max(self, other: Self) -> Self {
+        self.max(other)
+    }
+    #[inline]
+    fn copysign(self, sign: Self) -> Self {
+        self.copysign(sign)
+    }
 
-    #[inline] fn sqrt(self) -> Self { self.sqrt() }
+    #[inline]
+    fn sqrt(self) -> Self {
+        self.sqrt()
+    }
 
-    #[inline] fn sin(self) -> Self { self.sin() }
-    #[inline] fn cos(self) -> Self { self.cos() }
-    #[inline] fn tan(self) -> Self { self.tan() }
+    #[inline]
+    fn sin(self) -> Self {
+        self.sin()
+    }
+    #[inline]
+    fn cos(self) -> Self {
+        self.cos()
+    }
+    #[inline]
+    fn tan(self) -> Self {
+        self.tan()
+    }
 
-    #[inline] fn asin(self) -> Self { self.asin() }
-    #[inline] fn acos(self) -> Self { self.acos() }
-    #[inline] fn atan(self) -> Self { self.atan() }
-    #[inline] fn atan2(self, other: Self) -> Self { self.atan2(other) }
+    #[inline]
+    fn asin(self) -> Self {
+        self.asin()
+    }
+    #[inline]
+    fn acos(self) -> Self {
+        self.acos()
+    }
+    #[inline]
+    fn atan(self) -> Self {
+        self.atan()
+    }
+    #[inline]
+    fn atan2(self, other: Self) -> Self {
+        self.atan2(other)
+    }
 
-    #[inline] fn exp(self) -> Self { self.exp() }
-    #[inline] fn exp2(self) -> Self { self.exp2() }
-    #[inline] fn ln(self) -> Self { self.ln() }
-    #[inline] fn log2(self) -> Self { self.log2() }
-    #[inline] fn log10(self) -> Self { self.log10() }
+    #[inline]
+    fn exp(self) -> Self {
+        self.exp()
+    }
+    #[inline]
+    fn exp2(self) -> Self {
+        self.exp2()
+    }
+    #[inline]
+    fn ln(self) -> Self {
+        self.ln()
+    }
+    #[inline]
+    fn log2(self) -> Self {
+        self.log2()
+    }
+    #[inline]
+    fn log10(self) -> Self {
+        self.log10()
+    }
 
-    #[inline] fn sinh(self) -> Self { self.sinh() }
-    #[inline] fn cosh(self) -> Self { self.cosh() }
-    #[inline] fn tanh(self) -> Self { self.tanh() }
+    #[inline]
+    fn sinh(self) -> Self {
+        self.sinh()
+    }
+    #[inline]
+    fn cosh(self) -> Self {
+        self.cosh()
+    }
+    #[inline]
+    fn tanh(self) -> Self {
+        self.tanh()
+    }
 
-    #[inline] fn exp_m1(self) -> Self { self.exp_m1() }
-    #[inline] fn ln_1p(self) -> Self { self.ln_1p() }
+    #[inline]
+    fn exp_m1(self) -> Self {
+        self.exp_m1()
+    }
+    #[inline]
+    fn ln_1p(self) -> Self {
+        self.ln_1p()
+    }
 
-    #[inline] fn powi(self, n: i32) -> Self { self.powi(n) }
-    #[inline] fn powf(self, n: Self) -> Self { self.powf(n) }
+    #[inline]
+    fn powi(self, n: i32) -> Self {
+        self.powi(n)
+    }
+    #[inline]
+    fn powf(self, n: Self) -> Self {
+        self.powf(n)
+    }
 
-    #[inline] fn to_degrees(self) -> Self { self.to_degrees() }
-    #[inline] fn to_radians(self) -> Self { self.to_radians() }
+    #[inline]
+    fn to_degrees(self) -> Self {
+        self.to_degrees()
+    }
+    #[inline]
+    fn to_radians(self) -> Self {
+        self.to_radians()
+    }
 }
 
 // Casting
@@ -242,23 +434,53 @@ pub trait RealCast: Copy {
 macro_rules! impl_real_cast_float {
     ($t:ty) => {
         impl RealCast for $t {
-            #[inline] fn from_f32(x: f32) -> Self { x as $t }
-            #[inline] fn from_f64(x: f64) -> Self { x as $t }
-            #[inline] fn from_u32(x: u32) -> Self { x as $t }
-            #[inline] fn from_usize(x: usize) -> Self { x as $t }
+            #[inline]
+            fn from_f32(x: f32) -> Self {
+                x as $t
+            }
+            #[inline]
+            fn from_f64(x: f64) -> Self {
+                x as $t
+            }
+            #[inline]
+            fn from_u32(x: u32) -> Self {
+                x as $t
+            }
+            #[inline]
+            fn from_usize(x: usize) -> Self {
+                x as $t
+            }
 
-            #[inline] fn to_f32(self) -> f32 { self as f32 }
-            #[inline] fn to_f64(self) -> f64 { self as f64 }
+            #[inline]
+            fn to_f32(self) -> f32 {
+                self as f32
+            }
+            #[inline]
+            fn to_f64(self) -> f64 {
+                self as f64
+            }
 
             #[cfg(feature = "f16")]
-            #[inline] fn from_f16(x: f16) -> Self { x as $t }
+            #[inline]
+            fn from_f16(x: f16) -> Self {
+                x as $t
+            }
             #[cfg(feature = "f16")]
-            #[inline] fn to_f16(self) -> f16 { self as f16 }
+            #[inline]
+            fn to_f16(self) -> f16 {
+                self as f16
+            }
 
             #[cfg(feature = "f128")]
-            #[inline] fn from_f128(x: f128) -> Self { x as $t }
+            #[inline]
+            fn from_f128(x: f128) -> Self {
+                x as $t
+            }
             #[cfg(feature = "f128")]
-            #[inline] fn to_f128(self) -> f128 { self as f128 }
+            #[inline]
+            fn to_f128(self) -> f128 {
+                self as f128
+            }
         }
     };
 }
@@ -271,3 +493,73 @@ impl_real_cast_float!(f16);
 
 #[cfg(feature = "f128")]
 impl_real_cast_float!(f128);
+
+#[cfg(feature = "mx")]
+macro_rules! impl_real_cast_mx {
+    ($type:ty) => {
+        impl RealCast for $type {
+            #[inline]
+            fn from_f32(x: f32) -> Self {
+                Self::from(x)
+            }
+
+            #[inline]
+            fn from_f64(x: f64) -> Self {
+                Self::from(x as f32)
+            }
+
+            #[inline]
+            fn from_u32(x: u32) -> Self {
+                Self::from(x as f32)
+            }
+
+            #[inline]
+            fn from_usize(x: usize) -> Self {
+                Self::from(x as f32)
+            }
+
+            #[inline]
+            fn to_f32(self) -> f32 {
+                f32::from(self)
+            }
+
+            #[inline]
+            fn to_f64(self) -> f64 {
+                f32::from(self) as f64
+            }
+
+            #[cfg(feature = "f16")]
+            #[inline]
+            fn from_f16(x: f16) -> Self {
+                Self::from(x as f32)
+            }
+
+            #[cfg(feature = "f16")]
+            #[inline]
+            fn to_f16(self) -> f16 {
+                f32::from(self) as f16
+            }
+
+            #[cfg(feature = "f128")]
+            #[inline]
+            fn from_f128(x: f128) -> Self {
+                Self::from(x as f32)
+            }
+
+            #[cfg(feature = "f128")]
+            #[inline]
+            fn to_f128(self) -> f128 {
+                f32::from(self) as f128
+            }
+        }
+    };
+}
+
+#[cfg(feature = "mx")]
+impl_real_cast_mx!(fpx_core::ocp::fp4::Fp4E2M1);
+#[cfg(feature = "mx")]
+impl_real_cast_mx!(fpx_core::ocp::fp6::Fp6E3M2);
+#[cfg(feature = "mx")]
+impl_real_cast_mx!(fpx_core::ocp::fp8::Fp8E4M3);
+#[cfg(feature = "mx")]
+impl_real_cast_mx!(fpx_core::ocp::fp8::Fp8E5M2);

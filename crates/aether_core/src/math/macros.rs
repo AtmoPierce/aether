@@ -51,18 +51,15 @@ pub(crate) use ones;
 
 // Vectors
 use crate::math::Vector;
-use crate::real::Real;impl<T, const N: usize> Vector<T, N>
+use crate::real::Real;
+impl<T, const N: usize> Vector<T, N>
 where
     T: Real + Copy,
 {
     pub fn zeros() -> Self {
-        Self {
-            data: [T::ZERO; N],
-        }
+        Self { data: [T::ZERO; N] }
     }
     pub fn ones() -> Self {
-        Self {
-            data: [T::ONE; N],
-        }
+        Self { data: [T::ONE; N] }
     }
 }

@@ -109,7 +109,11 @@ impl CsvRealtimePlotter {
         self.initialize()?;
         self.render()?;
 
-        let hz = if self.cfg.poll_hz > 0.0 { self.cfg.poll_hz } else { 5.0 };
+        let hz = if self.cfg.poll_hz > 0.0 {
+            self.cfg.poll_hz
+        } else {
+            5.0
+        };
         let dt = Duration::from_secs_f64(1.0 / hz);
 
         loop {
@@ -317,11 +321,10 @@ impl CsvRealtimePlotter {
             }
 
             self.x_index = Some(
-                self
-                .headers
-                .iter()
-                .position(|h| h == &self.cfg.x_column)
-                .ok_or_else(|| format!("x column '{}' not found", self.cfg.x_column))?,
+                self.headers
+                    .iter()
+                    .position(|h| h == &self.cfg.x_column)
+                    .ok_or_else(|| format!("x column '{}' not found", self.cfg.x_column))?,
             );
 
             self.y_indices.clear();

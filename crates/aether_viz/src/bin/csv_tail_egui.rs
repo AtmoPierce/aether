@@ -70,7 +70,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         plotter.initialize()?;
 
         let name = derive_run_label(&path);
-        sources.push(PlotSource { path, name, plotter });
+        sources.push(PlotSource {
+            path,
+            name,
+            plotter,
+        });
     }
 
     let app = CsvTailApp {
@@ -160,89 +164,96 @@ impl eframe::App for CsvTailApp {
             .default_height(220.0)
             .min_height(140.0)
             .show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                ui.label(format!("Poll: {:.2} Hz", 1.0 / self.poll_interval.as_secs_f64()));
-                ui.separator();
-                let points: usize = self.sources.iter().map(|s| s.plotter.x_values().len()).sum();
-                ui.label(format!("Points(total): {}", points));
-                ui.separator();
-                ui.label(format!("Sources: {}", self.sources.len()));
-                if let Some(first) = self.sources.first() {
+                ui.horizontal(|ui| {
+                    ui.label(format!(
+                        "Poll: {:.2} Hz",
+                        1.0 / self.poll_interval.as_secs_f64()
+                    ));
                     ui.separator();
-                    ui.label(format!("x: {}", first.plotter.x_column()));
-                }
-                if let Some(err) = &self.last_error {
+                    let points: usize = self
+                        .sources
+                        .iter()
+                        .map(|s| s.plotter.x_values().len())
+                        .sum();
+                    ui.label(format!("Points(total): {}", points));
                     ui.separator();
-                    ui.colored_label(egui::Color32::RED, format!("Error: {}", err));
-                }
-            });
-
-            let columns = self
-                .sources
-                .first()
-                .map(|s| s.plotter.available_columns().to_vec())
-                .unwrap_or_default();
-
-            if !columns.is_empty() {
-                let x_candidates = columns
-                    .iter()
-                    .filter(|col| classify_component(col) == Some(ComponentKind::X))
-                    .cloned()
-                    .collect::<Vec<_>>();
-                let y_candidates = columns
-                    .iter()
-                    .filter(|col| *col != &self.x_label)
-                    .cloned()
-                    .collect::<Vec<_>>();
-
-                if !self.initialized_selection {
-                    if let Some(first_x) = x_candidates.first() {
-                        self.selected_x_map.entry(first_x.clone()).or_insert(true);
+                    ui.label(format!("Sources: {}", self.sources.len()));
+                    if let Some(first) = self.sources.first() {
+                        ui.separator();
+                        ui.label(format!("x: {}", first.plotter.x_column()));
                     }
-                    if let Some(first_y) = y_candidates.first() {
-                        self.selected_y_map.entry(first_y.clone()).or_insert(true);
+                    if let Some(err) = &self.last_error {
+                        ui.separator();
+                        ui.colored_label(egui::Color32::RED, format!("Error: {}", err));
                     }
-                    self.apply_selection();
-                    self.initialized_selection = true;
-                }
+                });
 
-                ui.separator();
-                let mut changed = false;
-                egui::ScrollArea::both()
-                    .max_height(140.0)
-                    .show(ui, |ui| {
-                    ui.horizontal(|ui| {
-                        ui.label("Component columns:");
-                        ui.columns(2, |cols| {
-                            cols[0].heading("X components");
-                            for col in &x_candidates {
-                                if col == &self.x_label {
-                                    continue;
-                                }
-                                let selected = self.selected_x_map.entry(col.clone()).or_insert(false);
-                                if cols[0].checkbox(selected, col).changed() {
-                                    changed = true;
-                                }
-                            }
+                let columns = self
+                    .sources
+                    .first()
+                    .map(|s| s.plotter.available_columns().to_vec())
+                    .unwrap_or_default();
 
-                            cols[1].heading("Y / scalar columns");
-                            for col in &y_candidates {
-                                if col == &self.x_label {
-                                    continue;
+                if !columns.is_empty() {
+                    let x_candidates = columns
+                        .iter()
+                        .filter(|col| classify_component(col) == Some(ComponentKind::X))
+                        .cloned()
+                        .collect::<Vec<_>>();
+                    let y_candidates = columns
+                        .iter()
+                        .filter(|col| *col != &self.x_label)
+                        .cloned()
+                        .collect::<Vec<_>>();
+
+                    if !self.initialized_selection {
+                        if let Some(first_x) = x_candidates.first() {
+                            self.selected_x_map.entry(first_x.clone()).or_insert(true);
+                        }
+                        if let Some(first_y) = y_candidates.first() {
+                            self.selected_y_map.entry(first_y.clone()).or_insert(true);
+                        }
+                        self.apply_selection();
+                        self.initialized_selection = true;
+                    }
+
+                    ui.separator();
+                    let mut changed = false;
+                    egui::ScrollArea::both().max_height(140.0).show(ui, |ui| {
+                        ui.horizontal(|ui| {
+                            ui.label("Component columns:");
+                            ui.columns(2, |cols| {
+                                cols[0].heading("X components");
+                                for col in &x_candidates {
+                                    if col == &self.x_label {
+                                        continue;
+                                    }
+                                    let selected =
+                                        self.selected_x_map.entry(col.clone()).or_insert(false);
+                                    if cols[0].checkbox(selected, col).changed() {
+                                        changed = true;
+                                    }
                                 }
-                                let selected = self.selected_y_map.entry(col.clone()).or_insert(false);
-                                if cols[1].checkbox(selected, col).changed() {
-                                    changed = true;
+
+                                cols[1].heading("Y / scalar columns");
+                                for col in &y_candidates {
+                                    if col == &self.x_label {
+                                        continue;
+                                    }
+                                    let selected =
+                                        self.selected_y_map.entry(col.clone()).or_insert(false);
+                                    if cols[1].checkbox(selected, col).changed() {
+                                        changed = true;
+                                    }
                                 }
-                            }
+                            });
                         });
                     });
-                });
-                if changed {
-                    self.apply_selection();
+                    if changed {
+                        self.apply_selection();
+                    }
                 }
-            }
-        });
+            });
 
         egui::CentralPanel::default().show(ctx, |ui| {
             if self.sources.is_empty() {

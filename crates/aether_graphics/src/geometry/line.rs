@@ -17,10 +17,7 @@ impl Default for Line {
 
 impl Line {
     pub fn new_direction_point(direction: Vector<f32, 3>, point: Vector<f32, 3>) -> Self {
-        Line {
-            direction,
-            point,
-        }
+        Line { direction, point }
     }
 
     pub fn new_2d(direction: Vector<f32, 2>, point: Vector<f32, 2>) -> Self {

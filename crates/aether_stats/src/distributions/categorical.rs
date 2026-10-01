@@ -4,28 +4,31 @@ use aether_core::real::Real;
 
 /// Categorical distribution over K categories.
 #[derive(Clone, Debug)]
-pub struct Categorical<F: Real + > {
+pub struct Categorical<F: Real> {
     pub probs: Vec<F>,
 }
 
 impl<F> Categorical<F>
 where
-    F: Real + ,
+    F: Real,
 {
-    pub fn new(probs: Vec<F>) -> Self { Self { probs } }
+    pub fn new(probs: Vec<F>) -> Self {
+        Self { probs }
+    }
 
     pub fn pmf(&self, k: usize) -> F {
-        if k < self.probs.len() { self.probs[k] } else { F::ZERO }
+        if k < self.probs.len() {
+            self.probs[k]
+        } else {
+            F::ZERO
+        }
     }
 
     /// MLE fit: counts normalized
     pub fn fit_mle(counts: &[usize]) -> Self {
         let total: usize = counts.iter().sum();
         let total_f = F::from_usize(total.max(1));
-        let probs: Vec<F> = counts
-            .iter()
-            .map(|&c| F::from_usize(c) / total_f)
-            .collect();
+        let probs: Vec<F> = counts.iter().map(|&c| F::from_usize(c) / total_f).collect();
         Self::new(probs)
     }
 }

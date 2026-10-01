@@ -1,7 +1,4 @@
-use crate::math::{
-    arch::arm::neon,
-    Matrix, Vector,
-};
+use crate::math::{arch::arm::neon, Matrix, Vector};
 
 fn dot4_f32_scalar(a: &Vector<f32, 4>, b: &Vector<f32, 4>) -> f32 {
     a.data[0] * b.data[0] + a.data[1] * b.data[1] + a.data[2] * b.data[2] + a.data[3] * b.data[3]
@@ -75,7 +72,9 @@ fn mul_mat_scalar_f32<const M: usize, const N: usize, const P: usize>(
     matrix_a: &Matrix<f32, M, N>,
     matrix_b: &Matrix<f32, N, P>,
 ) -> Matrix<f32, M, P> {
-    let mut out = Matrix { data: [[0.0; P]; M] };
+    let mut out = Matrix {
+        data: [[0.0; P]; M],
+    };
     for i in 0..M {
         for j in 0..P {
             let mut acc = 0.0;
@@ -92,7 +91,9 @@ fn mul_mat_scalar_f64<const M: usize, const N: usize, const P: usize>(
     matrix_a: &Matrix<f64, M, N>,
     matrix_b: &Matrix<f64, N, P>,
 ) -> Matrix<f64, M, P> {
-    let mut out = Matrix { data: [[0.0; P]; M] };
+    let mut out = Matrix {
+        data: [[0.0; P]; M],
+    };
     for i in 0..M {
         for j in 0..P {
             let mut acc = 0.0;

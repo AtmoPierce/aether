@@ -115,20 +115,45 @@ dependencies = [
 ]
 
 [[package]]
+name = "aether-aero"
+version = "0.1.0"
+dependencies = [
+ "aether_core",
+ "aether_interp",
+ "aether_models",
+ "eframe 0.32.3",
+ "egui_plot 0.33.0",
+ "rayon",
+]
+
+[[package]]
+name = "aether-gnc"
+version = "0.1.0"
+dependencies = [
+ "aether_core",
+ "aether_fluids",
+ "aether_models",
+ "aether_stats",
+ "aether_time",
+ "heapless",
+ "serde",
+]
+
+[[package]]
 name = "aether-pro"
 version = "0.1.0"
 dependencies = [
+ "aether-gnc",
  "aether-step",
- "aether_gnc",
 ]
 
 [[package]]
 name = "aether-step"
 version = "0.1.0"
 dependencies = [
- "aether_aero",
+ "aether-aero",
+ "aether-gnc",
  "aether_core",
- "aether_gnc",
  "aether_interp",
  "aether_shapes",
  "aether_units",
@@ -136,17 +161,6 @@ dependencies = [
  "rayon",
  "serde",
  "toml 0.9.12+spec-1.1.0",
-]
-
-[[package]]
-name = "aether_aero"
-version = "0.1.0"
-dependencies = [
- "aether_core",
- "aether_models",
- "eframe 0.32.3",
- "egui_plot 0.33.0",
- "rayon",
 ]
 
 [[package]]
@@ -203,19 +217,6 @@ name = "aether_fluids"
 version = "0.1.1"
 dependencies = [
  "aether_shapes",
-]
-
-[[package]]
-name = "aether_gnc"
-version = "0.1.0"
-dependencies = [
- "aether_core",
- "aether_fluids",
- "aether_models",
- "aether_stats",
- "aether_time",
- "heapless",
- "serde",
 ]
 
 [[package]]
@@ -323,6 +324,7 @@ version = "0.1.1"
 dependencies = [
  "aether_core",
  "aether_ml",
+ "csv",
  "eframe 0.28.1",
  "egui_plot 0.28.1",
  "glob",
@@ -1944,9 +1946,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "fpx-bench"
+version = "0.1.0"
+dependencies = [
+ "rayon",
+]
+
+[[package]]
 name = "fpx-core"
 version = "0.1.0"
 dependencies = [
+ "aether_viz",
+ "fpx-bench",
  "libm",
  "serde",
  "toml 0.5.11",

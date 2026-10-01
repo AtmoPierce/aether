@@ -6,7 +6,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum MatrixAssertError {
-    #[error("Matrix shape mismatch: left={left_rows}x{left_cols}, right={right_rows}x{right_cols}")]
+    #[error(
+        "Matrix shape mismatch: left={left_rows}x{left_cols}, right={right_rows}x{right_cols}"
+    )]
     ShapeMismatch {
         left_rows: usize,
         left_cols: usize,
@@ -14,9 +16,7 @@ pub enum MatrixAssertError {
         right_cols: usize,
     },
 
-    #[error(
-        "Value mismatch at (row={row}, col={col}): left={left}, right={right}, |Δ|={diff}"
-    )]
+    #[error("Value mismatch at (row={row}, col={col}): left={left}, right={right}, |Δ|={diff}")]
     ValueMismatch {
         row: usize,
         col: usize,
@@ -173,5 +173,3 @@ pub fn assert_matrix_symmetric<const N: usize>(a: &Matrix<f64, N, N>, tol: f64) 
         }
     }
 }
-
-

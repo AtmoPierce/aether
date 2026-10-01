@@ -1,51 +1,51 @@
 // Mechanics
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Hertz {}          // Hz
+pub enum Hertz {} // Hz
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Newton {}         // N
+pub enum Newton {} // N
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Pascal {}         // Pa
+pub enum Pascal {} // Pa
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Joule {}          // J
+pub enum Joule {} // J
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Watt {}           // W
+pub enum Watt {} // W
 
 // Electricity & magnetism
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Coulomb {}        // C
+pub enum Coulomb {} // C
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Volt {}           // V
+pub enum Volt {} // V
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Farad {}          // F
+pub enum Farad {} // F
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Ohm {}            // Ω
+pub enum Ohm {} // Ω
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Siemens {}        // S
+pub enum Siemens {} // S
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Weber {}          // Wb
+pub enum Weber {} // Wb
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Tesla {}          // T
+pub enum Tesla {} // T
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Henry {}          // H
+pub enum Henry {} // H
 
 // Photometry
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Lumen {}          // lm
+pub enum Lumen {} // lm
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Lux {}            // lx
+pub enum Lux {} // lx
 
 // Nuclear
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Becquerel {}      // Bq
+pub enum Becquerel {} // Bq
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Gray {}           // Gy
+pub enum Gray {} // Gy
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Sievert {}        // Sv
+pub enum Sievert {} // Sv
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Katal {}          // kat
+pub enum Katal {} // kat
 
 // Pure geometry
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Radian {}         // rad
+pub enum Radian {} // rad
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Steradian {}      // sr
+pub enum Steradian {} // sr

@@ -1,7 +1,7 @@
 #![cfg(feature = "std")]
 use aether_core::math::Vector;
-use aether_opt::gradient_descent::GradientDescentGeneric;
 use aether_core::real::Real;
+use aether_opt::gradient_descent::GradientDescentGeneric;
 
 /// Ridge regression (L2) using batch gradient descent
 #[derive(Clone, Copy, Debug)]

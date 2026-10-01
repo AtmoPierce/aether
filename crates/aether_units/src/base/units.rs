@@ -1,6 +1,6 @@
-use core::marker::PhantomData;
-use core::ops::{Add, Sub, Mul, Div, Neg};
 use aether_core::real::Real;
+use core::marker::PhantomData;
+use core::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Quantity<Unit, T: Real> {
@@ -11,7 +11,10 @@ pub struct Quantity<Unit, T: Real> {
 impl<Unit, T: Real> Quantity<Unit, T> {
     #[inline]
     pub const fn new(value: T) -> Self {
-        Self { value, _marker: PhantomData }
+        Self {
+            value,
+            _marker: PhantomData,
+        }
     }
 
     #[inline]

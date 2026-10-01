@@ -30,11 +30,7 @@ pub enum VectorAssertError {
 /// let v2 = Vector::from([1.0, 2.0001, 2.9999]);
 /// assert_vector_approx_eq(&v1, &v2, 1e-3);
 /// ```
-pub fn assert_vector_approx_eq<const N: usize>(
-    a: &Vector<f64, N>,
-    b: &Vector<f64, N>,
-    tol: f64,
-) {
+pub fn assert_vector_approx_eq<const N: usize>(a: &Vector<f64, N>, b: &Vector<f64, N>, tol: f64) {
     if let Err(err) = vector_approx_eq(a, b, tol) {
         panic!("{:?}", err);
     }

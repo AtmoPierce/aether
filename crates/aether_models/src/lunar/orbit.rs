@@ -59,8 +59,9 @@ mod tests {
     #[test]
     fn keplerian_period_matches_mean_period_order() {
         let orbit = MoonOrbitAroundEarth::new();
-        let rel_err =
-            ((orbit.keplerian_period_s() - orbit.sidereal_period_s) / orbit.sidereal_period_s).abs();
+        let rel_err = ((orbit.keplerian_period_s() - orbit.sidereal_period_s)
+            / orbit.sidereal_period_s)
+            .abs();
         assert!(rel_err < 0.05);
     }
 }

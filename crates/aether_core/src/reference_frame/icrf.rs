@@ -1,6 +1,6 @@
 use crate::coordinate::Cartesian;
-use crate::reference_frame::ReferenceFrame;
 use crate::real::Real;
+use crate::reference_frame::ReferenceFrame;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]

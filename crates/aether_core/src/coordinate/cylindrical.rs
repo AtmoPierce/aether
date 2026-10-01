@@ -1,8 +1,8 @@
 use super::cartesian::Cartesian;
 use super::spherical::Spherical;
 use crate::math::Vector;
-use crate::reference_frame::ReferenceFrame;
 use crate::real::Real;
+use crate::reference_frame::ReferenceFrame;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Cylindrical<T: Real> {

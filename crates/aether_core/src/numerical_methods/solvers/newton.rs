@@ -4,7 +4,7 @@ pub struct NewtonRaphson<T: Real> {
     max_iterations: usize,
 }
 
-impl <T: Real> NewtonRaphson<T> {
+impl<T: Real> NewtonRaphson<T> {
     pub fn new(tolerance: T, max_iterations: usize) -> Self {
         Self {
             tolerance,
@@ -15,7 +15,8 @@ impl <T: Real> NewtonRaphson<T> {
     pub fn solve<F, DF>(&self, mut guess: T, f: F, df: DF) -> Result<T, &'static str>
     where
         F: Fn(T) -> T,
-        DF: Fn(T) -> T{
+        DF: Fn(T) -> T,
+    {
         for _ in 0..self.max_iterations {
             let f_val = f(guess);
             let df_val = df(guess);

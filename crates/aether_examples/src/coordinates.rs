@@ -1,7 +1,7 @@
 use aether_core::attitude::DirectionCosineMatrix;
 use aether_core::coordinate::Cartesian;
-use aether_core::reference_frame::{Body, NED, ITRF};
 use aether_core::reference_frame::transforms::{body_to_ned, itrf_to_ned};
+use aether_core::reference_frame::{Body, ITRF, NED};
 
 fn main() {
     // Example 1: gravity measured in the BODY frame
@@ -11,9 +11,9 @@ fn main() {
     let gravity_body: Cartesian<f64, Body<f64>> = Cartesian::new(9.8, 0.0, 0.0);
 
     // Current attitude: roll, pitch, yaw (rad)
-    let roll  = 0.0_f64.to_radians();
+    let roll = 0.0_f64.to_radians();
     let pitch = -90.0_f64.to_radians(); // nose straight down
-    let yaw   = 0.0_f64.to_radians();
+    let yaw = 0.0_f64.to_radians();
 
     // Build the Body -> NED direction cosine matrix from Euler angles.
     // body_to_ned() returns a DirectionCosineMatrix<Body, NED>.
@@ -38,7 +38,7 @@ fn main() {
     // ---------------------------------------------------------
 
     // Suppose we know where we are on Earth:
-    let latitude  = 40.0_f64.to_radians();
+    let latitude = 40.0_f64.to_radians();
     let longitude = -90.0_f64.to_radians();
 
     // Build the ECEF(ITRF) -> NED transform at that geodetic location.
@@ -53,6 +53,4 @@ fn main() {
     // This gives you an auditable pipeline like:
     // Body --> NED --> ITRF --> ICRF
     // with no chance of "oops I mixed frames" bugs.
-
-    
 }

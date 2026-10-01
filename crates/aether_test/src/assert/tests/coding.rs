@@ -13,11 +13,11 @@ fn test_vector_equivalence() {
 #[test]
 fn test_quaternion_equivalence() {
     use aether_core::attitude::Quaternion;
-    use aether_core::reference_frame::{ICRF,Body};
+    use aether_core::reference_frame::{Body, ICRF};
 
-    let q: Quaternion<f64, ICRF<f64>,Body<f64>> = Quaternion::new(0.707, 0.707, 0.0, 0.0);
+    let q: Quaternion<f64, ICRF<f64>, Body<f64>> = Quaternion::new(0.707, 0.707, 0.0, 0.0);
     assert_quaternion_equivalence(&q);
 
-    let q: Quaternion<f64, ICRF<f64>,Body<f64>> = Quaternion::identity();
+    let q: Quaternion<f64, ICRF<f64>, Body<f64>> = Quaternion::identity();
     assert_quaternion_equivalence(&q);
 }

@@ -32,7 +32,10 @@ impl Duration {
     }
 
     pub const fn zero() -> Self {
-        Duration { sec: 0, nano_sec: 0 }
+        Duration {
+            sec: 0,
+            nano_sec: 0,
+        }
     }
 
     pub const fn from_secs(sec: i64) -> Self {
@@ -43,14 +46,16 @@ impl Duration {
         Duration {
             sec: ms / 1000,
             nano_sec: ((ms % 1000) * 1_000_000) as i32,
-        }.normalize()
+        }
+        .normalize()
     }
 
     pub fn from_micros(us: i64) -> Self {
         Duration {
             sec: us / 1_000_000,
             nano_sec: ((us % 1_000_000) * 1_000) as i32,
-        }.normalize()
+        }
+        .normalize()
     }
 
     pub const fn from_nanos_i64(ns: i64) -> Self {
@@ -132,7 +137,8 @@ impl core::ops::Add for Duration {
         Duration {
             sec: self.sec + rhs.sec,
             nano_sec: self.nano_sec + rhs.nano_sec,
-        }.normalize()
+        }
+        .normalize()
     }
 }
 
@@ -143,7 +149,8 @@ impl core::ops::Sub for Duration {
         Duration {
             sec: self.sec - rhs.sec,
             nano_sec: self.nano_sec - rhs.nano_sec,
-        }.normalize()
+        }
+        .normalize()
     }
 }
 

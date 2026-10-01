@@ -1,8 +1,8 @@
 use crate::attitude::{DirectionCosineMatrix, Euler};
-use crate::math::{Matrix, Vector};
-use crate::reference_frame::ReferenceFrame;
-use crate::real::Real;
 use crate::coordinate::Cartesian;
+use crate::math::{Matrix, Vector};
+use crate::real::Real;
+use crate::reference_frame::ReferenceFrame;
 
 use core::marker::PhantomData;
 use core::ops::{Add, Div, Mul, Neg, Sub};
@@ -40,10 +40,22 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
         Self::new(c, a[0] * s, a[1] * s, a[2] * s).normalized()
     }
 
-    #[inline] pub fn w(&self) -> T { self.data[0] }
-    #[inline] pub fn i(&self) -> T { self.data[1] }
-    #[inline] pub fn j(&self) -> T { self.data[2] }
-    #[inline] pub fn k(&self) -> T { self.data[3] }
+    #[inline]
+    pub fn w(&self) -> T {
+        self.data[0]
+    }
+    #[inline]
+    pub fn i(&self) -> T {
+        self.data[1]
+    }
+    #[inline]
+    pub fn j(&self) -> T {
+        self.data[2]
+    }
+    #[inline]
+    pub fn k(&self) -> T {
+        self.data[3]
+    }
 
     /// Build a quaternion from scalar + Euler components (x,y,z).
     #[inline]
@@ -64,12 +76,7 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
     #[inline]
     pub fn normalized(&self) -> Self {
         let n = self.norm();
-        Self::new(
-            self.w() / n,
-            self.i() / n,
-            self.j() / n,
-            self.k() / n,
-        )
+        Self::new(self.w() / n, self.i() / n, self.j() / n, self.k() / n)
     }
 
     #[inline]
@@ -80,12 +87,7 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
     /// Conjugate (frames unchanged)
     #[inline]
     pub fn conjugate(&self) -> Self {
-        Self::new(
-            self.w(),
-            -self.i(),
-            -self.j(),
-            -self.k(),
-        )
+        Self::new(self.w(), -self.i(), -self.j(), -self.k())
     }
 
     /// Inverse swaps frames
@@ -113,9 +115,9 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
 
         // qc ⊗ p
         let aw = -(qc.i() * px + qc.j() * py + qc.k() * pz);
-        let ax =  qc.w() * px + qc.j() * pz - qc.k() * py;
-        let ay =  qc.w() * py + qc.k() * px - qc.i() * pz;
-        let az =  qc.w() * pz + qc.i() * py - qc.j() * px;
+        let ax = qc.w() * px + qc.j() * pz - qc.k() * py;
+        let ay = qc.w() * py + qc.k() * px - qc.i() * pz;
+        let az = qc.w() * pz + qc.i() * py - qc.j() * px;
 
         // (qc ⊗ p) ⊗ q
         Vector::new([
@@ -132,10 +134,7 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
 
     /// Passive frame transform: Cartesian<From> -> Cartesian<To>
     #[inline]
-    pub fn rotate_cartesian(
-        &self,
-        v_from: Cartesian<T, From>,
-    ) -> Cartesian<T, To> {
+    pub fn rotate_cartesian(&self, v_from: Cartesian<T, From>) -> Cartesian<T, To> {
         Cartesian {
             data: self.rotate_vector(v_from.data),
             _reference_frame: PhantomData,
@@ -164,9 +163,9 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
         let yz = y * z;
 
         let m = Matrix::<T, 3, 3>::new([
-            [ ww + xx - yy - zz, two * (xy - wz),     two * (xz + wy) ],
-            [ two * (xy + wz),   ww - xx + yy - zz,  two * (yz - wx) ],
-            [ two * (xz - wy),   two * (yz + wx),    ww - xx - yy + zz ],
+            [ww + xx - yy - zz, two * (xy - wz), two * (xz + wy)],
+            [two * (xy + wz), ww - xx + yy - zz, two * (yz - wx)],
+            [two * (xz - wy), two * (yz + wx), ww - xx - yy + zz],
         ]);
 
         DirectionCosineMatrix::from_matrix(m)
@@ -196,7 +195,12 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
 
     /// Integrate quaternion using angular velocity/acceleration (Taylor expansion).
     #[inline]
-    pub fn integrate(self, ang_vel: Cartesian<T, From>, ang_acc: Cartesian<T, From>, dt: T) -> Self {
+    pub fn integrate(
+        self,
+        ang_vel: Cartesian<T, From>,
+        ang_acc: Cartesian<T, From>,
+        dt: T,
+    ) -> Self {
         let q = self.normalized();
 
         let one = T::ONE;
@@ -215,7 +219,11 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Quaternion<T, From, To> 
         let q_dot = q.mul_raw(&ang_vel_quat) * half;
         let q_ddot = q.mul_raw(&ang_vel_quat).mul_raw(&ang_vel_quat) * quarter
             + q.mul_raw(&ang_acc_quat) * half;
-        let q_dddot = q.mul_raw(&ang_vel_quat).mul_raw(&ang_vel_quat).mul_raw(&ang_vel_quat) * (one / (three + three))
+        let q_dddot = q
+            .mul_raw(&ang_vel_quat)
+            .mul_raw(&ang_vel_quat)
+            .mul_raw(&ang_vel_quat)
+            * (one / (three + three))
             + q.mul_raw(&ang_acc_quat).mul_raw(&ang_vel_quat) * quarter
             + q.mul_raw(&ang_vel_quat).mul_raw(&ang_acc_quat) * half;
 
@@ -250,7 +258,7 @@ impl<T: Real, From: ReferenceFrame, Mid: ReferenceFrame, To: ReferenceFrame>
     fn mul(self, rhs: &Quaternion<T, From, Mid>) -> Self::Output {
         // Hamilton product: self x rhs
         let [w1, x1, y1, z1] = self.data.data; // Mid -> To
-        let [w2, x2, y2, z2] = rhs.data.data;  // From -> Mid
+        let [w2, x2, y2, z2] = rhs.data.data; // From -> Mid
 
         Quaternion::new(
             w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
@@ -272,8 +280,8 @@ impl<T: Real, From: ReferenceFrame, Mid: ReferenceFrame, To: ReferenceFrame>
     }
 }
 
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
-    Mul<&Cartesian<T, From>> for &Quaternion<T, From, To>
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<&Cartesian<T, From>>
+    for &Quaternion<T, From, To>
 {
     type Output = Cartesian<T, To>;
 
@@ -285,8 +293,8 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
     }
 }
 
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
-    Mul<Cartesian<T, From>> for Quaternion<T, From, To>
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<Cartesian<T, From>>
+    for Quaternion<T, From, To>
 {
     type Output = Cartesian<T, To>;
 
@@ -295,8 +303,8 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
     }
 }
 
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
-    Mul<Cartesian<T, From>> for &Quaternion<T, From, To>
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<Cartesian<T, From>>
+    for &Quaternion<T, From, To>
 {
     type Output = Cartesian<T, To>;
 
@@ -305,8 +313,8 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
     }
 }
 
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
-    Mul<&Cartesian<T, From>> for Quaternion<T, From, To>
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<&Cartesian<T, From>>
+    for Quaternion<T, From, To>
 {
     type Output = Cartesian<T, To>;
 
@@ -316,9 +324,7 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
 }
 
 /// Scalar multiply
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<T>
-    for Quaternion<T, From, To>
-{
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<T> for Quaternion<T, From, To> {
     type Output = Self;
     fn mul(self, rhs: T) -> Self {
         Self {
@@ -330,9 +336,7 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Mul<T>
 }
 
 /// Addition
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Add
-    for Quaternion<T, From, To>
-{
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Add for Quaternion<T, From, To> {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
         Self {
@@ -344,9 +348,7 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Add
 }
 
 /// Subtraction
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Sub
-    for Quaternion<T, From, To>
-{
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Sub for Quaternion<T, From, To> {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self {
         Self {
@@ -358,9 +360,7 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Sub
 }
 
 /// Negation
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Neg
-    for Quaternion<T, From, To>
-{
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Neg for Quaternion<T, From, To> {
     type Output = Self;
     fn neg(self) -> Self {
         Self {
@@ -372,9 +372,7 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Neg
 }
 
 /// Scalar division
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Div<T>
-    for Quaternion<T, From, To>
-{
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Div<T> for Quaternion<T, From, To> {
     type Output = Self;
     fn div(self, rhs: T) -> Self {
         Self {
@@ -385,8 +383,8 @@ impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> Div<T>
     }
 }
 
-impl<T: Real, A: ReferenceFrame, B: ReferenceFrame>
-    TryFrom<&DirectionCosineMatrix<T, A, B>> for Quaternion<T, A, B>
+impl<T: Real, A: ReferenceFrame, B: ReferenceFrame> TryFrom<&DirectionCosineMatrix<T, A, B>>
+    for Quaternion<T, A, B>
 {
     type Error = ();
 
@@ -448,8 +446,8 @@ impl<T: Real, A: ReferenceFrame, B: ReferenceFrame>
     }
 }
 
-impl<T: Real, From: ReferenceFrame, To: ReferenceFrame>
-    core::convert::From<&Euler<T, From, To>> for Quaternion<T, From, To>
+impl<T: Real, From: ReferenceFrame, To: ReferenceFrame> core::convert::From<&Euler<T, From, To>>
+    for Quaternion<T, From, To>
 {
     fn from(e: &Euler<T, From, To>) -> Self {
         let [roll, pitch, yaw] = e.data.data;
@@ -486,9 +484,6 @@ where
         )
     }
 }
-
-
-
 
 #[cfg(test)]
 #[path = "tests/quaternion_tests.rs"]

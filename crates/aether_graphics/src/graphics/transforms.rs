@@ -1,7 +1,7 @@
 use aether_core::coordinate::Cartesian;
 use aether_core::math::{Matrix, Vector};
-use aether_core::reference_frame::ReferenceFrame;
 use aether_core::real::Real;
+use aether_core::reference_frame::ReferenceFrame;
 
 pub fn look_at<T: Real, F: ReferenceFrame>(
     eye: &Cartesian<T, F>,

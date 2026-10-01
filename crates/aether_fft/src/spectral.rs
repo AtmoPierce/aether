@@ -33,7 +33,10 @@ impl From<FftError> for SpectralError {
     }
 }
 
-pub fn real_periodogram<T: Real>(samples: &[T], sample_rate_hz: T) -> Result<PsdEstimate<T>, SpectralError> {
+pub fn real_periodogram<T: Real>(
+    samples: &[T],
+    sample_rate_hz: T,
+) -> Result<PsdEstimate<T>, SpectralError> {
     if sample_rate_hz <= T::ZERO {
         return Err(SpectralError::NonPositiveSampleRate);
     }

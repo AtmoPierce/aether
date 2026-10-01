@@ -43,19 +43,31 @@ fn max_abs_rel_slices_f32(a: &[f32], b: &[f32]) -> (f32, f32) {
     (max_abs, max_rel)
 }
 
-fn aether_matmul<const N: usize>(a: &Matrix<f64, N, N>, b: &Matrix<f64, N, N>) -> Matrix<f64, N, N> {
+fn aether_matmul<const N: usize>(
+    a: &Matrix<f64, N, N>,
+    b: &Matrix<f64, N, N>,
+) -> Matrix<f64, N, N> {
     a * b
 }
 
-fn aether_matmul_f32<const N: usize>(a: &Matrix<f32, N, N>, b: &Matrix<f32, N, N>) -> Matrix<f32, N, N> {
+fn aether_matmul_f32<const N: usize>(
+    a: &Matrix<f32, N, N>,
+    b: &Matrix<f32, N, N>,
+) -> Matrix<f32, N, N> {
     a * b
 }
 
-fn nalgebra_matmul<const N: usize>(a: &SMatrix<f64, N, N>, b: &SMatrix<f64, N, N>) -> SMatrix<f64, N, N> {
+fn nalgebra_matmul<const N: usize>(
+    a: &SMatrix<f64, N, N>,
+    b: &SMatrix<f64, N, N>,
+) -> SMatrix<f64, N, N> {
     a * b
 }
 
-fn nalgebra_matmul_f32<const N: usize>(a: &SMatrix<f32, N, N>, b: &SMatrix<f32, N, N>) -> SMatrix<f32, N, N> {
+fn nalgebra_matmul_f32<const N: usize>(
+    a: &SMatrix<f32, N, N>,
+    b: &SMatrix<f32, N, N>,
+) -> SMatrix<f32, N, N> {
     a * b
 }
 
@@ -216,7 +228,8 @@ unsafe fn matvec_simd_avx_rowmajor_f32(a: &[f32], x: &[f32], y: &mut [f32], n: u
 
         let mut lanes = [0.0_f32; 8];
         unsafe { _mm256_storeu_ps(lanes.as_mut_ptr(), acc) };
-        let mut sum = lanes[0] + lanes[1] + lanes[2] + lanes[3] + lanes[4] + lanes[5] + lanes[6] + lanes[7];
+        let mut sum =
+            lanes[0] + lanes[1] + lanes[2] + lanes[3] + lanes[4] + lanes[5] + lanes[6] + lanes[7];
 
         while j < n {
             sum += row[j] * x[j];
@@ -244,7 +257,8 @@ unsafe fn matvec_fma_avx_rowmajor_f32(a: &[f32], x: &[f32], y: &mut [f32], n: us
 
         let mut lanes = [0.0_f32; 8];
         unsafe { _mm256_storeu_ps(lanes.as_mut_ptr(), acc) };
-        let mut sum = lanes[0] + lanes[1] + lanes[2] + lanes[3] + lanes[4] + lanes[5] + lanes[6] + lanes[7];
+        let mut sum =
+            lanes[0] + lanes[1] + lanes[2] + lanes[3] + lanes[4] + lanes[5] + lanes[6] + lanes[7];
 
         while j < n {
             sum += row[j] * x[j];
@@ -300,7 +314,10 @@ fn report_precision(_c: &mut Criterion) {
             }
         }
     }
-    println!("precision matmul_3_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}", max_abs, max_rel);
+    println!(
+        "precision matmul_3_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}",
+        max_abs, max_rel
+    );
 
     let aether4_a = Matrix::new([[1.001_f64; 4]; 4]);
     let aether4_b = Matrix::new([[0.999_f64; 4]; 4]);
@@ -322,7 +339,10 @@ fn report_precision(_c: &mut Criterion) {
             }
         }
     }
-    println!("precision matmul_4_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}", max_abs4, max_rel4);
+    println!(
+        "precision matmul_4_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}",
+        max_abs4, max_rel4
+    );
 
     let aether6_a = Matrix::new([[1.001_f64; 6]; 6]);
     let aether6_b = Matrix::new([[0.999_f64; 6]; 6]);
@@ -344,21 +364,30 @@ fn report_precision(_c: &mut Criterion) {
             }
         }
     }
-    println!("precision matmul_6_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}", max_abs6, max_rel6);
+    println!(
+        "precision matmul_6_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}",
+        max_abs6, max_rel6
+    );
 
     let aether_v3 = Vector::new([0.999_f64; 3]);
     let na_v3 = SVector::<f64, 3>::from_element(0.999_f64);
     let outv3_a = aether_matvec::<3>(&aether3_a, &aether_v3);
     let outv3_n = nalgebra_matvec::<3>(&na3_a, &na_v3);
     let (v3_abs, v3_rel) = max_abs_rel_slices(&outv3_a, &outv3_n);
-    println!("precision matvec_3_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}", v3_abs, v3_rel);
+    println!(
+        "precision matvec_3_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}",
+        v3_abs, v3_rel
+    );
 
     let aether_v4 = Vector::new([0.999_f64; 4]);
     let na_v4 = SVector::<f64, 4>::from_element(0.999_f64);
     let outv4_a = aether_matvec4_simd(&aether4_a, &aether_v4);
     let outv4_n = nalgebra_matvec::<4>(&na4_a, &na_v4);
     let (v4_abs, v4_rel) = max_abs_rel_slices(&outv4_a, &outv4_n);
-    println!("precision matvec_4_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}", v4_abs, v4_rel);
+    println!(
+        "precision matvec_4_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}",
+        v4_abs, v4_rel
+    );
 
     let dot_a4 = Vector::new([1.001_f64; 4]);
     let dot_b4 = Vector::new([0.999_f64; 4]);
@@ -368,19 +397,28 @@ fn report_precision(_c: &mut Criterion) {
     let nalgebra_dot4_ref = nalgebra_dot4(&na_dot_a4, &na_dot_b4);
     let dot4_abs = (aether_dot4 - nalgebra_dot4_ref).abs();
     let dot4_rel = dot4_abs / nalgebra_dot4_ref.abs().max(1e-12);
-    println!("precision dot_4_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}", dot4_abs, dot4_rel);
+    println!(
+        "precision dot_4_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}",
+        dot4_abs, dot4_rel
+    );
 
     let aether_dot4_scalar_v = aether_dot4_scalar(&dot_a4, &dot_b4);
     let dot4_scalar_abs = (aether_dot4_scalar_v - nalgebra_dot4_ref).abs();
     let dot4_scalar_rel = dot4_scalar_abs / nalgebra_dot4_ref.abs().max(1e-12);
-    println!("precision dot_4_scalar vs nalgebra: max_abs={:.3e} max_rel={:.3e}", dot4_scalar_abs, dot4_scalar_rel);
+    println!(
+        "precision dot_4_scalar vs nalgebra: max_abs={:.3e} max_rel={:.3e}",
+        dot4_scalar_abs, dot4_scalar_rel
+    );
 
     let aether_v6 = Vector::new([0.999_f64; 6]);
     let na_v6 = SVector::<f64, 6>::from_element(0.999_f64);
     let outv6_a = aether_matvec6_simd(&aether6_a, &aether_v6);
     let outv6_n = nalgebra_matvec::<6>(&na6_a, &na_v6);
     let (v6_abs, v6_rel) = max_abs_rel_slices(&outv6_a, &outv6_n);
-    println!("precision matvec_6_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}", v6_abs, v6_rel);
+    println!(
+        "precision matvec_6_aether vs nalgebra: max_abs={:.3e} max_rel={:.3e}",
+        v6_abs, v6_rel
+    );
 
     let aether3_a_f32 = Matrix::new([[1.001_f32; 3]; 3]);
     let aether3_b_f32 = Matrix::new([[0.999_f32; 3]; 3]);
@@ -402,7 +440,10 @@ fn report_precision(_c: &mut Criterion) {
             }
         }
     }
-    println!("precision matmul_3_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}", max_abs_f32, max_rel_f32);
+    println!(
+        "precision matmul_3_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
+        max_abs_f32, max_rel_f32
+    );
 
     let aether4_a_f32 = Matrix::new([[1.001_f32; 4]; 4]);
     let aether4_b_f32 = Matrix::new([[0.999_f32; 4]; 4]);
@@ -424,7 +465,10 @@ fn report_precision(_c: &mut Criterion) {
             }
         }
     }
-    println!("precision matmul_4_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}", max_abs4_f32, max_rel4_f32);
+    println!(
+        "precision matmul_4_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
+        max_abs4_f32, max_rel4_f32
+    );
 
     let aether6_a_f32 = Matrix::new([[1.001_f32; 6]; 6]);
     let aether6_b_f32 = Matrix::new([[0.999_f32; 6]; 6]);
@@ -446,21 +490,30 @@ fn report_precision(_c: &mut Criterion) {
             }
         }
     }
-    println!("precision matmul_6_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}", max_abs6_f32, max_rel6_f32);
+    println!(
+        "precision matmul_6_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
+        max_abs6_f32, max_rel6_f32
+    );
 
     let aether_v3_f32 = Vector::new([0.999_f32; 3]);
     let na_v3_f32 = SVector::<f32, 3>::from_element(0.999_f32);
     let outv3_a_f32 = aether_matvec_f32::<3>(&aether3_a_f32, &aether_v3_f32);
     let outv3_n_f32 = nalgebra_matvec_f32::<3>(&na3_a_f32, &na_v3_f32);
     let (v3_abs_f32, v3_rel_f32) = max_abs_rel_slices_f32(&outv3_a_f32, &outv3_n_f32);
-    println!("precision matvec_3_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}", v3_abs_f32, v3_rel_f32);
+    println!(
+        "precision matvec_3_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
+        v3_abs_f32, v3_rel_f32
+    );
 
     let aether_v4_f32 = Vector::new([0.999_f32; 4]);
     let na_v4_f32 = SVector::<f32, 4>::from_element(0.999_f32);
     let outv4_a_f32 = aether_matvec4_simd_f32(&aether4_a_f32, &aether_v4_f32);
     let outv4_n_f32 = nalgebra_matvec_f32::<4>(&na4_a_f32, &na_v4_f32);
     let (v4_abs_f32, v4_rel_f32) = max_abs_rel_slices_f32(&outv4_a_f32, &outv4_n_f32);
-    println!("precision matvec_4_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}", v4_abs_f32, v4_rel_f32);
+    println!(
+        "precision matvec_4_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
+        v4_abs_f32, v4_rel_f32
+    );
 
     let dot_a4_f32 = Vector::new([1.001_f32; 4]);
     let dot_b4_f32 = Vector::new([0.999_f32; 4]);
@@ -470,19 +523,28 @@ fn report_precision(_c: &mut Criterion) {
     let nalgebra_dot4_ref_f32 = nalgebra_dot4_f32(&na_dot_a4_f32, &na_dot_b4_f32);
     let dot4_abs_f32 = (aether_dot4_f32 - nalgebra_dot4_ref_f32).abs();
     let dot4_rel_f32 = dot4_abs_f32 / nalgebra_dot4_ref_f32.abs().max(1e-12_f32);
-    println!("precision dot_4_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}", dot4_abs_f32, dot4_rel_f32);
+    println!(
+        "precision dot_4_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
+        dot4_abs_f32, dot4_rel_f32
+    );
 
     let aether_dot4_scalar_f32_v = aether_dot4_scalar_f32(&dot_a4_f32, &dot_b4_f32);
     let dot4_scalar_abs_f32 = (aether_dot4_scalar_f32_v - nalgebra_dot4_ref_f32).abs();
     let dot4_scalar_rel_f32 = dot4_scalar_abs_f32 / nalgebra_dot4_ref_f32.abs().max(1e-12_f32);
-    println!("precision dot_4_scalar_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}", dot4_scalar_abs_f32, dot4_scalar_rel_f32);
+    println!(
+        "precision dot_4_scalar_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
+        dot4_scalar_abs_f32, dot4_scalar_rel_f32
+    );
 
     let aether_v6_f32 = Vector::new([0.999_f32; 6]);
     let na_v6_f32 = SVector::<f32, 6>::from_element(0.999_f32);
     let outv6_a_f32 = aether_matvec6_simd_f32(&aether6_a_f32, &aether_v6_f32);
     let outv6_n_f32 = nalgebra_matvec_f32::<6>(&na6_a_f32, &na_v6_f32);
     let (v6_abs_f32, v6_rel_f32) = max_abs_rel_slices_f32(&outv6_a_f32, &outv6_n_f32);
-    println!("precision matvec_6_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}", v6_abs_f32, v6_rel_f32);
+    println!(
+        "precision matvec_6_aether_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
+        v6_abs_f32, v6_rel_f32
+    );
 
     for n in [64_usize, 128, 256, 512, 1024] {
         let mut a = vec![0.0_f64; n * n];
@@ -560,14 +622,16 @@ fn report_precision(_c: &mut Criterion) {
         let na_ref_f32 = &na_a_f32 * &na_x_f32;
 
         matvec_naive_rowmajor_f32(&a_f32, &x_f32, &mut y_native_f32, n);
-        let (native_abs_f32, native_rel_f32) = max_abs_rel_slices_f32(&y_native_f32, na_ref_f32.as_slice());
+        let (native_abs_f32, native_rel_f32) =
+            max_abs_rel_slices_f32(&y_native_f32, na_ref_f32.as_slice());
         println!(
             "precision matvec_{}_native_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
             n, native_abs_f32, native_rel_f32
         );
 
         matvec_naive_rowmajor_f32(&a_f32, &x_f32, &mut y_naive_f32, n);
-        let (naive_abs_f32, naive_rel_f32) = max_abs_rel_slices_f32(&y_naive_f32, na_ref_f32.as_slice());
+        let (naive_abs_f32, naive_rel_f32) =
+            max_abs_rel_slices_f32(&y_naive_f32, na_ref_f32.as_slice());
         println!(
             "precision matvec_{}_naive_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
             n, naive_abs_f32, naive_rel_f32
@@ -578,7 +642,8 @@ fn report_precision(_c: &mut Criterion) {
             unsafe {
                 matvec_fma_avx_rowmajor_f32(&a_f32, &x_f32, &mut y_fma_f32, n);
             }
-            let (fma_abs_f32, fma_rel_f32) = max_abs_rel_slices_f32(&y_fma_f32, na_ref_f32.as_slice());
+            let (fma_abs_f32, fma_rel_f32) =
+                max_abs_rel_slices_f32(&y_fma_f32, na_ref_f32.as_slice());
             println!(
                 "precision matvec_{}_fma_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
                 n, fma_abs_f32, fma_rel_f32
@@ -593,7 +658,8 @@ fn report_precision(_c: &mut Criterion) {
         } else {
             matvec_naive_rowmajor_f32(&a_f32, &x_f32, &mut y_simd_f32, n);
         }
-        let (simd_abs_f32, simd_rel_f32) = max_abs_rel_slices_f32(&y_simd_f32, na_ref_f32.as_slice());
+        let (simd_abs_f32, simd_rel_f32) =
+            max_abs_rel_slices_f32(&y_simd_f32, na_ref_f32.as_slice());
         println!(
             "precision matvec_{}_simd_f32 vs nalgebra_f32: max_abs={:.3e} max_rel={:.3e}",
             n, simd_abs_f32, simd_rel_f32

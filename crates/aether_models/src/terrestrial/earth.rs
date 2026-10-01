@@ -1,6 +1,5 @@
 use super::atmospheres::ussa;
 use super::wgs84;
-use core::{default::Default, result::Result};
 use crate::{
     attitude::{DirectionCosineMatrix, Euler},
     coordinate::Cartesian,
@@ -8,6 +7,7 @@ use crate::{
     real::Real,
     reference_frame::{ICRF, ITRF},
 };
+use core::{default::Default, result::Result};
 
 #[derive(Clone, Debug)]
 pub struct Earth {
@@ -66,8 +66,10 @@ impl Earth {
         position_from_center: Cartesian<f64, ITRF<f64>>,
         mass: f64,
     ) -> Cartesian<f64, ITRF<f64>> {
-        let centrifugal_force =
-            -(self.rotational_velocity.cross(&(self.rotational_velocity.cross(&position_from_center))) * mass);
+        let centrifugal_force = -(self
+            .rotational_velocity
+            .cross(&(self.rotational_velocity.cross(&position_from_center)))
+            * mass);
         return centrifugal_force;
     }
 

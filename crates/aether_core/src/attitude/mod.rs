@@ -12,11 +12,11 @@ pub use rotation::Rotation;
 pub mod tests;
 
 pub mod attitude {
-    use crate::reference_frame::ReferenceFrame;
-    use crate::real::Real;
     use super::dcm::DirectionCosineMatrix;
     use super::euler::Euler;
     use super::quaternion::Quaternion;
+    use crate::real::Real;
+    use crate::reference_frame::ReferenceFrame;
     pub enum Rotation<T, From: ReferenceFrame, To: ReferenceFrame>
     where
         T: Real,

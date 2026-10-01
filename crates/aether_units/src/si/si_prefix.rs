@@ -1,33 +1,32 @@
 // ----------------- SI prefixes & prefixed units -----------------
-use aether_core::real::Real;
 use crate::si::si_base::*;
+use aether_core::real::Real;
 
 // SI prefix factors as f32
 pub const YOCTO: f32 = 1.0e-24_f32;
 pub const ZEPTO: f32 = 1.0e-21_f32;
-pub const ATTO:  f32 = 1.0e-18_f32;
+pub const ATTO: f32 = 1.0e-18_f32;
 pub const FEMTO: f32 = 1.0e-15_f32;
-pub const PICO:  f32 = 1.0e-12_f32;
-pub const NANO:  f32 = 1.0e-9_f32;
+pub const PICO: f32 = 1.0e-12_f32;
+pub const NANO: f32 = 1.0e-9_f32;
 pub const MICRO: f32 = 1.0e-6_f32;
 pub const MILLI: f32 = 1.0e-3_f32;
 pub const CENTI: f32 = 1.0e-2_f32;
-pub const DECI:  f32 = 1.0e-1_f32;
-pub const DECA:  f32 = 1.0e1_f32;
+pub const DECI: f32 = 1.0e-1_f32;
+pub const DECA: f32 = 1.0e1_f32;
 pub const HECTO: f32 = 1.0e2_f32;
-pub const KILO:  f32 = 1.0e3_f32;
-pub const MEGA:  f32 = 1.0e6_f32;
-pub const GIGA:  f32 = 1.0e9_f32;
-pub const TERA:  f32 = 1.0e12_f32;
-pub const PETA:  f32 = 1.0e15_f32;
-pub const EXA:   f32 = 1.0e18_f32;
+pub const KILO: f32 = 1.0e3_f32;
+pub const MEGA: f32 = 1.0e6_f32;
+pub const GIGA: f32 = 1.0e9_f32;
+pub const TERA: f32 = 1.0e12_f32;
+pub const PETA: f32 = 1.0e15_f32;
+pub const EXA: f32 = 1.0e18_f32;
 pub const ZETTA: f32 = 1.0e21_f32;
 pub const YOTTA: f32 = 1.0e24_f32;
 
 macro_rules! si_prefixed_unit {
     ($PrefixUnit:ident, $BaseUnit:ident, $factor:expr,
-     $to_prefixed:ident, $to_base:ident) =>
-    {
+     $to_prefixed:ident, $to_base:ident) => {
         #[derive(Copy, Clone, Debug, PartialEq, Eq)]
         pub enum $PrefixUnit {}
 

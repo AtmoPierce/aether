@@ -15,15 +15,15 @@ pub const SELENOCENTRIC_GRAVITATIONAL_CONSTANT: f64 = 4.902_800_118e12; // [m^3/
 pub const MOON_MEAN_RADIUS: f64 = 1_737_400.0; // [m]
 pub const MOON_SIDEREAL_ROTATION_PERIOD_DAYS: f64 = 27.321_661; // [day]
 pub const MOON_SIDEREAL_ROTATION_RATE_RAD_S: f64 =
-	core::f64::consts::TAU / (MOON_SIDEREAL_ROTATION_PERIOD_DAYS * 86_400.0); // [rad/s]
-pub const MOON_MASS: f64 =
-	SELENOCENTRIC_GRAVITATIONAL_CONSTANT / crate::terrestrial::iers::constants::gravitational_constant; // [kg]
+    core::f64::consts::TAU / (MOON_SIDEREAL_ROTATION_PERIOD_DAYS * 86_400.0); // [rad/s]
+pub const MOON_MASS: f64 = SELENOCENTRIC_GRAVITATIONAL_CONSTANT
+    / crate::terrestrial::iers::constants::gravitational_constant; // [kg]
 
 // Mean lunar orbit around Earth (long-term averaged values, not osculating elements)
 pub const MOON_SEMIMAJOR_AXIS_M: f64 = 384_400_000.0; // [m]
 pub const MOON_ORBIT_ECCENTRICITY: f64 = 0.0549; // [-]
 pub const MOON_ORBIT_INCLINATION_DEG: f64 = 5.145; // [deg] to ecliptic
 pub const MOON_ORBIT_INCLINATION_RAD: f64 =
-	MOON_ORBIT_INCLINATION_DEG * core::f64::consts::PI / 180.0; // [rad]
+    MOON_ORBIT_INCLINATION_DEG * core::f64::consts::PI / 180.0; // [rad]
 pub const MOON_SIDEREAL_ORBIT_PERIOD_DAYS: f64 = 27.321_661; // [day]
 pub const MOON_SIDEREAL_ORBIT_PERIOD_S: f64 = MOON_SIDEREAL_ORBIT_PERIOD_DAYS * 86_400.0; // [s]

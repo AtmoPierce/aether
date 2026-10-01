@@ -1,6 +1,5 @@
 use std::{
-    env,
-    fs,
+    env, fs,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
@@ -40,7 +39,7 @@ fn usno_gnc_catalog() {
     );
 }
 
-fn world_magnetic_model(){
+fn world_magnetic_model() {
     let zip_path = Path::new("catalog/wmm_coefficients.zip");
     let extracted_dir = Path::new("catalog/wmm");
 
@@ -61,7 +60,8 @@ fn generate_embedded_wmm() {
         return;
     }
 
-    let source_path = find_wmm_source_file().expect("unable to locate a WMM coefficient file to embed");
+    let source_path =
+        find_wmm_source_file().expect("unable to locate a WMM coefficient file to embed");
     println!("cargo:rerun-if-changed={}", source_path.display());
 
     let contents = fs::read_to_string(&source_path)
@@ -74,7 +74,11 @@ fn generate_embedded_wmm() {
     }
     fs::write(&output_path, generated)
         .unwrap_or_else(|error| panic!("failed to write {}: {error}", output_path.display()));
-    println!("cargo:warning=Generated {} from {}", output_path.display(), source_path.display());
+    println!(
+        "cargo:warning=Generated {} from {}",
+        output_path.display(),
+        source_path.display()
+    );
 }
 
 fn find_wmm_source_file() -> Option<PathBuf> {
@@ -94,7 +98,11 @@ fn render_wmm_include(contents: &str, source_path: &Path) -> String {
         .next()
         .unwrap_or_else(|| panic!("{} is missing the WMM header", source_path.display()));
     let header_tokens: Vec<_> = header_line.split_whitespace().collect();
-    assert!(header_tokens.len() >= 3, "invalid WMM header in {}", source_path.display());
+    assert!(
+        header_tokens.len() >= 3,
+        "invalid WMM header in {}",
+        source_path.display()
+    );
 
     let epoch = header_tokens[0]
         .parse::<f64>()
@@ -120,26 +128,55 @@ fn render_wmm_include(contents: &str, source_path: &Path) -> String {
             continue;
         }
 
-        let degree = tokens[0]
-            .parse::<usize>()
-            .unwrap_or_else(|error| panic!("invalid degree on line {} in {}: {error}", line_number + 1, source_path.display()));
-        let order = tokens[1]
-            .parse::<usize>()
-            .unwrap_or_else(|error| panic!("invalid order on line {} in {}: {error}", line_number + 1, source_path.display()));
-        assert!(order <= degree, "invalid n/m pair on line {} in {}", line_number + 1, source_path.display());
+        let degree = tokens[0].parse::<usize>().unwrap_or_else(|error| {
+            panic!(
+                "invalid degree on line {} in {}: {error}",
+                line_number + 1,
+                source_path.display()
+            )
+        });
+        let order = tokens[1].parse::<usize>().unwrap_or_else(|error| {
+            panic!(
+                "invalid order on line {} in {}: {error}",
+                line_number + 1,
+                source_path.display()
+            )
+        });
+        assert!(
+            order <= degree,
+            "invalid n/m pair on line {} in {}",
+            line_number + 1,
+            source_path.display()
+        );
 
-        let g_nm = tokens[2]
-            .parse::<f64>()
-            .unwrap_or_else(|error| panic!("invalid g_nm on line {} in {}: {error}", line_number + 1, source_path.display()));
-        let h_nm = tokens[3]
-            .parse::<f64>()
-            .unwrap_or_else(|error| panic!("invalid h_nm on line {} in {}: {error}", line_number + 1, source_path.display()));
-        let g_dot_nm = tokens[4]
-            .parse::<f64>()
-            .unwrap_or_else(|error| panic!("invalid g_dot_nm on line {} in {}: {error}", line_number + 1, source_path.display()));
-        let h_dot_nm = tokens[5]
-            .parse::<f64>()
-            .unwrap_or_else(|error| panic!("invalid h_dot_nm on line {} in {}: {error}", line_number + 1, source_path.display()));
+        let g_nm = tokens[2].parse::<f64>().unwrap_or_else(|error| {
+            panic!(
+                "invalid g_nm on line {} in {}: {error}",
+                line_number + 1,
+                source_path.display()
+            )
+        });
+        let h_nm = tokens[3].parse::<f64>().unwrap_or_else(|error| {
+            panic!(
+                "invalid h_nm on line {} in {}: {error}",
+                line_number + 1,
+                source_path.display()
+            )
+        });
+        let g_dot_nm = tokens[4].parse::<f64>().unwrap_or_else(|error| {
+            panic!(
+                "invalid g_dot_nm on line {} in {}: {error}",
+                line_number + 1,
+                source_path.display()
+            )
+        });
+        let h_dot_nm = tokens[5].parse::<f64>().unwrap_or_else(|error| {
+            panic!(
+                "invalid h_dot_nm on line {} in {}: {error}",
+                line_number + 1,
+                source_path.display()
+            )
+        });
 
         let index = triangular_index(degree, order);
         g[index] = g_nm;
@@ -150,8 +187,18 @@ fn render_wmm_include(contents: &str, source_path: &Path) -> String {
         records.push((degree, order, g_nm, h_nm, g_dot_nm, h_dot_nm));
     }
 
-    assert_eq!(max_degree, WMM_MAX_DEGREE, "unexpected WMM max degree in {}", source_path.display());
-    assert_eq!(records.len(), WMM_RECORD_COUNT, "unexpected WMM record count in {}", source_path.display());
+    assert_eq!(
+        max_degree,
+        WMM_MAX_DEGREE,
+        "unexpected WMM max degree in {}",
+        source_path.display()
+    );
+    assert_eq!(
+        records.len(),
+        WMM_RECORD_COUNT,
+        "unexpected WMM record count in {}",
+        source_path.display()
+    );
 
     let mut output = String::new();
     output.push_str("pub const GENERATED_WMM_HEADER: WmmHeader = WmmHeader {\n");
@@ -195,7 +242,12 @@ fn extract_zip_if_needed<P: AsRef<Path>, Q: AsRef<Path>>(archive_path: P, output
     let archive_path = archive_path.as_ref();
     let output_dir = output_dir.as_ref();
 
-    if output_dir.exists() && output_dir.read_dir().map(|mut entries| entries.next().is_some()).unwrap_or(false) {
+    if output_dir.exists()
+        && output_dir
+            .read_dir()
+            .map(|mut entries| entries.next().is_some())
+            .unwrap_or(false)
+    {
         return;
     }
 
@@ -208,7 +260,12 @@ fn extract_zip_if_needed<P: AsRef<Path>, Q: AsRef<Path>>(archive_path: P, output
     );
 
     let status = Command::new("unzip")
-        .args(["-o", archive_path.to_str().unwrap(), "-d", output_dir.to_str().unwrap()])
+        .args([
+            "-o",
+            archive_path.to_str().unwrap(),
+            "-d",
+            output_dir.to_str().unwrap(),
+        ])
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .status()
@@ -218,7 +275,10 @@ fn extract_zip_if_needed<P: AsRef<Path>, Q: AsRef<Path>>(archive_path: P, output
         panic!("Extraction failed for: {}", archive_path.display());
     }
 
-    println!("cargo:warning=Finished extracting: {}", archive_path.display());
+    println!(
+        "cargo:warning=Finished extracting: {}",
+        archive_path.display()
+    );
 }
 
 fn download_if_missing<P: AsRef<Path>>(local_path: P, url: &str) {

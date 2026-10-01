@@ -2,8 +2,8 @@ use crate::attitude::DirectionCosineMatrix;
 use crate::coordinate::Cartesian;
 use crate::math::Matrix;
 use crate::matrix;
-use crate::reference_frame::{Body, ICRF, ITRF, NED};
 use crate::real::Real;
+use crate::reference_frame::{Body, ICRF, ITRF, NED};
 
 pub fn angular_rate_dcm<T: Real>(roll: T, pitch: T, yaw: T) -> Matrix<T, 3, 3> {
     let rotation_matrix = matrix![
@@ -43,7 +43,10 @@ pub fn aeroballistic_wind_to_body<T: Real>(
     return t_ab;
 }
 
-pub fn flight_path_to_geographic<T: Real>(heading_angle: T, flight_path_angle: T) -> Matrix<T, 3, 3> {
+pub fn flight_path_to_geographic<T: Real>(
+    heading_angle: T,
+    flight_path_angle: T,
+) -> Matrix<T, 3, 3> {
     let rotation_matrix = matrix![
         flight_path_angle.cos()*heading_angle.cos(),    flight_path_angle.cos()*heading_angle.sin(),    -flight_path_angle.sin();
         -heading_angle.sin(),                           heading_angle.cos(),                            T::ZERO;

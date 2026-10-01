@@ -1,6 +1,6 @@
 use crate::coordinate::Cartesian;
-use crate::reference_frame::{Body, ICRF};
 use crate::real::Real;
+use crate::reference_frame::{Body, ICRF};
 pub struct QuestObservation<T: Real, Body, ICRF> {
     pub body: Cartesian<T, Body>,
     pub inertial: Cartesian<T, ICRF>,

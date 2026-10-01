@@ -1,19 +1,17 @@
-use crate::utils::{ToDegrees, ToRadians};
-use crate::math::Matrix;
-use crate::real::Real;
 use super::algorithms::VectorAlgorithms;
-#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
-use super::arch::x86::vector_simd;
-#[cfg(all(feature = "simd", target_arch = "aarch64"))]
-use super::arch::arm::neon as arm_neon;
 #[cfg(all(feature = "simd", target_arch = "arm"))]
 use super::arch::arm::m33_dsp;
+#[cfg(all(feature = "simd", target_arch = "aarch64"))]
+use super::arch::arm::neon as arm_neon;
+#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
+use super::arch::x86::vector_simd;
+use crate::math::Matrix;
+use crate::real::Real;
+use crate::utils::{ToDegrees, ToRadians};
 
 use core::array::IntoIter as ArrayIntoIter;
 use core::iter::FromIterator;
-use core::ops::{
-    Add, AddAssign, Div, Mul, Neg, Sub, SubAssign, Index, IndexMut
-};
+use core::ops::{Add, AddAssign, Div, Index, IndexMut, Mul, Neg, Sub, SubAssign};
 use core::slice::{Iter, IterMut};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -347,7 +345,8 @@ impl Vector<f64, 4> {
             let kernel = KERNEL.get_or_init(|| {
                 #[cfg(feature = "fma")]
                 {
-                    if std::is_x86_feature_detected!("avx") && std::is_x86_feature_detected!("fma") {
+                    if std::is_x86_feature_detected!("avx") && std::is_x86_feature_detected!("fma")
+                    {
                         return Self::dot4_avx_fma_kernel;
                     }
                 }
@@ -401,7 +400,11 @@ impl Vector<f64, 4> {
         unsafe { vector_simd::dot4_avx_f64(a, b) }
     }
 
-    #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64"), feature = "fma"))]
+    #[cfg(all(
+        feature = "simd",
+        any(target_arch = "x86", target_arch = "x86_64"),
+        feature = "fma"
+    ))]
     #[inline(always)]
     fn dot4_avx_fma_kernel(a: &Vector<f64, 4>, b: &Vector<f64, 4>) -> f64 {
         unsafe { vector_simd::dot4_avx_fma_f64(a, b) }
@@ -433,7 +436,8 @@ impl Vector<f32, 4> {
             let kernel = KERNEL.get_or_init(|| {
                 #[cfg(feature = "fma")]
                 {
-                    if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse") {
+                    if std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("sse")
+                    {
                         return Self::dot4_sse_fma_kernel;
                     }
                 }
@@ -487,7 +491,11 @@ impl Vector<f32, 4> {
         unsafe { vector_simd::dot4_sse_f32(a, b) }
     }
 
-    #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64"), feature = "fma"))]
+    #[cfg(all(
+        feature = "simd",
+        any(target_arch = "x86", target_arch = "x86_64"),
+        feature = "fma"
+    ))]
     #[inline(always)]
     fn dot4_sse_fma_kernel(a: &Vector<f32, 4>, b: &Vector<f32, 4>) -> f32 {
         unsafe { vector_simd::dot4_sse_fma_f32(a, b) }
@@ -504,11 +512,7 @@ where
         let [a1, a2, a3] = self.data;
         let [b1, b2, b3] = rhs.data;
         Self {
-            data: [
-                a2 * b3 - a3 * b2,
-                a3 * b1 - a1 * b3,
-                a1 * b2 - a2 * b1,
-            ],
+            data: [a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1],
         }
     }
 }
@@ -563,7 +567,9 @@ impl<T: Copy, const N: usize> Vector<T, N> {
 
     #[inline]
     pub fn col(self) -> Matrix<T, N, 1> {
-        Matrix { data: self.data.map(|x| [x]) }
+        Matrix {
+            data: self.data.map(|x| [x]),
+        }
     }
 }
 
@@ -676,7 +682,7 @@ use core::{fmt, marker::PhantomData};
 #[cfg(feature = "serde")]
 use serde::{
     de::{self, SeqAccess, Visitor},
-    ser::{SerializeSeq,SerializeTuple},
+    ser::{SerializeSeq, SerializeTuple},
     Deserialize, Deserializer, Serialize, Serializer,
 };
 

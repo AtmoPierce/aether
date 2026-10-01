@@ -69,12 +69,15 @@ mod tests {
 
     #[test]
     fn polynomial_returns_exact_knot_value() {
-        let interp = PolynomialInterpolator::new(Vector::new([0.0, 2.0]), Vector::new([1.0, 5.0])).unwrap();
+        let interp =
+            PolynomialInterpolator::new(Vector::new([0.0, 2.0]), Vector::new([1.0, 5.0])).unwrap();
         assert_eq!(interp.evaluate(2.0), 5.0);
     }
 
     #[test]
     fn polynomial_rejects_duplicate_x_values() {
-        assert!(PolynomialInterpolator::new(Vector::new([0.0, 0.0]), Vector::new([1.0, 2.0])).is_err());
+        assert!(
+            PolynomialInterpolator::new(Vector::new([0.0, 0.0]), Vector::new([1.0, 2.0])).is_err()
+        );
     }
 }

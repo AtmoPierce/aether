@@ -1,5 +1,5 @@
-use crate::real::Real;
 use crate::math::{Matrix, Vector};
+use crate::real::Real;
 
 #[derive(Debug, Clone, Copy)]
 pub struct CholLower<T: Real + Copy, const N: usize> {
@@ -17,7 +17,9 @@ impl<T: Real + Copy, const N: usize> Matrix<T, N, N> {
                     s = s - l[(i, k)] * l[(j, k)];
                 }
                 if i == j {
-                    if s <= T::ZERO { return None; }
+                    if s <= T::ZERO {
+                        return None;
+                    }
                     l[(i, j)] = s.sqrt();
                 } else {
                     l[(i, j)] = s / l[(j, j)];

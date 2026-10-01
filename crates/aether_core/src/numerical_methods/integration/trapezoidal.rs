@@ -1,9 +1,9 @@
-use crate::coordinate::Cartesian;
 use crate::attitude::Euler;
+use crate::coordinate::Cartesian;
 use crate::math::Vector;
-use core::marker::PhantomData;
 use crate::real::Real;
 use crate::reference_frame::ReferenceFrame;
+use core::marker::PhantomData;
 pub trait TrapezoidalIntegrate {
     type Scalar;
 

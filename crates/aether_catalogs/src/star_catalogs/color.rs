@@ -83,10 +83,6 @@ pub mod gaia_color {
             (avg + (c[2] - avg) * sat).clamp(0.0, 1.0),
         ];
 
-        if linear_out {
-            srgb_to_linear(c)
-        } else {
-            c
-        }
+        if linear_out { srgb_to_linear(c) } else { c }
     }
 }

@@ -61,9 +61,7 @@ impl<T: Real, const M: usize, const N: usize> MatrixAlgorithms<T, M, N> for Matr
 
     #[inline(always)]
     fn mul_vector_unrolled(&self, rhs: &Vector<T, N>) -> Vector<T, M> {
-        let mut result = Vector {
-            data: [T::ZERO; M],
-        };
+        let mut result = Vector { data: [T::ZERO; M] };
 
         for i in 0..M {
             let row = &self.data[i];
