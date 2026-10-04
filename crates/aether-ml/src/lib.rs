@@ -4,3 +4,4 @@ pub mod regression;
 pub use regression::*;
 pub mod classification;
 pub use classification::*;
+pub mod utilities;
