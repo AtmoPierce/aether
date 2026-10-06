@@ -97,86 +97,49 @@ checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
 name = "aether"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "aether_benchmark",
- "aether_catalogs",
- "aether_core",
- "aether_examples",
- "aether_fft",
- "aether_fluids",
- "aether_graphics",
- "aether_ml",
- "aether_models",
- "aether_opt",
- "aether_rand",
- "aether_shapes",
- "aether_stats",
+ "aether-benchmark",
+ "aether-catalogs",
+ "aether-core",
+ "aether-examples",
+ "aether-fft",
+ "aether-fluids",
+ "aether-graphics",
+ "aether-ml",
+ "aether-models",
+ "aether-opt",
+ "aether-rand",
+ "aether-shapes",
+ "aether-stats",
 ]
 
 [[package]]
 name = "aether-aero"
 version = "0.1.0"
 dependencies = [
- "aether_core",
- "aether_interp",
- "aether_models",
+ "aether-core",
+ "aether-interp",
+ "aether-models",
  "eframe 0.32.3",
  "egui_plot 0.33.0",
  "rayon",
 ]
 
 [[package]]
-name = "aether-gnc"
-version = "0.1.0"
-dependencies = [
- "aether_core",
- "aether_fluids",
- "aether_models",
- "aether_stats",
- "aether_time",
- "heapless",
- "serde",
-]
-
-[[package]]
-name = "aether-pro"
-version = "0.1.0"
-dependencies = [
- "aether-gnc",
- "aether-step",
-]
-
-[[package]]
-name = "aether-step"
-version = "0.1.0"
-dependencies = [
- "aether-aero",
- "aether-gnc",
- "aether_core",
- "aether_interp",
- "aether_shapes",
- "aether_units",
- "earcutr",
- "rayon",
- "serde",
- "toml 0.9.12+spec-1.1.0",
-]
-
-[[package]]
-name = "aether_benchmark"
-version = "0.1.1"
+name = "aether-benchmark"
+version = "0.1.2"
 dependencies = [
  "minstant",
  "once_cell",
 ]
 
 [[package]]
-name = "aether_catalogs"
+name = "aether-catalogs"
 version = "0.1.0"
 dependencies = [
- "aether_core",
- "aether_models",
+ "aether-core",
+ "aether-models",
  "csv",
  "rand 0.9.4",
  "rkyv",
@@ -185,8 +148,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "aether_core"
-version = "0.1.1"
+name = "aether-core"
+version = "0.1.2"
 dependencies = [
  "approx",
  "bincode",
@@ -199,50 +162,67 @@ dependencies = [
 ]
 
 [[package]]
-name = "aether_examples"
-version = "0.1.1"
+name = "aether-examples"
+version = "0.1.2"
 dependencies = [
- "aether_core",
+ "aether-core",
 ]
 
 [[package]]
-name = "aether_fft"
-version = "0.1.1"
+name = "aether-fft"
+version = "0.1.2"
 dependencies = [
- "aether_core",
+ "aether-core",
 ]
 
 [[package]]
-name = "aether_fluids"
-version = "0.1.1"
+name = "aether-fluids"
+version = "0.1.2"
 dependencies = [
- "aether_shapes",
+ "aether-shapes",
 ]
 
 [[package]]
-name = "aether_graphics"
-version = "0.1.1"
+name = "aether-gnc"
+version = "0.1.0"
 dependencies = [
+ "aether-core",
+ "aether-fluids",
+ "aether-models",
+ "aether-stats",
+ "aether-time",
+ "heapless",
+ "serde",
+]
+
+[[package]]
+name = "aether-gpu"
+version = "0.1.0"
+
+[[package]]
+name = "aether-graphics"
+version = "0.1.2"
+dependencies = [
+ "aether-core",
  "aether-pro",
- "aether_core",
  "bincode",
  "serde",
  "stl_io",
 ]
 
 [[package]]
-name = "aether_interp"
-version = "0.1.1"
+name = "aether-interp"
+version = "0.1.2"
 dependencies = [
- "aether_core",
+ "aether-core",
 ]
 
 [[package]]
-name = "aether_ml"
-version = "0.1.1"
+name = "aether-ml"
+version = "0.1.2"
 dependencies = [
- "aether_core",
- "aether_opt",
+ "aether-core",
+ "aether-opt",
  "csv",
  "minstant",
  "once_cell",
@@ -250,80 +230,104 @@ dependencies = [
 ]
 
 [[package]]
-name = "aether_models"
-version = "0.1.1"
+name = "aether-models"
+version = "0.1.2"
 dependencies = [
- "aether_core",
+ "aether-core",
 ]
 
 [[package]]
-name = "aether_nist"
-version = "0.1.1"
+name = "aether-nist"
+version = "0.1.2"
 dependencies = [
- "aether_units",
+ "aether-units",
 ]
 
 [[package]]
-name = "aether_opt"
-version = "0.1.1"
+name = "aether-opt"
+version = "0.1.2"
 dependencies = [
- "aether_core",
- "aether_rand",
+ "aether-core",
+ "aether-rand",
 ]
 
 [[package]]
-name = "aether_rand"
-version = "0.1.1"
+name = "aether-pro"
+version = "0.1.0"
 dependencies = [
- "aether_core",
+ "aether-gnc",
+ "aether-step",
 ]
 
 [[package]]
-name = "aether_shapes"
-version = "0.1.1"
+name = "aether-rand"
+version = "0.1.2"
 dependencies = [
- "aether_core",
+ "aether-core",
 ]
 
 [[package]]
-name = "aether_stats"
-version = "0.1.1"
+name = "aether-shapes"
+version = "0.1.2"
 dependencies = [
- "aether_core",
- "aether_fft",
- "aether_opt",
- "aether_rand",
- "aether_viz",
+ "aether-core",
 ]
 
 [[package]]
-name = "aether_test"
+name = "aether-stats"
+version = "0.1.2"
+dependencies = [
+ "aether-core",
+ "aether-fft",
+ "aether-opt",
+ "aether-rand",
+ "aether-viz",
+]
+
+[[package]]
+name = "aether-step"
+version = "0.1.0"
+dependencies = [
+ "aether-aero",
+ "aether-core",
+ "aether-gnc",
+ "aether-interp",
+ "aether-shapes",
+ "aether-units",
+ "earcutr",
+ "rayon",
+ "serde",
+ "toml 0.9.12+spec-1.1.0",
+]
+
+[[package]]
+name = "aether-test"
 version = "0.1.1"
 dependencies = [
- "aether_core",
- "aether_viz",
+ "aether-core",
+ "aether-viz",
  "approx",
  "bincode",
  "thiserror 2.0.18",
 ]
 
 [[package]]
-name = "aether_time"
+name = "aether-time"
 version = "0.1.0"
 
 [[package]]
-name = "aether_units"
-version = "0.1.1"
+name = "aether-units"
+version = "0.1.2"
 dependencies = [
- "aether_core",
+ "aether-core",
 ]
 
 [[package]]
-name = "aether_viz"
-version = "0.1.1"
+name = "aether-viz"
+version = "0.1.2"
 dependencies = [
- "aether_core",
- "aether_ml",
+ "aether-core",
+ "aether-ml",
  "csv",
  "eframe 0.28.1",
  "egui_plot 0.28.1",
@@ -1020,19 +1024,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ced0551234e87afee12411d535648dd89d2e7f34c78b753395567aff3d447ff"
 dependencies = [
  "libc",
-]
-
-[[package]]
-name = "chrono"
-version = "0.4.44"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c673075a2e0e5f4a1dde27ce9dee1ea4558c7ffe648f576438a20ca1d2acc4b0"
-dependencies = [
- "iana-time-zone",
- "js-sys",
- "num-traits",
- "wasm-bindgen",
- "windows-link",
 ]
 
 [[package]]
@@ -1956,7 +1947,7 @@ dependencies = [
 name = "fpx-core"
 version = "0.1.0"
 dependencies = [
- "aether_viz",
+ "aether-viz",
  "fpx-bench",
  "libm",
  "serde",
@@ -2095,16 +2086,6 @@ dependencies = [
  "r-efi 6.0.0",
  "wasip2",
  "wasip3",
-]
-
-[[package]]
-name = "gif"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80792593675e051cf94a4b111980da2ba60d4a83e43e0048c5693baab3977045"
-dependencies = [
- "color_quant",
- "weezl",
 ]
 
 [[package]]
@@ -2429,30 +2410,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc627f471c528ff0c4a49e1d5e60450c8f6461dd6d10ba9dcd3a61d3dff7728d"
 dependencies = [
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "iana-time-zone"
-version = "0.1.65"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e31bc9ad994ba00e440a8aa5c9ef0ec67d5cb5e5cb0cc7f8b744a35b389cc470"
-dependencies = [
- "android_system_properties",
- "core-foundation-sys",
- "iana-time-zone-haiku",
- "js-sys",
- "log",
- "wasm-bindgen",
- "windows-core 0.62.2",
-]
-
-[[package]]
-name = "iana-time-zone-haiku"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f31827a206f56af32e590ba56d5d2d085f558508192593743f16b2306495269f"
-dependencies = [
- "cc",
 ]
 
 [[package]]
@@ -3625,9 +3582,7 @@ version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5aeb6f403d7a4911efb1e33402027fc44f29b5bf6def3effcc22d7bb75f2b747"
 dependencies = [
- "chrono",
  "font-kit",
- "image 0.24.9",
  "lazy_static",
  "num-traits",
  "pathfinder_geometry",
@@ -3651,7 +3606,6 @@ version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72ce181e3f6bf82d6c1dc569103ca7b1bd964c60ba03d7e6cdfbb3e3eb7f7405"
 dependencies = [
- "gif",
  "image 0.24.9",
  "plotters-backend",
 ]
@@ -5495,8 +5449,8 @@ version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e686886bc078bc1b0b600cac0147aadb815089b6e4da64016cbd754b6342700f"
 dependencies = [
- "windows-implement 0.48.0",
- "windows-interface 0.48.0",
+ "windows-implement",
+ "windows-interface",
  "windows-targets 0.48.5",
 ]
 
@@ -5506,7 +5460,7 @@ version = "0.52.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e48a53791691ab099e5e2ad123536d0fff50652600abaf43bbf952894110d0be"
 dependencies = [
- "windows-core 0.52.0",
+ "windows-core",
  "windows-targets 0.52.6",
 ]
 
@@ -5517,19 +5471,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33ab640c8d7e35bf8ba19b884ba838ceb4fba93a4e8c65a9059d08afcfc683d9"
 dependencies = [
  "windows-targets 0.52.6",
-]
-
-[[package]]
-name = "windows-core"
-version = "0.62.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8e83a14d34d0623b51dce9581199302a221863196a1dde71a7663a4c2be9deb"
-dependencies = [
- "windows-implement 0.60.2",
- "windows-interface 0.59.3",
- "windows-link",
- "windows-result",
- "windows-strings",
 ]
 
 [[package]]
@@ -5544,17 +5485,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "windows-implement"
-version = "0.60.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "053e2e040ab57b9dc951b72c264860db7eb3b0200ba345b4e4c3b14f67855ddf"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.117",
-]
-
-[[package]]
 name = "windows-interface"
 version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5566,39 +5496,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "windows-interface"
-version = "0.59.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f316c4a2570ba26bbec722032c4099d8c8bc095efccdc15688708623367e358"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.117",
-]
-
-[[package]]
 name = "windows-link"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5"
-
-[[package]]
-name = "windows-result"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7781fa89eaf60850ac3d2da7af8e5242a5ea78d1a11c49bf2910bb5a73853eb5"
-dependencies = [
- "windows-link",
-]
-
-[[package]]
-name = "windows-strings"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7837d08f69c77cf6b07689544538e017c1bfcf57e34b4c0ff58e6c2cd3b37091"
-dependencies = [
- "windows-link",
-]
 
 [[package]]
 name = "windows-sys"

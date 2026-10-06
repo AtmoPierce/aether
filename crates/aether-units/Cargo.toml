@@ -1,12 +1,12 @@
 [package]
-name = "aether_units"
+name = "aether-units"
 edition.workspace = true
 license-file.workspace = true
 rust-version.workspace = true
 version.workspace = true
 
 [dependencies]
-aether_core = {path="../aether_core"}
+aether-core = {path="../aether-core"}
 
 [lints]
 workspace = true

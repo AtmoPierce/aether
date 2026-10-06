@@ -33,19 +33,19 @@ This workspace collects the following crates:
 | Crate | Description |
 |-------|--------------|
 | **aether** | Umbrella crate aggregating core modules for convenience. |
-| **aether_core** | Strongly-typed math foundation - matrices, vectors, quaternions, and reference frame abstractions. |
-| **aether_models** | Physical and dynamical models (rigid bodies, atmosphere, gravitation, etc.). |
-| **aether_shapes** | Geometric primitives for collision, inertia, and volumetric modeling. |
-| **aether_fluids** | Fluid dynamics and continuum-mechanics primitives. |
-| **aether_graphics** | Rendering and visualization utilities for simulation and analysis. |
-| **aether_viz** | Unified plotting and visualization crate (based on Plotters), supporting line and point series, multi-series overlays, and optional SVG/bitmap backends. |
-| **aether_opt** | Optimization and control algorithms (gradient descent, Riccati solvers, MPC scaffolding). |
-| **aether_ml** | Lightweight scientific machine learning and regression utilities integrated with Aether math types. |
-| **aether_stats** | Statistical analysis, regression, and signal-processing tools. |
-| **aether_rand** | Deterministic RNGs and sampling utilities for simulations. |
-| **aether_test** | Assertion and validation utilities for verifying matrix/vector operations, with optional plotting for numerical analysis. |
-| **aether_benchmark** | Performance tests and HPC kernels for benchmarking Aether numerics. |
-| **aether_examples** | Demonstrations, tutorials, and validation notebooks showing how to use the Aether ecosystem together. |
+| **aether-core** | Strongly-typed math foundation - matrices, vectors, quaternions, and reference frame abstractions. |
+| **aether-models** | Physical and dynamical models (rigid bodies, atmosphere, gravitation, etc.). |
+| **aether-shapes** | Geometric primitives for collision, inertia, and volumetric modeling. |
+| **aether-fluids** | Fluid dynamics and continuum-mechanics primitives. |
+| **aether-graphics** | Rendering and visualization utilities for simulation and analysis. |
+| **aether-viz** | Unified plotting and visualization crate (based on Plotters), supporting line and point series, multi-series overlays, and optional SVG/bitmap backends. |
+| **aether-opt** | Optimization and control algorithms (gradient descent, Riccati solvers, MPC scaffolding). |
+| **aether-ml** | Lightweight scientific machine learning and regression utilities integrated with Aether math types. |
+| **aether-stats** | Statistical analysis, regression, and signal-processing tools. |
+| **aether-rand** | Deterministic RNGs and sampling utilities for simulations. |
+| **aether-test** | Assertion and validation utilities for verifying matrix/vector operations, with optional plotting for numerical analysis. |
+| **aether-benchmark** | Performance tests and HPC kernels for benchmarking Aether numerics. |
+| **aether-examples** | Demonstrations, tutorials, and validation notebooks showing how to use the Aether ecosystem together. |
 
 
 ---
@@ -79,7 +79,7 @@ cargo build --release
 To include a singular package via git
 ```toml
 [dependencies]
-aether_core = { git = "https://github.com/atmopierce/aether.git", package = "aether_core" }
+aether-core = { git = "https://github.com/atmopierce/aether.git", package = "aether-core" }
 ```
 
 ## Examples
@@ -170,8 +170,8 @@ fn main() {
 
 Notes on Internal Crates
 
-- Crates such as **aether_viz** and **aether_test** are **developer-oriented**, designed to make verification, documentation, and result visualization easier.
-- `aether_viz` can be built with optional features:
+- Crates such as **aether-viz** and **aether-test** are **developer-oriented**, designed to make verification, documentation, and result visualization easier.
+- `aether-viz` can be built with optional features:
   ```toml
   [features]
   svg = ["plotters/svg_backend"]

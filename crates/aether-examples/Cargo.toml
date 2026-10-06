@@ -1,5 +1,5 @@
 [package]
-name = "aether_examples"
+name = "aether-examples"
 edition.workspace = true
 rust-version.workspace = true
 version.workspace = true
@@ -19,4 +19,4 @@ name = "coordinates"
 path = "src/coordinates.rs"
 
 [dependencies]
-aether_core = {path = "../aether_core"}
+aether-core = {path = "../aether-core"}

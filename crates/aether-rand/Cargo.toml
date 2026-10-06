@@ -1,5 +1,5 @@
 [package]
-name = "aether_rand"
+name = "aether-rand"
 edition.workspace = true
 rust-version.workspace = true
 version.workspace = true
@@ -7,11 +7,11 @@ license-file.workspace = true
 
 [features]
 default = ["no_std"]
-std = ["aether_core/std"]
-no_std = ["aether_core/no_std"]
+std = ["aether-core/std"]
+no_std = ["aether-core/no_std"]
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
-aether_core = { path = "../aether_core", default-features = false }
+aether-core = { path = "../aether-core", default-features = false }

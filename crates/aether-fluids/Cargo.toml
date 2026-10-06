@@ -1,5 +1,5 @@
 [package]
-name = "aether_fluids"
+name = "aether-fluids"
 edition.workspace = true
 rust-version.workspace = true
 version.workspace = true
@@ -11,7 +11,7 @@ std = []
 no_std = []
 
 [dependencies]
-aether_shapes = { path = "../aether_shapes" }
+aether-shapes = { path = "../aether-shapes" }
 
 [lints]
 workspace = true

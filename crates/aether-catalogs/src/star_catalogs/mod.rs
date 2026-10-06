@@ -167,7 +167,7 @@ impl GncCatalogReader {
 
         if skipped > 0 {
             eprintln!(
-                "[aether_catalogs] Skipped {} malformed GNC catalog rows",
+                "[aether-catalogs] Skipped {} malformed GNC catalog rows",
                 skipped
             );
         }

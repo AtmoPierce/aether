@@ -1,5 +1,5 @@
 [package]
-name = "aether_benchmark"
+name = "aether-benchmark"
 edition.workspace = true
 version.workspace = true
 license-file.workspace = true

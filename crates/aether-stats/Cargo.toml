@@ -1,5 +1,5 @@
 [package]
-name = "aether_stats"
+name = "aether-stats"
 edition.workspace = true
 rust-version.workspace = true
 version.workspace = true
@@ -7,17 +7,17 @@ license-file.workspace = true
 
 [features]
 default = ["no_std"]
-std = ["dep:aether_opt"]
+std = ["dep:aether-opt"]
 no_std = []
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
-aether_core = {path = "../aether_core"}
-aether_rand = {path = "../aether_rand"}
-aether_opt =  {path = "../aether_opt", optional = true}
+aether-core = {path = "../aether-core"}
+aether-rand = {path = "../aether-rand"}
+aether-opt =  {path = "../aether-opt", optional = true}
 
 [dev-dependencies]
-aether_fft = { path = "../aether_fft", features = ["std"] }
-aether_viz = { path = "../aether_viz" }
+aether-fft = { path = "../aether-fft", features = ["std"] }
+aether-viz = { path = "../aether-viz" }

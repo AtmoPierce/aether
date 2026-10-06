@@ -1,5 +1,5 @@
 [package]
-name = "aether_test"
+name = "aether-test"
 version = "0.1.1"
 edition = "2021"
 description = "Testing utilities and plotting tools for the Aether math and simulation ecosystem."
@@ -11,13 +11,13 @@ categories = ["science", "mathematics", "development-tools::testing"]
 keywords = ["aether", "matrix", "vector", "test", "plot"]
 
 [features]
-plots = ["dep:aether_viz", "aether_viz/svg"]     # or "aether_viz/bitmap"
+plots = ["dep:aether-viz", "aether-viz/svg"]     # or "aether-viz/bitmap"
 bincode = ["dep:bincode"]
 
 [dependencies]
-# aether_core = { path = "../aether_core", version = "0.1.1" }
-aether_core = { path = "../aether_core", features = ["bincode"]}
-aether_viz = { path = "../aether_viz", optional = true, default-features = false }
+# aether-core = { path = "../aether-core", version = "0.1.1" }
+aether-core = { path = "../aether-core", features = ["bincode"]}
+aether-viz = { path = "../aether-viz", optional = true, default-features = false }
 bincode = { workspace = true, optional=true }
 thiserror = "*"
 

@@ -99,13 +99,13 @@ If you want a globe or map-style visualization, a simple workflow is:
 
 ### Generate the CSV
 
-An example generator is available at [crates/aether_catalogs/examples/wmm_grid_csv.rs](crates/aether_catalogs/examples/wmm_grid_csv.rs).
+An example generator is available at [crates/aether-catalogs/examples/wmm_grid_csv.rs](crates/aether-catalogs/examples/wmm_grid_csv.rs).
 
 Example:
 
 ```bash
-cargo run -p aether_catalogs --example wmm_grid_csv --features "std world-magnetic-model" -- \
-  crates/aether_catalogs/docs/wmm/output/wmm_450km.csv 2025.0 450.0 5.0 5.0 89.0
+cargo run -p aether-catalogs --example wmm_grid_csv --features "std world-magnetic-model" -- \
+  crates/aether-catalogs/docs/wmm/output/wmm_450km.csv 2025.0 450.0 5.0 5.0 89.0
 ```
 
 Positional arguments:
@@ -128,14 +128,14 @@ The generated CSV includes:
 
 ### Plot the CSV in Python
 
-A plotting script is available at [crates/aether_catalogs/docs/wmm/plot_wmm_csv.py](crates/aether_catalogs/docs/wmm/plot_wmm_csv.py).
+A plotting script is available at [crates/aether-catalogs/docs/wmm/plot_wmm_csv.py](crates/aether-catalogs/docs/wmm/plot_wmm_csv.py).
 
 Example:
 
 ```bash
-/usr/bin/python3 crates/aether_catalogs/docs/wmm/plot_wmm_csv.py \
-  crates/aether_catalogs/docs/wmm/output/wmm_450km.csv \
-  --output crates/aether_catalogs/docs/wmm/output/wmm_450km_3d.png \
+/usr/bin/python3 crates/aether-catalogs/docs/wmm/plot_wmm_csv.py \
+  crates/aether-catalogs/docs/wmm/output/wmm_450km.csv \
+  --output crates/aether-catalogs/docs/wmm/output/wmm_450km_3d.png \
   --view 3d \
   --field f_nt \
   --quiver-step 4 \
@@ -169,13 +169,13 @@ The plotting script expects:
 ## Analyzing Maximum Magnetic-North Delta
 
 If you want to quantify how quickly magnetic north changes over adjacent latitude/longitude cells,
-use [crates/aether_catalogs/docs/wmm/analyze_declination_delta.py](crates/aether_catalogs/docs/wmm/analyze_declination_delta.py).
+use [crates/aether-catalogs/docs/wmm/analyze_declination_delta.py](crates/aether-catalogs/docs/wmm/analyze_declination_delta.py).
 
 Example:
 
 ```bash
-./.venv/bin/python crates/aether_catalogs/docs/wmm/analyze_declination_delta.py \
-  crates/aether_catalogs/docs/wmm/output/wmm_450km.csv
+./.venv/bin/python crates/aether-catalogs/docs/wmm/analyze_declination_delta.py \
+  crates/aether-catalogs/docs/wmm/output/wmm_450km.csv
 ```
 
 This reports the maximum adjacent change in `declination_deg` for:
@@ -190,16 +190,16 @@ poorly conditioned near magnetic poles where the horizontal field approaches zer
 Example with custom thresholds:
 
 ```bash
-./.venv/bin/python crates/aether_catalogs/docs/wmm/analyze_declination_delta.py \
-  crates/aether_catalogs/docs/wmm/output/wmm_450km.csv \
+./.venv/bin/python crates/aether-catalogs/docs/wmm/analyze_declination_delta.py \
+  crates/aether-catalogs/docs/wmm/output/wmm_450km.csv \
   --h-min 0 1000 5000 10000
 ```
 
 To also save a 2D heatmap of adjacent declination deltas:
 
 ```bash
-./.venv/bin/python crates/aether_catalogs/docs/wmm/analyze_declination_delta.py \
-  crates/aether_catalogs/docs/wmm/output/wmm_450km.csv \
+./.venv/bin/python crates/aether-catalogs/docs/wmm/analyze_declination_delta.py \
+  crates/aether-catalogs/docs/wmm/output/wmm_450km.csv \
   --plot \
   --plot-h-min 10000
 ```

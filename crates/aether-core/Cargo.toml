@@ -1,5 +1,5 @@
 [package]
-name = "aether_core"
+name = "aether-core"
 edition.workspace = true
 rust-version.workspace = true
 version.workspace = true
@@ -23,7 +23,7 @@ fma = []
 crate-type=["rlib"]
 
 [[bin]]
-name = "aether_core"
+name = "aether-core"
 path = "src/main.rs"
 required-features = ["std"]
 

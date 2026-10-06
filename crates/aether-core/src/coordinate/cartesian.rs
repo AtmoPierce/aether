@@ -5,7 +5,7 @@ use crate::math::{Matrix, Vector};
 use crate::reference_frame::ReferenceFrame;
 
 use crate::real::Real;
-use core::marker::PhantomData; // Reference frame tracking.
+use core::marker::PhantomData;
 use core::slice::{Iter, IterMut};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]

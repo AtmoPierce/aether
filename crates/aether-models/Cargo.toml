@@ -1,5 +1,5 @@
 [package]
-name = "aether_models"
+name = "aether-models"
 edition.workspace = true
 rust-version.workspace = true
 version.workspace = true
@@ -14,4 +14,4 @@ no_std = []
 crate-type = ["rlib"]
 
 [dependencies]
-aether_core = { path = "../aether_core" }
+aether-core = { path = "../aether-core" }

@@ -1,28 +1,28 @@
 [package]
-name = "aether_catalogs"
+name = "aether-catalogs"
 version = "0.1.0"
 edition = "2024"
 
 [features]
 default = ["no_std"]
 std = [
-	"aether_core/std",
-	"aether_models/std",
+	"aether-core/std",
+	"aether-models/std",
 	"dep:serde",
 	"dep:csv",
 	"dep:rkyv",
 	"dep:rand",
 	"dep:sha2",
 ]
-no_std = ["aether_core/no_std", "aether_models/no_std"]
+no_std = ["aether-core/no_std", "aether-models/no_std"]
 world-magnetic-model = []
 download-gnc-catalog = []
 download-world-magnetic-model = ["world-magnetic-model"]
 download-catalogs = ["download-gnc-catalog", "download-world-magnetic-model"]
 
 [dependencies]
-aether_core = { path = "../aether_core" }
-aether_models = { path = "../aether_models" }
+aether-core = { path = "../aether-core" }
+aether-models = { path = "../aether-models" }
 serde = { version = "1", features = ["derive"], optional = true }
 csv = { version = "1", optional = true }
 rkyv = { version = "*", optional = true }

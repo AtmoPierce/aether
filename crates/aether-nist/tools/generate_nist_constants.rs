@@ -3,7 +3,7 @@ use std::fmt::Write as _;
 use std::fs;
 use std::path::PathBuf;
 
-#[path = "../../aether_units/src/parser/mod.rs"]
+#[path = "../../aether-units/src/parser/mod.rs"]
 mod units_parser;
 
 use units_parser::{parse_unit_expr, ParsedUnitExpr, UnitSymbol};
