@@ -1,0 +1,18 @@
+[package]
+name = "aether-benchmark"
+edition.workspace = true
+version.workspace = true
+license-file.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = ["no_std"]
+std = ["dep:minstant", "dep:once_cell"]
+no_std = []
+
+[dependencies]
+minstant = { workspace = true, optional = true }
+once_cell = { workspace = true, optional = true }

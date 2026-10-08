@@ -1,0 +1,40 @@
+[package]
+name = "aether-core"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license-file.workspace = true
+
+[features]
+default = ["no_std"]
+bincode = ["dep:bincode"]
+serde = ["dep:serde", "dep:serde-json-core"]
+serde-json-core = ["dep:serde-json-core"]
+fpx = ["dep:fpx-core"]
+mx = ["fpx", "fpx-core/mx"]
+std = []
+no_std = ["dep:libm"]
+f16 = []
+f128 = []
+simd = []
+fma = []
+
+[lib]
+crate-type=["rlib"]
+
+[[bin]]
+name = "aether-core"
+path = "src/main.rs"
+required-features = ["std"]
+
+[dependencies]
+rustyline = { workspace = true, optional=true}
+regex = { workspace = true, optional=true}
+serde = { workspace = true, optional=true}
+bincode = { workspace = true, optional=true }
+serde-json-core = { workspace = true, optional=true}
+fpx-core = { path = "../../../fpx/fpx-core", package = "fpx-core", optional = true }
+libm = { workspace = true, optional = true }
+
+[dev-dependencies]
+approx = { workspace = true }

@@ -1,5 +1,6 @@
-pub use aether_core::*;
 pub use aether_benchmark::*;
+pub use aether_core::*;
+pub use aether_fft::*;
 pub use aether_fluids::*;
 pub use aether_graphics::*;
 pub use aether_ml::*;

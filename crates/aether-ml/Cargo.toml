@@ -1,0 +1,21 @@
+[package]
+name = "aether-ml"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license-file.workspace = true
+
+[features]
+default = ["no_std"]
+std = ["dep:csv", "dep:minstant", "dep:once_cell", "dep:serde"]
+no_std = []
+
+[dependencies]
+aether-opt = {path = "../aether-opt"}
+aether-core = { path = "../aether-core" }
+minstant = { workspace = true, optional = true }
+once_cell = { workspace = true, optional = true }
+csv = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+
+[target.'cfg(feature = "std")'.dependencies]

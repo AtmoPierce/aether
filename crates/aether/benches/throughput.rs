@@ -5,27 +5,45 @@ use aether_core::reference_frame::Unknown;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use nalgebra::{SMatrix, SVector};
 
-fn aether_matmul<const N: usize>(a: &Matrix<f64, N, N>, b: &Matrix<f64, N, N>) -> Matrix<f64, N, N> {
+fn aether_matmul<const N: usize>(
+    a: &Matrix<f64, N, N>,
+    b: &Matrix<f64, N, N>,
+) -> Matrix<f64, N, N> {
     a * b
 }
 
-fn aether_matmul_simd<const N: usize>(a: &Matrix<f64, N, N>, b: &Matrix<f64, N, N>) -> Matrix<f64, N, N> {
+fn aether_matmul_simd<const N: usize>(
+    a: &Matrix<f64, N, N>,
+    b: &Matrix<f64, N, N>,
+) -> Matrix<f64, N, N> {
     a.mul_matrix_simd(b)
 }
 
-fn aether_matmul_f32<const N: usize>(a: &Matrix<f32, N, N>, b: &Matrix<f32, N, N>) -> Matrix<f32, N, N> {
+fn aether_matmul_f32<const N: usize>(
+    a: &Matrix<f32, N, N>,
+    b: &Matrix<f32, N, N>,
+) -> Matrix<f32, N, N> {
     a * b
 }
 
-fn aether_matmul_simd_f32<const N: usize>(a: &Matrix<f32, N, N>, b: &Matrix<f32, N, N>) -> Matrix<f32, N, N> {
+fn aether_matmul_simd_f32<const N: usize>(
+    a: &Matrix<f32, N, N>,
+    b: &Matrix<f32, N, N>,
+) -> Matrix<f32, N, N> {
     a.mul_matrix_simd(b)
 }
 
-fn nalgebra_matmul<const N: usize>(a: &SMatrix<f64, N, N>, b: &SMatrix<f64, N, N>) -> SMatrix<f64, N, N> {
+fn nalgebra_matmul<const N: usize>(
+    a: &SMatrix<f64, N, N>,
+    b: &SMatrix<f64, N, N>,
+) -> SMatrix<f64, N, N> {
     a * b
 }
 
-fn nalgebra_matmul_f32<const N: usize>(a: &SMatrix<f32, N, N>, b: &SMatrix<f32, N, N>) -> SMatrix<f32, N, N> {
+fn nalgebra_matmul_f32<const N: usize>(
+    a: &SMatrix<f32, N, N>,
+    b: &SMatrix<f32, N, N>,
+) -> SMatrix<f32, N, N> {
     a * b
 }
 
@@ -131,7 +149,6 @@ fn native_quat_rotate_vector_equivalent(
         aw * qn.k() + ax * qn.j() - ay * qn.i() + az * qn.w(),
     ])
 }
-
 
 fn bench_matmul<const N: usize>(c: &mut Criterion) {
     let aether_a = Matrix::new([[1.001_f64; N]; N]);

@@ -1,0 +1,22 @@
+[package]
+name = "aether-examples"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license-file.workspace = true
+
+[features]
+default = ["no_std"]
+std = []
+no_std = []
+
+[[bin]]
+name = "matrix"
+path = "src/matrix.rs"
+
+[[bin]]
+name = "coordinates"
+path = "src/coordinates.rs"
+
+[dependencies]
+aether-core = {path = "../aether-core"}
