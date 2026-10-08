@@ -22,6 +22,7 @@ aether-opt = { path = "../aether-opt" }
 aether-rand = { path = "../aether-rand" }
 aether-shapes = { path = "../aether-shapes" }
 aether-stats = { path = "../aether-stats" }
+aether-test = { path = "../aether-test" }
 
 [features]
 default = []

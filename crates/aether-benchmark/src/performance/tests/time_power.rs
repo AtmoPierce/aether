@@ -28,7 +28,7 @@ impl Sampler {
                 thread::sleep(Duration::from_millis(period_ms));
                 let t1 = now();
                 match &cpu {
-                    CPUEnergy::Powercap { .. } => {
+                    CPUEnergy::Powercap { .. } | CPUEnergy::HwmonEnergy { .. } => {
                         let j1 = cpu.read_total_j();
                         if let (Some(j1), Some(j0)) = (j1, last_j) {
                             let dt = (t1 - last_t).as_secs_f64();

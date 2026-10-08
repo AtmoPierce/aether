@@ -15,7 +15,6 @@ plots = ["dep:aether-viz", "aether-viz/svg"]     # or "aether-viz/bitmap"
 bincode = ["dep:bincode"]
 
 [dependencies]
-# aether-core = { path = "../aether-core", version = "0.1.1" }
 aether-core = { path = "../aether-core", features = ["bincode"]}
 aether-viz = { path = "../aether-viz", optional = true, default-features = false }
 bincode = { workspace = true, optional=true }
