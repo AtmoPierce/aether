@@ -4,8 +4,8 @@ use std::io::{Error as IoError, ErrorKind};
 use std::path::PathBuf;
 
 use aether_viz::rtos::{
-    compare_metric, load_rtos_run, plot_wake_latency_histogram, plot_wake_latency_series,
-    DistributionStats, RtosRun,
+    DistributionStats, RtosRun, compare_metric, load_rtos_run, plot_wake_latency_histogram,
+    plot_wake_latency_series,
 };
 
 fn usage_error() -> Box<dyn Error> {

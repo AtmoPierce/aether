@@ -1,0 +1,36 @@
+# trig.toml
+# 
+# FPX methodology: All approximations are chosen to minimize ULP violations first,
+# with minimal segment count as a secondary optimization goal.
+# Strategy: Prefer polynomial order increase (N) over segment splitting.
+#
+# Acceptance Criteria (in order):
+# 1. max_ulp_f64/f32: PRIMARY - Maximum ULP distance from true value (MUST NOT EXCEED)
+# 2. abs_tol: FALLBACK - For near-zero values, use absolute error when max_ulp too strict
+# 3. Segment Count: MINIMIZE - Prefer higher N before splitting segments
+#
+
+[output]
+rs_out_dir    = "src/trig"
+json_out_dir  = "target/coeffs"
+c_out_dir     = "target/c"
+plots_out_dir = "target/plots"
+
+[defaults]
+samples = 10000
+
+# Global defaults (overridden per function/segment if specified)
+[defaults.acceptance]
+# ULP limits (PRIMARY acceptance criterion)
+# - These MUST be met; approximations exceeding these are rejected
+# - ULP = Units in the Last Place (IEEE 754 bits from true value)
+max_ulp_f64 = 5    # f64: (+/-)6 ULP maximum
+max_ulp_f32 = 5    # f32: (+/-)6 ULP maximum
+
+# Absolute error (FALLBACK for near-zero regions)
+# - Only used when function value is very close to zero
+# - Prevents overly strict ULP requirements in transition regions
+abs_tol_f64 = 1.0e-16
+abs_tol_f32 = 2.0e-8
+
+

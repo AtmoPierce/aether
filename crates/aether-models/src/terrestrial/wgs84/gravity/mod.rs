@@ -1,9 +1,9 @@
 use crate::models::terrestrial::wgs84::{
-    constants::{a, b, e2, g_e, k, w, E, GM},
+    constants::{E, GM, a, b, e2, g_e, k, w},
     transforms::ecef_to_geocentric_ferrari,
 };
 use crate::{
-    coordinate::{coordinate::Coordinate, Cartesian},
+    coordinate::{Cartesian, coordinate::Coordinate},
     math::{Matrix, Vector},
     real::Real,
     reference_frame::ITRF,

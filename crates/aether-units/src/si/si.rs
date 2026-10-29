@@ -1,8 +1,8 @@
+use crate::Quantity;
 use crate::si::si_base::*;
 use crate::si::si_composites::*;
 use crate::si::si_derived::*;
 use crate::si::si_prefix::*;
-use crate::Quantity;
 use aether_core::real::Real;
 
 // Single trait for all SI extensions

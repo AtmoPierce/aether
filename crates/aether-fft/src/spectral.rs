@@ -2,7 +2,7 @@ use std::vec::Vec;
 
 use aether_core::{math::Complex, real::Real};
 
-use crate::{fft::fft_in_place_slice, FftError};
+use crate::{FftError, fft::fft_in_place_slice};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PsdEstimate<T: Real> {

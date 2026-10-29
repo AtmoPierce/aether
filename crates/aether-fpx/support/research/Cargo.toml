@@ -1,0 +1,45 @@
+[package]
+name = "aether-fpx-research"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[features]
+default = ["x87"]
+x87 = []
+viz = ["dep:aether-viz"]
+simd = ["aether-fpx/simd"]
+
+[[bin]]
+name = "perf_speed_plots"
+path = "src/bin/perf_speed_plots.rs"
+required-features = ["viz"]
+
+[[bin]]
+name = "kernel_selection_summary"
+path = "src/bin/kernel_selection_summary.rs"
+required-features = ["viz"]
+
+[[bin]]
+name = "kernel_path_precision"
+path = "src/bin/kernel_path_precision.rs"
+required-features = ["simd"]
+
+[[bin]]
+name = "kernel_path_perf"
+path = "src/bin/kernel_path_perf.rs"
+required-features = ["simd"]
+
+[build-dependencies]
+cc = "1.0"
+
+[dependencies]
+aether-fpx = { path = "../.." }
+aether-fpx-bench = { path = "../bench" }
+aether-viz = { path = "../../../aether-viz", features = ["svg"], optional = true }
+csv = "1.4.0"
+libm = "0.2"
+rayon = "1.10"
+
+[lints]
+workspace = true

@@ -1,6 +1,8 @@
 pub use aether_benchmark::*;
 pub use aether_core::*;
 pub use aether_fft::*;
+#[cfg(feature = "fpx")]
+pub use aether_fpx as fpx;
 pub use aether_fluids::*;
 pub use aether_graphics::*;
 pub use aether_ml::*;

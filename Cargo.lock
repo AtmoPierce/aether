@@ -105,6 +105,7 @@ dependencies = [
  "aether-examples",
  "aether-fft",
  "aether-fluids",
+ "aether-fpx",
  "aether-graphics",
  "aether-ml",
  "aether-models",
@@ -117,9 +118,10 @@ dependencies = [
 
 [[package]]
 name = "aether-aero"
-version = "0.1.2"
+version = "0.1.0"
 dependencies = [
  "aether-core",
+ "aether-interp",
  "aether-models",
  "eframe 0.32.3",
  "egui_plot 0.33.0",
@@ -151,9 +153,9 @@ dependencies = [
 name = "aether-core"
 version = "0.1.2"
 dependencies = [
+ "aether-fpx",
  "approx",
  "bincode",
- "fpx-core",
  "libm",
  "regex",
  "rustyline",
@@ -180,6 +182,72 @@ name = "aether-fluids"
 version = "0.1.2"
 dependencies = [
  "aether-shapes",
+]
+
+[[package]]
+name = "aether-fpx"
+version = "0.1.0"
+dependencies = [
+ "aether-fpx-bench",
+ "aether-viz",
+ "libm",
+ "panic-halt",
+ "serde",
+ "toml 0.5.11",
+]
+
+[[package]]
+name = "aether-fpx-bench"
+version = "0.1.0"
+dependencies = [
+ "rayon",
+]
+
+[[package]]
+name = "aether-fpx-boards"
+version = "0.1.0"
+dependencies = [
+ "aether-fpx",
+ "aether-rand",
+ "panic-halt",
+ "rtt-target",
+]
+
+[[package]]
+name = "aether-fpx-examples"
+version = "0.1.0"
+dependencies = [
+ "aether-core",
+ "aether-fft",
+ "aether-fpx",
+ "aether-ml",
+ "aether-viz",
+]
+
+[[package]]
+name = "aether-fpx-gen"
+version = "0.1.0"
+dependencies = [
+ "aether-core",
+ "aether-fpx-bench",
+ "aether-viz",
+ "num-bigint",
+ "serde",
+ "serde_json",
+ "toml 0.9.12+spec-1.1.0",
+]
+
+[[package]]
+name = "aether-fpx-research"
+version = "0.1.0"
+dependencies = [
+ "aether-fpx",
+ "aether-fpx-bench",
+ "aether-viz",
+ "cc",
+ "csv",
+ "libm",
+ "rayon",
 ]
 
 [[package]]
@@ -265,6 +333,10 @@ version = "0.1.2"
 dependencies = [
  "aether-core",
 ]
+
+[[package]]
+name = "aether-runner"
+version = "0.1.0"
 
 [[package]]
 name = "aether-shapes"
@@ -1176,6 +1248,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "critical-section"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
+
+[[package]]
 name = "crossbeam-deque"
 version = "0.8.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1917,24 +1995,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
 dependencies = [
  "percent-encoding",
-]
-
-[[package]]
-name = "fpx-bench"
-version = "0.1.0"
-dependencies = [
- "rayon",
-]
-
-[[package]]
-name = "fpx-core"
-version = "0.1.0"
-dependencies = [
- "aether-viz",
- "fpx-bench",
- "libm",
- "serde",
- "toml 0.5.11",
 ]
 
 [[package]]
@@ -3050,6 +3110,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2bf50223579dc7cdcfb3bfcacf7069ff68243f8c363f62ffa99cf000a6b9c451"
 
 [[package]]
+name = "num-bigint"
+version = "0.4.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c89e69e7e0f03bea5ef08013795c25018e101932225a656383bd384495ecc367"
+dependencies = [
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-integer"
+version = "0.1.47"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ce2d95d4b3734dc35aa2f45e1aa22cd416814592a4f9d9205e11affd5b8e10b"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "num-traits"
 version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3443,6 +3522,12 @@ checksum = "36820e9051aca1014ddc75770aab4d68bc1e9e632f0f5627c4086bc216fb583b"
 dependencies = [
  "ttf-parser 0.25.1",
 ]
+
+[[package]]
+name = "panic-halt"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a513e167849a384b7f9b746e517604398518590a9142f4846a32e3c2a4de7b11"
 
 [[package]]
 name = "parking"
@@ -4009,6 +4094,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rtt-target"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10b34c9e6832388e45f3c01f1bb60a016384a0a4ad80cdd7d34913bed25037f0"
+dependencies = [
+ "critical-section",
+ "ufmt-write",
+]
+
+[[package]]
 name = "rustc-hash"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4182,6 +4277,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.6",
+]
+
+[[package]]
+name = "serde_json"
+version = "1.0.154"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7e9cc8b1b85264074fbcc02a88680c4096b1e47df8f739dceb03bf482f04bd6"
+dependencies = [
+ "itoa",
+ "memchr",
+ "serde",
+ "serde_core",
+ "zmij",
 ]
 
 [[package]]
@@ -4751,6 +4859,12 @@ dependencies = [
  "tempfile",
  "windows-sys 0.61.2",
 ]
+
+[[package]]
+name = "ufmt-write"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e87a2ed6b42ec5e28cc3b94c09982969e9227600b2e3dcbc1db927a84c06bd69"
 
 [[package]]
 name = "unicode-ident"
@@ -6116,6 +6230,12 @@ name = "zlib-rs"
 version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b268e58e7c693d7c271f93ffc4ba3b380412554231c85bf61ca7af91042a4112"
+
+[[package]]
+name = "zmij"
+version = "1.0.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
 
 [[package]]
 name = "zune-core"

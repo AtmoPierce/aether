@@ -1,0 +1,101 @@
+# =============================================================================
+# HYPERBOLIC
+# =============================================================================
+
+[functions.sinh]
+file_prefix = "sinh"
+mirror      = true
+
+[functions.sinh.acceptance]
+max_ulp_f64 = 5
+max_ulp_f32 = 5
+abs_tol_f64 = 1.0e-16
+abs_tol_f32 = 2.0e-8
+
+[functions.sinh.sweep]
+enabled        = true
+interval       = [0.0, 4.0]
+min_width      = 0.05
+max_segments   = 32
+split_strategy = "worst"
+merge_pass     = false
+samples        = 10000
+candidates  = [
+  {n=2,k=3},
+  {n=3,k=4},
+  {n=4,k=5},
+  {n=5,k=6},
+  {n=6,k=7},
+  {n=7,k=8},
+  {n=8,k=9},
+  {n=9,k=10},
+  {n=10,k=11},
+  {n=11,k=12},
+  {n=12,k=13},
+]
+
+
+[functions.cosh]
+file_prefix = "cosh"
+mirror      = true
+
+[functions.cosh.acceptance]
+max_ulp_f64 = 5
+max_ulp_f32 = 5
+abs_tol_f64 = 1.0e-16
+abs_tol_f32 = 2.0e-8
+
+[functions.cosh.sweep]
+enabled        = true
+interval       = [0.0, 4.0]
+min_width      = 0.05
+max_segments   = 32
+split_strategy = "worst"
+merge_pass     = false
+samples        = 10000
+candidates  = [
+  {n=2,k=3},
+  {n=3,k=4},
+  {n=4,k=5},
+  {n=5,k=6},
+  {n=6,k=7},
+  {n=7,k=8},
+  {n=8,k=9},
+  {n=9,k=10},
+  {n=10,k=11},
+  {n=11,k=12},
+  {n=12,k=13},
+]
+
+
+[functions.tanh]
+file_prefix = "tanh"
+mirror      = true
+
+[functions.tanh.acceptance]
+max_ulp_f64 = 5
+max_ulp_f32 = 5
+abs_tol_f64 = 1.0e-16
+abs_tol_f32 = 2.0e-8
+
+[functions.tanh.sweep]
+enabled        = true
+interval       = [0.0, 4.0]
+min_width      = 0.05
+max_segments   = 32
+split_strategy = "worst"
+merge_pass     = false
+samples        = 10000
+candidates  = [
+  {n=2,k=3},
+  {n=3,k=4},
+  {n=4,k=5},
+  {n=5,k=6},
+  {n=6,k=7},
+  {n=7,k=8},
+  {n=8,k=9},
+  {n=9,k=10},
+  {n=10,k=11},
+  {n=11,k=12},
+  {n=12,k=13},
+]

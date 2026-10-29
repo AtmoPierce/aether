@@ -1,7 +1,7 @@
 use aether_core::math::Vector;
 
 #[cfg(feature = "pro")]
-use aether_pro::step::{write_step_mesh_file, write_step_mesh_str, TriangleMesh};
+use aether_pro::step::{TriangleMesh, write_step_mesh_file, write_step_mesh_str};
 
 pub type ProfilePoint2 = Vector<f64, 2>;
 pub type ProfilePoint3 = Vector<f64, 3>;
@@ -469,12 +469,16 @@ mod tests {
         );
         let projected = example_profile().projected_outline(7, projection).unwrap();
 
-        assert!(projected
-            .iter()
-            .all(|point| (point[1] - 2.0).abs() < 1.0e-12));
-        assert!(projected
-            .iter()
-            .any(|point| (point[2] - 3.0).abs() > 1.0e-12));
+        assert!(
+            projected
+                .iter()
+                .all(|point| (point[1] - 2.0).abs() < 1.0e-12)
+        );
+        assert!(
+            projected
+                .iter()
+                .any(|point| (point[2] - 3.0).abs() > 1.0e-12)
+        );
     }
 
     #[cfg(feature = "pro")]

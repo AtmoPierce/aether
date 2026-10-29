@@ -1,6 +1,6 @@
 use crate::math::{
-    arch::x86::{matrix_simd, vector_simd},
     Matrix, Vector,
+    arch::x86::{matrix_simd, vector_simd},
 };
 
 fn dot4_f32_scalar(a: &Vector<f32, 4>, b: &Vector<f32, 4>) -> f32 {

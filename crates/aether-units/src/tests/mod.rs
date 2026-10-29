@@ -2,12 +2,12 @@
 mod tests {
     use aether_core::real::Real;
 
+    use crate::Quantity;
     use crate::si::si_base::*;
     use crate::si::si_composites::*;
     use crate::si::si_derived::*;
     use crate::si::si_prefix::*;
-    use crate::si::{SiExt, SiPrefixExt};
-    use crate::Quantity; // assuming you export both traits
+    use crate::si::{SiExt, SiPrefixExt}; // assuming you export both traits
 
     // Tiny helper to compare f32 with a loose epsilon
     fn feq(a: f32, b: f32, eps: f32) -> bool {

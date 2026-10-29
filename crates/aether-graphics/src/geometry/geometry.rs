@@ -3,8 +3,8 @@ use super::polynomial_profile::{ClosedPolynomialProfile2D, ProfileExtrusion3D};
 use aether_core::math::{Matrix, Vector};
 #[cfg(feature = "pro")]
 use aether_pro::step::{
-    load_step_assembly_part_file, load_step_part_file, step_length_unit_scale_to_si_file,
-    tessellate_step_file, FacePatch, Part, TessellationOptions, TriangleMesh,
+    FacePatch, Part, TessellationOptions, TriangleMesh, load_step_assembly_part_file,
+    load_step_part_file, step_length_unit_scale_to_si_file, tessellate_step_file,
 };
 #[cfg(feature = "pro")]
 use bincode::{

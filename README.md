@@ -34,6 +34,7 @@ This workspace collects the following crates:
 |-------|--------------|
 | **aether** | Umbrella crate aggregating core modules for convenience. |
 | **aether-core** | Strongly-typed math foundation - matrices, vectors, quaternions, and reference frame abstractions. |
+| **aether-fpx** | Portable floating-point extensions and generated transcendental-function kernels. |
 | **aether-models** | Physical and dynamical models (rigid bodies, atmosphere, gravitation, etc.). |
 | **aether-shapes** | Geometric primitives for collision, inertia, and volumetric modeling. |
 | **aether-fluids** | Fluid dynamics and continuum-mechanics primitives. |

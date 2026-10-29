@@ -3264,9 +3264,11 @@ mod generated_constant_tests {
                 assert!(value >= 0.0);
             }
         }
-        assert!(ALL_CONSTANTS
-            .iter()
-            .any(|candidate| **candidate == *constant));
+        assert!(
+            ALL_CONSTANTS
+                .iter()
+                .any(|candidate| **candidate == *constant)
+        );
     }
 
     #[test]

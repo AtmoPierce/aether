@@ -1,0 +1,24 @@
+[alias]
+asm-m33 = [
+  "rustc",
+  "--bin", "trig_asm_probe_m33",
+  "--features", "m33-probe",
+  "--target", "thumbv8m.main-none-eabi",
+  "--target-dir", "../../target/aether-fpx-m33",
+  "--release",
+  "--config", "target.thumbv8m.main-none-eabi.rustflags=[\"-C\",\"target-cpu=cortex-m33\",\"-C\",\"target-feature=+dsp,+fpregs,+vfp2,+vfp3,+vf4\"]",
+  "--",
+  "--emit=asm",
+]
+
+asm-m55 = [
+  "rustc",
+  "--bin", "trig_asm_probe_m33",
+  "--features", "m33-probe",
+  "--target", "thumbv8m.main-none-eabi",
+  "--target-dir", "../../target/aether-fpx-m55",
+  "--release",
+  "--config", "target.thumbv8m.main-none-eabi.rustflags=[\"-C\",\"target-cpu=cortex-m55\",\"-C\",\"target-feature=+dsp,+mve,+mve.fp\"]",
+  "--",
+  "--emit=asm",
+]

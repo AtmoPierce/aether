@@ -32,10 +32,10 @@ impl ISA {
     const k: f64 = 1.4; // dimensionless
     const rho_0: f64 = 1.225; // kg/m3
     const sigma: f64 = 0.365e-9; // m
-                                 // Other Constants
+    // Other Constants
     const earth_radius_nominal: f64 = 6356766.0; // m
-                                                 // 2.1 Primary Constants - Table B - Dry, clean air composition near sea level1
-                                                 // Content of Volume (%)
+    // 2.1 Primary Constants - Table B - Dry, clean air composition near sea level1
+    // Content of Volume (%)
     const nitrogen_volume: f64 = 78.084;
     const oxygen_volume: f64 = 20.9476;
     const argon_volume: f64 = 0.934;

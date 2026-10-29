@@ -26,7 +26,7 @@ pub const R_2: f64 = 6371007.1810; // meters
 pub const R_3: f64 = 6371000.7900; // meters
 pub const c20geo: f64 = -4.84166774985e-4; // unitless
 pub const J2geo: f64 = 1.082629821313e-3; // unitless
-                                          // Table 3.6
+// Table 3.6
 pub const U_0: f64 = 6.26368517146e7; // meters^2/seconds^2
 pub const g_e: f64 = 9.7803253359; // meters/second^2
 pub const g_p: f64 = 9.8321849379; // meters/second^2

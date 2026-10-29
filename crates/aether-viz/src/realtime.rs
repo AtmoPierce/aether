@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::{Duration, SystemTime};
 
-use crate::{plot_series, PlotStyle, XYSeries};
+use crate::{PlotStyle, XYSeries, plot_series};
 
 #[derive(Debug, Clone)]
 pub struct CsvRealtimeConfig {

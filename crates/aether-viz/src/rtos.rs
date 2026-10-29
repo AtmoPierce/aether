@@ -6,7 +6,7 @@ use std::fs;
 use std::io::{Error as IoError, ErrorKind};
 use std::path::{Path, PathBuf};
 
-use crate::{plot_histograms, plot_series, HistogramSeries, PlotStyle, XYSeries};
+use crate::{HistogramSeries, PlotStyle, XYSeries, plot_histograms, plot_series};
 
 pub const RTOS_SCHEMA_VERSION: &str = "pulsar-rtos-v1";
 pub const METADATA_FILE: &str = "metadata.csv";
@@ -769,10 +769,11 @@ mod tests {
 
         let run = load_rtos_run(&directory).unwrap();
         assert!(!run.is_measured());
-        assert!(run
-            .warnings
-            .iter()
-            .any(|warning| warning.contains("synthetic")));
+        assert!(
+            run.warnings
+                .iter()
+                .any(|warning| warning.contains("synthetic"))
+        );
         assert_eq!(run.records[0].payload, None);
         assert_eq!(run.records[1].unwrapped_ticks, (1_u64 << 32) + 20);
         let samples = run.wake_latencies();
@@ -807,12 +808,16 @@ mod tests {
         .unwrap();
         let output = directory.join("run");
         import_probe_log(&log, &output).unwrap();
-        assert!(fs::read_to_string(output.join(METADATA_FILE))
-            .unwrap()
-            .contains("schema_version,pulsar-rtos-v1"));
-        assert!(fs::read_to_string(output.join(TRACE_FILE))
-            .unwrap()
-            .starts_with("schema_version,run_id"));
+        assert!(
+            fs::read_to_string(output.join(METADATA_FILE))
+                .unwrap()
+                .contains("schema_version,pulsar-rtos-v1")
+        );
+        assert!(
+            fs::read_to_string(output.join(TRACE_FILE))
+                .unwrap()
+                .starts_with("schema_version,run_id")
+        );
     }
 
     #[test]

@@ -287,11 +287,7 @@ where
     pub fn try_normalize(&self) -> (Self, T) {
         let n = self.norm();
         let eps = T::from_f64(1e-12);
-        if n > eps {
-            (*self / n, n)
-        } else {
-            (*self, n)
-        }
+        if n > eps { (*self / n, n) } else { (*self, n) }
     }
 
     pub fn magnitude(&self) -> T {
@@ -681,9 +677,9 @@ impl<T, const N: usize> FromIterator<T> for Vector<T, N> {
 use core::{fmt, marker::PhantomData};
 #[cfg(feature = "serde")]
 use serde::{
+    Deserialize, Deserializer, Serialize, Serializer,
     de::{self, SeqAccess, Visitor},
     ser::{SerializeSeq, SerializeTuple},
-    Deserialize, Deserializer, Serialize, Serializer,
 };
 
 #[cfg(feature = "serde")]

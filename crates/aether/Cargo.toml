@@ -11,6 +11,7 @@ crate-type = ["rlib"]
 [dependencies]
 aether-core = { path = "../aether-core" }
 aether-fft = { path = "../aether-fft" }
+aether-fpx = { path = "../aether-fpx", optional = true }
 aether-catalogs = { path = "../aether-catalogs" }
 aether-benchmark = { path = "../aether-benchmark" }
 aether-examples = { path = "../aether-examples" }
@@ -59,8 +60,10 @@ no_std = [
 regex = ["aether-core/regex"]
 rustyline = ["aether-core/rustyline"]
 serde-json-core = ["aether-core/serde-json-core"]
-simd = ["aether-core/simd"]
-fma = ["aether-core/fma"]
+simd = ["aether-core/simd", "aether-fpx?/simd"]
+fma = ["aether-core/fma", "aether-fpx?/fma"]
+fpx = ["dep:aether-fpx", "aether-core/fpx"]
+mx = ["fpx", "aether-fpx/mx", "aether-core/mx"]
 
 [dev-dependencies]
 # criterion = { workspace = true }

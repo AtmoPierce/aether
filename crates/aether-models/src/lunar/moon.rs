@@ -5,7 +5,7 @@ use crate::{
     coordinate::Cartesian,
     math::Matrix,
     real::Real,
-    reference_frame::{ReferenceFrame, ICRF},
+    reference_frame::{ICRF, ReferenceFrame},
 };
 
 use super::{

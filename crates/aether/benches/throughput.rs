@@ -2,7 +2,7 @@ use aether_core::attitude::{DirectionCosineMatrix, Euler, Quaternion};
 use aether_core::coordinate::Cartesian;
 use aether_core::math::{Matrix, Vector};
 use aether_core::reference_frame::Unknown;
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use nalgebra::{SMatrix, SVector};
 
 fn aether_matmul<const N: usize>(

@@ -1,5 +1,5 @@
 use aether_core::math::{Matrix, Vector};
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use nalgebra::{DMatrix, DVector, SMatrix, SVector};
 
 #[cfg(target_arch = "x86")]

@@ -196,16 +196,16 @@ pub type Cnn<
 >;
 
 impl<
-        F: Real + Copy,
-        const CHANNELS: usize,
-        const HEIGHT: usize,
-        const WIDTH: usize,
-        const FILTERS: usize,
-        const KERNEL: usize,
-        const OUTPUT_HEIGHT: usize,
-        const OUTPUT_WIDTH: usize,
-        const CLASSES: usize,
-    >
+    F: Real + Copy,
+    const CHANNELS: usize,
+    const HEIGHT: usize,
+    const WIDTH: usize,
+    const FILTERS: usize,
+    const KERNEL: usize,
+    const OUTPUT_HEIGHT: usize,
+    const OUTPUT_WIDTH: usize,
+    const CLASSES: usize,
+>
     ConvolutionalNeuralNetwork<
         F,
         CHANNELS,
@@ -587,10 +587,12 @@ mod tests {
         let sum: f64 = probabilities.data.iter().sum();
 
         assert_close(sum, 1.0);
-        assert!(probabilities
-            .data
-            .iter()
-            .all(|&probability| probability > 0.0));
+        assert!(
+            probabilities
+                .data
+                .iter()
+                .all(|&probability| probability > 0.0)
+        );
     }
 
     #[test]

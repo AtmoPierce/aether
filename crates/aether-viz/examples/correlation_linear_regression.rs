@@ -1,7 +1,7 @@
 use aether_core::math::Vector;
 use aether_ml::linear::LinearRegression;
 use aether_viz::{
-    plot_correlation, plot_series_with_config, CorrelationSeries, PlotConfig, PlotStyle, XYSeries,
+    CorrelationSeries, PlotConfig, PlotStyle, XYSeries, plot_correlation, plot_series_with_config,
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

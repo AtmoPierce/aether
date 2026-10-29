@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 use aether_fft::real_periodogram;
 use aether_stats::{GaussMarkov1, RandomWalk, WhiteNoise};
-use aether_viz::{plot_histograms, plot_psd, plot_series, HistogramSeries, XYSeries};
+use aether_viz::{HistogramSeries, XYSeries, plot_histograms, plot_psd, plot_series};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output_dir = output_dir_from_args();

@@ -1,0 +1,14 @@
+[package]
+name = "aether-fpx-examples"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aether-core = { path = "../../../aether-core", features = ["std", "f16", "f128", "mx"] }
+aether-fft = { path = "../../../aether-fft", default-features = false, features = ["std"] }
+aether-ml = { path = "../../../aether-ml", default-features = false, features = ["std"] }
+aether-viz = { path = "../../../aether-viz", features = ["svg"] }
+aether-fpx = { path = "../..", features = ["mx"] }
+
+[lints]
+workspace = true

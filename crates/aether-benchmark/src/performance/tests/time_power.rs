@@ -15,8 +15,8 @@ struct Sampler {
 impl Sampler {
     fn start(cpu: CPUEnergy, sink: &'static PowerCsv, period_ms: u64) -> Self {
         use std::sync::{
-            atomic::{AtomicBool, Ordering},
             Arc,
+            atomic::{AtomicBool, Ordering},
         };
         let stop = Arc::new(AtomicBool::new(false));
         let stop_c = stop.clone();

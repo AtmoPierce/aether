@@ -1,4 +1,4 @@
-use crate::math::{arch::arm::neon, Matrix, Vector};
+use crate::math::{Matrix, Vector, arch::arm::neon};
 
 fn dot4_f32_scalar(a: &Vector<f32, 4>, b: &Vector<f32, 4>) -> f32 {
     a.data[0] * b.data[0] + a.data[1] * b.data[1] + a.data[2] * b.data[2] + a.data[3] * b.data[3]

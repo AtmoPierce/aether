@@ -2,7 +2,7 @@ mod tests {
     use crate::attitude::{DirectionCosineMatrix, Euler, Quaternion};
     use crate::math::Vector;
     use crate::real::Real;
-    use crate::reference_frame::{Body, ReferenceFrame, ITRF};
+    use crate::reference_frame::{Body, ITRF, ReferenceFrame};
 
     const EPSILON: f64 = 1e-15;
 

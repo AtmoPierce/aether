@@ -273,11 +273,7 @@ fn hwmon_sensor_rank(chip_name: &str, label: &str) -> Option<u8> {
 }
 
 fn hwmon_input_rank(file_name: &str) -> u8 {
-    if file_name.contains("_average") {
-        0
-    } else {
-        1
-    }
+    if file_name.contains("_average") { 0 } else { 1 }
 }
 
 fn contains_any(haystack: &str, needles: &[&str]) -> bool {

@@ -1,0 +1,64 @@
+# fpx-remez.toml
+
+[output]
+rs_out_dir    = "../../src/trig"
+json_out_dir  = "target/coeffs"
+c_out_dir     = "target/c"
+gpu_out_dir   = "../../src/gpu"
+plots_out_dir = "target/plots"
+
+[defaults]
+samples = 10000
+
+[defaults.acceptance]
+max_ulp_f128 = 5
+max_ulp_f64 = 5
+max_ulp_f32 = 5
+abs_tol_f128 = 1.0e-32
+abs_tol_f64 = 1.0e-16
+abs_tol_f32 = 2.0e-8
+
+# --------------------------------------------------
+# Function libraries to import
+# --------------------------------------------------
+
+[inputs]
+files = [
+  "inputs/trig.toml",
+  "inputs/trig_hyperbolic.toml",
+  "inputs/trig_inv.toml",
+  "inputs/log.toml",
+  "inputs/exp.toml",
+]
+
+# --------------------------------------------------
+# Enable / disable functions
+# --------------------------------------------------
+
+[enable]
+sin = true
+cos = true
+tan = true
+sinh = true
+cosh = true
+tanh = true
+asin = true
+acos = true
+atan = true
+log = true
+log1p = true
+exp = true
+expm1 = true
+
+# --------------------------------------------------
+# Optional per-function overrides
+# --------------------------------------------------
+
+#[override.sin.acceptance]
+# max_ulp_f64 = 4      # tighten sin only
+
+#[override.cos.sweep]
+# max_segments = 2     # allow splitting for cos
+
+#[override.exp.sweep]
+# interval = [0.0, 10.0]

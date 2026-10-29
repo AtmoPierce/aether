@@ -1,0 +1,298 @@
+#![feature(f128)]
+
+use std::path::{Path, PathBuf};
+
+use core::f128;
+use aether_core::real::real::{Real, RealCast};
+
+use aether_fpx_bench::ulp::ulp_dist_f64;
+use aether_fpx_gen::remez::RemezApprox;
+
+use aether_fpx_gen::design::remez::create::accuracy::analyze_segment_accuracy;
+use aether_fpx_gen::design::remez::create::config::{
+    resolve_acceptance, DefaultsConfig, FunctionSpec, SegmentSpec, SplitStrategy, TomlNumber,
+};
+use aether_fpx_gen::design::remez::create::coefficients::{
+    poly_domain, PolyDomain,
+};
+use aether_fpx_gen::design::remez::create::analysis::{
+    runtime_f_df,
+    solve_f_df,
+    solve_interval_from_x,
+    solve_remez,
+};
+
+/* ================================================================================================
+ * Repo helpers
+ * ================================================================================================ */
+
+fn repo_root_from_cwd() -> PathBuf {
+    std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
+}
+
+fn looks_like_aether_fpx_dir(p: &Path) -> bool {
+    p.join("fpx-remez.toml").is_file() && p.join("Cargo.toml").is_file()
+}
+
+/* ================================================================================================
+ * CLI helpers
+ * ================================================================================================ */
+
+fn usage() -> ! {
+    eprintln!(
+r#"usage: cargo run -p aether-fpx-gen --bin make_plots -- \
+    [--manifest-dir <path>] [--out <path>] \
+    [--max-segments <n>] [--fixed-segments <n>] [--force-n <n>] \
+    [--target-max-ulp <f64>]
+
+Grid mode:
+    --grid
+    --grid-max-segments <list>
+    --grid-max-ulp <list>
+    --grid-out <path>
+    --grid-samples <n>
+    --only <functions>
+"#);
+    std::process::exit(2);
+}
+
+fn parse_csv_usize_list(s: &str) -> Vec<usize> {
+    s.split(',')
+        .map(|p| p.trim())
+        .filter(|p| !p.is_empty())
+        .flat_map(|p| {
+            if let Some((a, b)) = p.split_once("..") {
+                let a: usize = a.parse().unwrap();
+                let b: usize = b.parse().unwrap();
+                (a..=b).collect::<Vec<_>>()
+            } else {
+                vec![p.parse().unwrap()]
+            }
+        })
+        .collect()
+}
+
+fn parse_csv_f64_list(s: &str) -> Vec<f64> {
+    s.split(',')
+        .map(|p| p.trim())
+        .filter(|p| !p.is_empty())
+        .map(|p| p.parse().unwrap())
+        .collect()
+}
+
+fn parse_csv_string_list(s: &str) -> Vec<String> {
+    s.split(',').map(|s| s.trim().to_string()).collect()
+}
+
+/* ================================================================================================
+ * Fixed segments
+ * ================================================================================================ */
+
+fn fixed_equal_segments(
+    name: &str,
+    sweep: &aether_fpx_gen::design::remez::create::config::SweepSpec,
+    n_segments: usize,
+    n: usize,
+) -> Vec<SegmentSpec> {
+    let a = sweep.interval[0].as_f64();
+    let b = sweep.interval[1].as_f64();
+    let w = (b - a) / n_segments as f64;
+
+    (0..n_segments)
+        .map(|i| {
+            let sa = a + i as f64 * w;
+            let sb = if i + 1 == n_segments { b } else { sa + w };
+            SegmentSpec {
+                seg: Some(format!("{name}_fixed_seg{i}")),
+                n,
+                k: n + 1,
+                interval: [TomlNumber::Num(sa), TomlNumber::Num(sb)],
+                samples: None,
+                acceptance: sweep.acceptance.clone(),
+            }
+        })
+        .collect()
+}
+
+/* ================================================================================================
+ * Accuracy + splitting
+ * ================================================================================================ */
+
+fn analyze_candidate_max_ulp(
+    dom: PolyDomain,
+    name: &str,
+    interval_x: (f128, f128),
+    interval_solve: (f128, f128),
+    samples: usize,
+    n: usize,
+    k: usize,
+) -> f64 {
+    let (f_runtime, _) = runtime_f_df(name);
+    let (f_solve, df_solve) = solve_f_df(dom, name);
+
+    macro_rules! case {
+        ($N:literal, $K:literal) => {{
+            let rz = solve_remez::<$N, $K>(f_solve, df_solve, interval_solve);
+            analyze_segment_accuracy::<$N, $K>(
+                &rz, dom, 0,
+                interval_x, interval_solve,
+                f_runtime, f_solve, samples
+            ).max_ulp
+        }};
+    }
+
+    match (n, k) {
+        (3,4) => case!(3,4),
+        (4,5) => case!(4,5),
+        (5,6) => case!(5,6),
+        (6,7) => case!(6,7),
+        (7,8) => case!(7,8),
+        (8,9) => case!(8,9),
+        (9,10) => case!(9,10),
+        (10,11) => case!(10,11),
+        (12,13) => case!(12,13),
+        (15,16) => case!(15,16),
+        _ => panic!("unsupported n/k"),
+    }
+}
+
+fn split_point_mid(a: f64, b: f64) -> f64 {
+    0.5 * (a + b)
+}
+
+fn split_point_worst(
+    dom: PolyDomain,
+    name: &str,
+    interval_x: (f64, f64),
+    n: usize,
+    k: usize,
+    samples: usize,
+) -> f64 {
+    let (ax, bx) = interval_x;
+    let ax128 = f128::from_f64(ax);
+    let bx128 = f128::from_f64(bx);
+    let interval_solve = solve_interval_from_x(dom, ax128, bx128);
+    let (f_solve, df_solve) = solve_f_df(dom, name);
+
+    macro_rules! case {
+        ($N:literal, $K:literal) => {{
+            let rz = solve_remez::<$N, $K>(f_solve, df_solve, interval_solve);
+            let (f_runtime, _) = runtime_f_df(name);
+            let mut best_x = split_point_mid(ax, bx);
+            let mut best_ulp = -1.0;
+            for i in 0..samples {
+                let t = i as f64 / samples as f64;
+                let x = ax + (bx - ax) * t;
+                let xf = f128::from_f64(x);
+                let approx = match dom {
+                    PolyDomain::X => rz.eval_poly(xf),
+                    PolyDomain::ZSin => if xf == f128::ZERO { f128::ZERO } else { xf * rz.eval_poly(xf*xf) },
+                    PolyDomain::ZCos => rz.eval_poly(xf*xf),
+                }.to_f64();
+                let true_v = f_runtime(xf).to_f64();
+                let ulp = ulp_dist_f64(approx, true_v) as f64;
+                if ulp > best_ulp {
+                    best_ulp = ulp;
+                    best_x = x;
+                }
+            }
+            best_x
+        }};
+    }
+
+    match (n, k) {
+        (3,4) => case!(3,4),
+        (4,5) => case!(4,5),
+        (5,6) => case!(5,6),
+        (6,7) => case!(6,7),
+        (7,8) => case!(7,8),
+        (8,9) => case!(8,9),
+        (9,10) => case!(9,10),
+        (10,11) => case!(10,11),
+        (12,13) => case!(12,13),
+        (15,16) => case!(15,16),
+        _ => split_point_mid(ax, bx),
+    }
+}
+
+/* ================================================================================================
+ * Sweep
+ * ================================================================================================ */
+
+fn adaptive_sweep_segments(
+    name: &str,
+    dom: PolyDomain,
+    func: &FunctionSpec,
+    defaults: &DefaultsConfig,
+    max_segments: usize,
+    force_n: Option<usize>,
+    target_max_ulp: Option<f64>,
+    samples_override: Option<usize>,
+) -> (Vec<SegmentSpec>, bool, f64) {
+    let sw = func.sweep.as_ref().unwrap();
+    let acc = resolve_acceptance(defaults, func, Some(sw), None);
+    let target = target_max_ulp.unwrap_or(acc.max_ulp_f64 as f64);
+    let samples = samples_override.unwrap_or(sw.samples).max(1000);
+
+    let mut segments = vec![(sw.interval[0].as_f64(), sw.interval[1].as_f64())];
+
+    loop {
+        let mut worst = None;
+        let mut worst_ulp = 0.0;
+        let mut choices = Vec::new();
+
+        for (i,(a,b)) in segments.iter().enumerate() {
+            let ax = f128::from_f64(*a);
+            let bx = f128::from_f64(*b);
+            let interval_x = (ax,bx);
+            let interval_solve = solve_interval_from_x(dom, ax, bx);
+
+            let (n,k) = if let Some(n) = force_n {
+                (n,n+1)
+            } else {
+                sw.candidates[0].into()
+            };
+
+            let ulp = analyze_candidate_max_ulp(dom, name, interval_x, interval_solve, samples, n, k);
+            if ulp > worst_ulp {
+                worst_ulp = ulp;
+                worst = Some(i);
+            }
+            choices.push((n,k,ulp));
+        }
+
+        if worst_ulp <= target || segments.len() >= max_segments {
+            return (
+                choices.iter().enumerate().map(|(i,(n,k,_))| {
+                    let (a,b) = segments[i];
+                    SegmentSpec {
+                        seg: Some(format!("{name}_sweep_seg{i}")),
+                        n: *n,
+                        k: *k,
+                        interval: [TomlNumber::Num(a), TomlNumber::Num(b)],
+                        samples: None,
+                        acceptance: sw.acceptance.clone(),
+                    }
+                }).collect(),
+                worst_ulp <= target,
+                worst_ulp
+            );
+        }
+
+        let i = worst.unwrap();
+        let (a,b) = segments.remove(i);
+        let m = split_point_worst(dom, name, (a,b), choices[i].0, choices[i].1, samples/50);
+        segments.insert(i, (m,b));
+        segments.insert(i, (a,m));
+    }
+}
+
+/* ================================================================================================
+ * Main
+ * ================================================================================================ */
+
+fn main() {
+    aether_fpx_gen::design::remez::create::generators::generate_plots(
+        &aether_fpx_gen::design::remez::create::config::effective_config()
+    );
+}

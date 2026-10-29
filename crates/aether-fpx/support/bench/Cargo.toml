@@ -1,0 +1,15 @@
+[package]
+name = "aether-fpx-bench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Reusable perf-stat benchmarking helpers for FPX experiments"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+rayon = "1.10"
+
+[lints]
+workspace = true
