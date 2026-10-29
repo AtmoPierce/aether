@@ -1,0 +1,59 @@
+[package]
+name = "aether-fpx-boards"
+version = "0.1.0"
+edition = "2021"
+publish = false
+build = "build.rs"
+
+[lib]
+test = false
+bench = false
+
+[features]
+default = []
+pico2 = ["pico2-arm"]
+pico2-arm = []
+pico2-hazard3 = []
+trig-probe = ["dep:aether-fpx", "dep:panic-halt"]
+trig-bench-rtt = ["trig-probe", "dep:rtt-target", "dep:aether-rand"]
+
+[dependencies]
+aether-fpx = { path = "../..", optional = true }
+panic-halt = { version = "1.0", optional = true }
+rtt-target = { version = "0.5", optional = true }
+aether-rand = { path = "../../../aether-rand", optional = true }
+
+[[bench]]
+name = "pico2_arm_trig_probe"
+path = "benches/pico2_arm_trig_probe.rs"
+harness = false
+required-features = ["pico2-arm", "trig-probe"]
+
+[[bench]]
+name = "pico2_hazard3_trig_probe"
+path = "benches/pico2_hazard3_trig_probe.rs"
+harness = false
+required-features = ["pico2-hazard3", "trig-probe"]
+
+[[bin]]
+name = "pico2_arm_trig_probe_flash"
+path = "src/bin/pico2_arm_trig_probe_flash.rs"
+required-features = ["pico2-arm", "trig-probe"]
+
+[[bin]]
+name = "pico2_hazard3_trig_probe_flash"
+path = "src/bin/pico2_hazard3_trig_probe_flash.rs"
+required-features = ["pico2-hazard3", "trig-probe"]
+
+[[bin]]
+name = "pico2_arm_trig_bench_rtt"
+path = "src/bin/pico2_arm_trig_bench_rtt.rs"
+required-features = ["pico2-arm", "trig-bench-rtt"]
+
+[[bin]]
+name = "pico2_hazard3_trig_bench_rtt"
+path = "src/bin/pico2_hazard3_trig_bench_rtt.rs"
+required-features = ["pico2-hazard3", "trig-bench-rtt"]
+
+[lints]
+workspace = true

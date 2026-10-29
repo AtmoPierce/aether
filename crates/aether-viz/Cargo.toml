@@ -1,0 +1,48 @@
+[package]
+name = "aether-viz"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license-file.workspace = true
+description = "Plotting helpers for Aether (errors, vectors, heatmaps)."
+autobins = false
+
+[dependencies]
+plotters = { workspace = true }
+eframe = { version = "0.28", default-features = true, optional = true }
+egui_plot = { version = "0.28", optional = true }
+glob = "0.3"
+csv = { workspace = true }
+
+[dev-dependencies]
+aether-core = { path = "../aether-core" }
+aether-ml = { path = "../aether-ml", default-features = false, features = ["std"] }
+
+[features]
+svg = ["plotters/svg_backend"]
+bitmap = ["plotters/bitmap_backend", "plotters/bitmap_encoder", "plotters/ttf"]
+line_series = ["plotters/line_series"]
+point_series = ["plotters/point_series"]
+gui_egui = ["dep:eframe", "dep:egui_plot"]
+default = ["svg", "line_series", "point_series"]
+
+[lib]
+name = "aether_viz"
+path = "src/lib.rs"
+
+[[bin]]
+name = "csv_tail_egui"
+path = "src/bin/csv_tail_egui.rs"
+required-features = ["gui_egui"]
+
+[[bin]]
+name = "pulsar_trace_import"
+path = "src/bin/pulsar_trace_import.rs"
+
+[[bin]]
+name = "pulsar_rtos_plot"
+path = "src/bin/pulsar_rtos_plot.rs"
+
+[[example]]
+name = "correlation_linear_regression"
+path = "examples/correlation_linear_regression.rs"

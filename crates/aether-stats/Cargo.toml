@@ -1,0 +1,23 @@
+[package]
+name = "aether-stats"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license-file.workspace = true
+
+[features]
+default = ["no_std"]
+std = ["dep:aether-opt"]
+no_std = []
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+aether-core = {path = "../aether-core"}
+aether-rand = {path = "../aether-rand"}
+aether-opt =  {path = "../aether-opt", optional = true}
+
+[dev-dependencies]
+aether-fft = { path = "../aether-fft", features = ["std"] }
+aether-viz = { path = "../aether-viz" }

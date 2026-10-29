@@ -1,0 +1,81 @@
+# =============================================================================
+# LOGARITHMS
+# =============================================================================
+
+[functions.log]
+file_prefix = "log"
+mirror      = false
+
+[functions.log.acceptance]
+max_ulp_f64 = 5
+max_ulp_f32 = 5
+abs_tol_f64 = 3.0e-16
+abs_tol_f32 = 1.0e-7
+
+[functions.log.sweep]
+enabled        = true
+interval       = [0.7071067811865476, 1.4142135623730951]   # sqrt(0.5) .. sqrt(2)
+min_width      = 0.05
+max_segments   = 10
+split_strategy = "worst"
+merge_pass     = true
+samples        = 50000
+candidates  = [
+  {n=2,k=3},
+  {n=3,k=4},
+  {n=4,k=5},
+  {n=5,k=6},
+  {n=6,k=7},
+  {n=7,k=8},
+  {n=8,k=9},
+  {n=9,k=10},
+  {n=10,k=11},
+  {n=12,k=13},
+  {n=15,k=16},
+  {n=18,k=19},
+  {n=19,k=20},
+  {n=20,k=21},
+  {n=21,k=22},
+  {n=22,k=23},
+  {n=23,k=24},
+  {n=24,k=25},
+]
+
+[functions.log1p]
+file_prefix = "log1p"
+mirror      = false
+
+[functions.log1p.acceptance]
+max_ulp_f64 = 5
+max_ulp_f32 = 5
+abs_tol_f64 = 1.0e-16
+abs_tol_f32 = 2.0e-8
+
+[functions.log1p.sweep]
+enabled        = true
+interval       = [-0.2928932188134525, 0.4142135623730951]   # sqrt(0.5)-1 .. sqrt(2)-1
+min_width      = 0.2
+max_segments   = 10
+split_strategy = "worst"
+merge_pass     = true
+samples        = 0
+candidates  = [
+  {n=2,k=3},
+  {n=3,k=4},
+  {n=4,k=5},
+  {n=5,k=6},
+  {n=6,k=7},
+  {n=7,k=8},
+  {n=8,k=9},
+  {n=9,k=10},
+  {n=10,k=11},
+  {n=12,k=13},
+  {n=15,k=16},
+  {n=18,k=19},
+  {n=19,k=20},
+  {n=20,k=21},
+  {n=21,k=22},
+  {n=22,k=23},
+  {n=23,k=24},
+  {n=24,k=25},
+]

@@ -1,0 +1,14 @@
+[default.general]
+chip = "rp235x"
+
+[default.probe]
+protocol = "Swd"
+speed = 10000
+
+[default.flashing]
+enabled = true
+restore_unwritten_bytes = false
+
+[default.reset]
+enabled = true
+halt_afterwards = false

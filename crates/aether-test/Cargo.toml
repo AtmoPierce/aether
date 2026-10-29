@@ -1,0 +1,31 @@
+[package]
+name = "aether-test"
+version = "0.1.1"
+edition = "2021"
+description = "Testing utilities and plotting tools for the Aether math and simulation ecosystem."
+authors = ["Michael Angeles <michael@nuntius.us>"]
+license-file="LICENSE.txt"
+repository = "https://git.nuntius.us/aether"
+readme = "README.md"
+categories = ["science", "mathematics", "development-tools::testing"]
+keywords = ["aether", "matrix", "vector", "test", "plot"]
+
+[features]
+plots = ["dep:aether-viz", "aether-viz/svg"]     # or "aether-viz/bitmap"
+bincode = ["dep:bincode"]
+
+[dependencies]
+aether-core = { path = "../aether-core", features = ["bincode"]}
+aether-viz = { path = "../aether-viz", optional = true, default-features = false }
+bincode = { workspace = true, optional=true }
+thiserror = "*"
+
+# Numerical and comparison helpers
+approx = { workspace = true } # For Real comparison (assert_abs_diff_eq, etc.)
+
+[dev-dependencies]
+
+
+[lib]
+name = "aether_test"
+path = "src/lib.rs"

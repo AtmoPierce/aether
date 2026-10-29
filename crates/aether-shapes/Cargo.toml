@@ -1,0 +1,17 @@
+[package]
+name = "aether-shapes"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license-file.workspace = true
+
+[features]
+default = ["no_std"]
+std = []
+no_std = []
+
+[dependencies]
+aether-core = {path = "../aether-core"}
+
+[lints]
+workspace = true

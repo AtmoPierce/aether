@@ -1,0 +1,18 @@
+[package]
+name = "aether-opt"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license-file.workspace = true
+
+[features]
+default = ["no_std"]
+std = []
+no_std = []
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+aether-core = { path = "../aether-core" }
+aether-rand = { path = "../aether-rand" }
