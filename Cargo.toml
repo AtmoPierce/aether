@@ -15,6 +15,7 @@ members = [
     "crates/aether-models",
     "crates/aether-opt",
     "crates/aether-rand",
+    "crates/aether-runner",
     "crates/aether-shapes",
     "crates/aether-stats", 
     "crates/aether-test", 

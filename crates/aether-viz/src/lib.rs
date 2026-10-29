@@ -43,6 +43,10 @@ impl<'a> PlotConfig<'a> {
         }
     }
 
+    pub fn publication(title: &'a str) -> Self {
+        Self::new(title)
+    }
+
     pub fn with_x_label(mut self, label: &'a str) -> Self {
         self.x_label = Some(label);
         self
